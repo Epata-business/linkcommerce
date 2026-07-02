@@ -111,6 +111,8 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [bi, setBi] = useState("");
+  const [nifComprador, setNifComprador] = useState("");
 
   // Calcular totais
   const subtotal = itens.reduce((s, i) => s + i.precoUnitario * i.quantidade, 0);
@@ -164,7 +166,7 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
           clienteEmail: email,
           clienteNome: nome,
           clienteTelefone: telefone,
-          morada,
+          morada: { ...morada, bi, nif: nifComprador, clienteTelefone: telefone },
           metodoPagamento,
         }),
       });
@@ -206,7 +208,9 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
                   <div className="grid grid-cols-2 gap-3">
                     <Campo label="Nome completo" name="nome" placeholder="João Silva" required value={nome} onChange={setNome} />
                     <Campo label="Email" name="email" type="email" placeholder="email@exemplo.com" required value={email} onChange={setEmail} />
-                    <Campo label="Telemóvel" name="telefone" type="tel" placeholder="+351 910 000 000" value={telefone} onChange={setTelefone} half />
+                    <Campo label="Telemóvel" name="telefone" type="tel" placeholder="+244 900 000 000" value={telefone} onChange={setTelefone} half />
+                    <Campo label="BI / Passaporte" name="bi" placeholder="000000000LA000" value={bi} onChange={setBi} half />
+                    <Campo label="NIF (opcional)" name="nif" placeholder="NIF para fatura" value={nifComprador} onChange={setNifComprador} half />
                   </div>
                   <button
                     onClick={() => { if (!nome || !email) { setErro("Preencha o nome e email."); return; } setErro(""); setPasso(1); }}

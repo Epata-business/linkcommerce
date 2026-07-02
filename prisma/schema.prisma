@@ -155,6 +155,8 @@ model Loja {
   templateBase  String   @default("produtos_fisicos") // 'produtos_fisicos' | 'produtos_digitais'
   publicada     Boolean  @default(true) // loja fica pública imediatamente após config
   moeda         String   @default("EUR") // EUR | USD | AOA
+  nif           String?  // Número de Identificação Fiscal da loja
+  moradaFiscal  String?  // Morada completa da loja para faturas
 
   planoId       String?
   plano         Plano?   @relation(fields: [planoId], references: [id])

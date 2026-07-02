@@ -69,6 +69,10 @@ export default async function PedidoDetailPage({ params }: { params: { id: strin
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-lg font-black text-slate-900">#{pedido.id.slice(-8).toUpperCase()}</h1>
+              <a href={`/api/fatura/${pedido.id}`} target="_blank" rel="noopener noreferrer"
+                className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+                🧾 Fatura
+              </a>
               <span className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${cfg.bg} ${cfg.text}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
                 {cfg.label}

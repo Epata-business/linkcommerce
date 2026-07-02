@@ -69,13 +69,26 @@ export default async function SucessoPage({ params }: Props) {
         </div>
       )}
 
-      <Link
-        href={`/loja/${params.subdominio}`}
-        className="rounded-xl px-6 py-3 text-sm font-bold text-white transition-all hover:opacity-90"
-        style={{ background: `linear-gradient(135deg, ${cor}, ${cor}bb)` }}
-      >
-        Continuar a comprar
-      </Link>
+      <div className="flex flex-col sm:flex-row gap-3 items-center">
+        {pedido && (
+          <a
+            href={`/api/fatura/${pedido.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-xl px-6 py-3 text-sm font-bold border-2 transition-all hover:opacity-80"
+            style={{ borderColor: cor, color: cor }}
+          >
+            🧾 Descarregar Fatura
+          </a>
+        )}
+        <Link
+          href={`/loja/${params.subdominio}`}
+          className="rounded-xl px-6 py-3 text-sm font-bold text-white transition-all hover:opacity-90"
+          style={{ background: `linear-gradient(135deg, ${cor}, ${cor}bb)` }}
+        >
+          Continuar a comprar
+        </Link>
+      </div>
     </div>
   );
 }

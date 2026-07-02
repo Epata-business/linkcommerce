@@ -29,6 +29,8 @@ export default async function ConfiguracoesPage() {
         corSecundaria: formData.get("corSecundaria") as string,
         logotipoUrl: (formData.get("logotipoUrl") as string) || null,
         moeda: formData.get("moeda") as string,
+        nif: (formData.get("nif") as string) || null,
+        moradaFiscal: (formData.get("moradaFiscal") as string) || null,
       },
     });
 
@@ -103,6 +105,24 @@ export default async function ConfiguracoesPage() {
             <p className="mt-1 text-xs text-muted-foreground">
               Afeta como os preços são apresentados na loja e nos relatórios.
             </p>
+          </div>
+
+          {/* Dados fiscais */}
+          <div className="border-t border-slate-100 pt-4 mt-2">
+            <h3 className="text-sm font-semibold text-slate-700 mb-3">Dados fiscais (para faturas)</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">NIF da loja</label>
+                <input name="nif" defaultValue={loja.nif ?? ""} placeholder="Ex: 5000000000"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Morada fiscal completa</label>
+                <textarea name="moradaFiscal" defaultValue={loja.moradaFiscal ?? ""} rows={2}
+                  placeholder="Rua Exemplo, nº 1, Luanda, Angola"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 resize-none" />
+              </div>
+            </div>
           </div>
 
           <div className="pt-1">
