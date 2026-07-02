@@ -1,0 +1,367 @@
+// =============================================================================
+// LINKCOMMERCE — schema.prisma
+// Multi-tenant simples: isolamento lógico por lojaId (sem schemas separados,
+// adequado ao MVP descrito no documento LinkCommerce — ADR-002 fica para Fase 3
+// quando se migrar para isolamento por schema/cluster nos planos Enterprise).
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// PLATAFORMA / SUBSCRIÇÃO
+// Secção exigida no fluxo: "os clientes para usufruírem dos nossos serviços
+// têm que escolher o plano que queiram pagar" (ver Planos em LinkCommerce §11.1)
+// -----------------------------------------------------------------------------
+
+enum CicloFaturacao {
+  MENSAL
+  ANUAL
+}
+
+enum StatusSubscricao {
+  TRIAL
+  ATIVA
+  EM_FALTA
+  CANCELADA
+}
+
+model Plano {
+  id                 String   @id @default(cuid())
+  nome               String   @unique // "Free", "Starter", "Growth", "Enterprise"
+  slug               String   @unique
+  precoMensal        Decimal  @db.Decimal(10, 2)
+  comissaoPercentual Decimal  @db.Decimal(5, 2) // % sobre cada venda
+  limiteProdutos     Int? // null = ilimitado
+  permiteDominioProprio Boolean @default(false)
+  permiteApiAccess   Boolean  @default(false)
+  permiteWhiteLabel  Boolean  @default(false)
+  stripePriceId      String?  // Stripe Price ID para subscrição mensal (null = Free)
+  ordem              Int      @default(0) // para ordenar na página de pricing
+  createdAt          DateTime @default(now())
+
+  lojas       Loja[]
+  subscricoes Subscricao[]
+
+  @@map("planos")
+}
+
+model Subscricao {
+  id              String           @id @default(cuid())
+  lojaId          String           @unique
+  loja            Loja             @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  planoId         String
+  plano           Plano            @relation(fields: [planoId], references: [id])
+  status          StatusSubscricao @default(TRIAL)
+  cicloFaturacao  CicloFaturacao   @default(MENSAL)
+  stripeCustomerId       String?  @unique
+  stripeSubscriptionId   String?  @unique
+  trialFimEm      DateTime?
+  proximaCobranca DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@map("subscricoes")
+}
+
+// -----------------------------------------------------------------------------
+// IDENTIDADE / AUTH (NextAuth.js — Prisma Adapter)
+// -----------------------------------------------------------------------------
+
+enum RoleUtilizador {
+  ADMIN_PLATAFORMA // equipa interna LinkCommerce, gere todos os tenants
+  LOJISTA          // dono/gestor de uma Loja
+  OPERADOR_POS     // acesso restrito apenas à rota /pos
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?         // login email/senha (Google passa por OAuthAccount)
+  role          RoleUtilizador  @default(LOJISTA)
+
+  lojaId        String?
+  loja          Loja?           @relation(fields: [lojaId], references: [id])
+
+  accounts      Account[]
+  sessions      Session[]
+
+  createdAt     DateTime        @default(now())
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// -----------------------------------------------------------------------------
+// LOJA (TENANT)
+// -----------------------------------------------------------------------------
+
+model Loja {
+  id            String   @id @default(cuid())
+  nome          String
+  subdominio    String   @unique
+  dominioProprio String? @unique
+  corPrimaria   String   @default("#0F172A")
+  corSecundaria String   @default("#3B82F6")
+  logotipoUrl   String?
+  tipoNegocio   String? // ex: "moda feminina" — usado pela sugestão de IA no onboarding
+  templateBase  String   @default("produtos_fisicos") // 'produtos_fisicos' | 'produtos_digitais'
+  publicada     Boolean  @default(true) // loja fica pública imediatamente após config
+  moeda         String   @default("EUR") // EUR | USD | AOA
+
+  planoId       String?
+  plano         Plano?   @relation(fields: [planoId], references: [id])
+  subscricao    Subscricao?
+
+  utilizadores  User[]
+  produtos      Produto[]
+  pedidos       Pedido[]
+  clientes      Cliente[]
+  cupoes        Cupao[]
+  metodosPagamento MetodoPagamentoLoja[]
+  metodosEnvio  MetodoEnvio[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("lojas")
+}
+
+// -----------------------------------------------------------------------------
+// PAGAMENTOS & ENVIOS (configuração por loja)
+// -----------------------------------------------------------------------------
+
+enum ProvedorPagamento {
+  STRIPE
+  MBWAY
+  MULTICAIXA
+}
+
+model MetodoPagamentoLoja {
+  id         String            @id @default(cuid())
+  lojaId     String
+  loja       Loja              @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  provedor   ProvedorPagamento
+  ativo      Boolean           @default(false)
+  configJson Json? // chaves públicas, IDs de conta conectada, etc. (segredos nunca aqui)
+
+  @@unique([lojaId, provedor])
+  @@map("metodos_pagamento_loja")
+}
+
+enum TipoEnvio {
+  TAXA_FIXA
+  POR_PESO
+  RECOLHA_NA_LOJA
+}
+
+model MetodoEnvio {
+  id        String    @id @default(cuid())
+  lojaId    String
+  loja      Loja      @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  nome      String
+  tipo      TipoEnvio
+  valorBase Decimal   @db.Decimal(10, 2)
+  valorPorKg Decimal? @db.Decimal(10, 2)
+  ativo     Boolean   @default(true)
+
+  @@map("metodos_envio")
+}
+
+// -----------------------------------------------------------------------------
+// CATÁLOGO
+// -----------------------------------------------------------------------------
+
+model Produto {
+  id          String   @id @default(cuid())
+  lojaId      String
+  loja        Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  titulo      String
+  descricao   String?  @db.Text
+  preco       Decimal  @db.Decimal(10, 2)
+  sku         String?
+  imagemUrl   String?
+  stock       Int      @default(0)
+  ativo       Boolean  @default(true)
+
+  variantes   Variante[]
+  itensPedido ItemPedido[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([lojaId])
+  @@map("produtos")
+}
+
+model Variante {
+  id          String   @id @default(cuid())
+  produtoId   String
+  produto     Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  nomeOpcao   String   // ex: "Azul / M"
+  sku         String?
+  precoExtra  Decimal  @default(0) @db.Decimal(10, 2)
+  stock       Int      @default(0)
+
+  itensPedido ItemPedido[]
+
+  @@map("variantes")
+}
+
+// -----------------------------------------------------------------------------
+// CLIENTES
+// -----------------------------------------------------------------------------
+
+model Cliente {
+  id        String   @id @default(cuid())
+  lojaId    String
+  loja      Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  email     String
+  nome      String?
+  telefone  String?
+  morada    Json?
+
+  pedidos   Pedido[]
+
+  createdAt DateTime @default(now())
+
+  @@unique([lojaId, email])
+  @@map("clientes")
+}
+
+// -----------------------------------------------------------------------------
+// PEDIDOS (unificado online + POS, incl. POS offline sincronizado)
+// -----------------------------------------------------------------------------
+
+enum StatusPedido {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum CanalPedido {
+  ONLINE
+  POS
+}
+
+model Pedido {
+  id            String       @id @default(cuid())
+  lojaId        String
+  loja          Loja         @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  clienteId     String?
+  cliente       Cliente?     @relation(fields: [clienteId], references: [id])
+  clienteEmail  String
+  clienteNome   String?
+  morada        Json?
+
+  subtotal      Decimal      @db.Decimal(10, 2)
+  desconto      Decimal      @default(0) @db.Decimal(10, 2)
+  total         Decimal      @db.Decimal(10, 2)
+  status        StatusPedido @default(PENDING)
+  channel       CanalPedido  @default(ONLINE)
+
+  // Suporte à sincronização offline do POS (IndexedDB -> servidor)
+  clientUuid    String?      @unique // UUID gerado no browser/tablet antes de existir ligação
+  sincronizadoEm DateTime?
+
+  cupaoId       String?
+  cupao         Cupao?       @relation(fields: [cupaoId], references: [id])
+
+  itens         ItemPedido[]
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([lojaId, status])
+  @@map("pedidos")
+}
+
+model ItemPedido {
+  id            String    @id @default(cuid())
+  pedidoId      String
+  pedido        Pedido    @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  produtoId     String
+  produto       Produto   @relation(fields: [produtoId], references: [id])
+  varianteId    String?
+  variante      Variante? @relation(fields: [varianteId], references: [id])
+  quantidade    Int
+  precoUnitario Decimal   @db.Decimal(10, 2)
+
+  @@map("itens_pedido")
+}
+
+// -----------------------------------------------------------------------------
+// MARKETING
+// -----------------------------------------------------------------------------
+
+enum TipoCupao {
+  PERCENTAGEM
+  VALOR_FIXO
+}
+
+model Cupao {
+  id        String     @id @default(cuid())
+  lojaId    String
+  loja      Loja       @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  codigo    String
+  tipo      TipoCupao
+  valor     Decimal    @db.Decimal(10, 2)
+  validade  DateTime?
+  ativo     Boolean    @default(true)
+  usosMaximos Int?
+  usosAtuais  Int      @default(0)
+
+  pedidos   Pedido[]
+
+  @@unique([lojaId, codigo])
+  @@map("cupoes")
+}

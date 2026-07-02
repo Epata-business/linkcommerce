@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx prisma *)",
+      "Bash(npm run *)",
+      "Bash(brew services *)",
+      "Bash(pg_ctl status *)",
+      "Read(//Users/ap/Downloads/blogue_noticia/**)",
+      "Bash(npm audit *)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git ls-remote *)",
+      "Bash(git ls-tree *)",
+      "Bash(curl -s -m 15 -o /dev/null -w \"root: %{http_code}\\\\n\" https://news2pi.onrender.com/)",
+      "Bash(curl -s -m 15 -o /dev/null -w \"api/noticias: %{http_code}\\\\n\" https://news2pi.onrender.com/api/noticias)",
+      "Bash(curl -s -m 15 https://news2pi.onrender.com/api/noticias)",
+      "Bash(curl -s -m 40 -o /tmp/root.html -w \"root: %{http_code} size=%{size_download}\\\\n\" https://news2pi.onrender.com/)",
+      "Bash(curl -s -m 40 -o /tmp/api.json -w \"api/noticias: %{http_code} size=%{size_download}\\\\n\" https://news2pi.onrender.com/api/noticias)",
+      "Read(//tmp/**)",
+      "Bash(git commit -m ' *)",
+      "Bash(git fetch *)",
+      "Bash(node -e \"require\\('puppeteer'\\)\")",
+      "Bash(brew list *)",
+      "Bash(npm list *)",
+      "Bash(ls /Applications/ | grep -i \"chrome\\\\|chromium\\\\|safari\\\\|firefox\" 2>/dev/null; ls \"/Applications/Google Chrome.app\" 2>/dev/null && echo \"chrome found\")",
+      "Bash(npm install *)",
+      "Bash(node -e \"require\\('stripe'\\); require\\('cloudinary'\\); require\\('resend'\\)\")",
+      "Bash(xargs ls -la)",
+      "Bash(npx tsc *)",
+      "Bash(curl -s http://localhost:3000)"
+    ]
+  }
+}
