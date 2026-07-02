@@ -230,7 +230,9 @@ export default async function DashboardPage() {
               {[
                 { label: "Adicionar produto", href: "/dashboard/produtos", icon: "➕" },
                 { label: "Ver pedidos pendentes", href: "/dashboard/pedidos?status=pending", icon: "⏳" },
+                { label: "Relatórios", href: "/dashboard/relatorios", icon: "📊" },
                 { label: "Clientes", href: "/dashboard/clientes", icon: "👥" },
+                { label: "Marketing", href: "/dashboard/marketing", icon: "🏷️" },
                 { label: "Configurações", href: "/dashboard/configuracoes", icon: "⚙️" },
               ].map((a) => (
                 <Link key={a.href} href={a.href}
