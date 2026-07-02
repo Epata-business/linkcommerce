@@ -17,15 +17,28 @@ function isDirectImageUrl(url: string | null | undefined): boolean {
 }
 
 export async function generateMetadata({ params }: Props) {
-  const produto = await prisma.produto.findFirst({
-    where: { id: params.id, loja: { subdominio: params.subdominio }, ativo: true },
-    select: { titulo: true, descricao: true, imagemUrl: true },
-  });
+  const [produto, loja] = await Promise.all([
+    prisma.produto.findFirst({
+      where: { id: params.id, loja: { subdominio: params.subdominio }, ativo: true },
+      select: { titulo: true, descricao: true, imagemUrl: true, preco: true },
+    }),
+    prisma.loja.findUnique({ where: { subdominio: params.subdominio }, select: { nome: true } }),
+  ]);
   if (!produto) return {};
+  const desc = produto.descricao ?? `Compre ${produto.titulo} na loja ${loja?.nome ?? ""}.`;
+  const url = `https://${params.subdominio}.linkcommerce.app/produto/${params.id}`;
   return {
-    title: produto.titulo,
-    description: produto.descricao ?? undefined,
-    openGraph: { images: produto.imagemUrl ? [produto.imagemUrl] : [] },
+    title: `${produto.titulo} — ${loja?.nome ?? ""}`,
+    description: desc,
+    openGraph: {
+      title: produto.titulo,
+      description: desc,
+      url,
+      type: "website",
+      images: produto.imagemUrl ? [{ url: produto.imagemUrl, width: 800, height: 800, alt: produto.titulo }] : [],
+    },
+    twitter: { card: "summary_large_image", title: produto.titulo, description: desc },
+    metadataBase: new URL(`https://${params.subdominio}.linkcommerce.app`),
   };
 }
 

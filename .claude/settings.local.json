@@ -26,7 +26,11 @@
       "Bash(node -e \"require\\('stripe'\\); require\\('cloudinary'\\); require\\('resend'\\)\")",
       "Bash(xargs ls -la)",
       "Bash(npx tsc *)",
-      "Bash(curl -s http://localhost:3000)"
+      "Bash(curl -s http://localhost:3000)",
+      "Read(//Users/ap/Downloads/E-M-DT/**)",
+      "Bash(grep -viE \"\\\\.dmg$|\\\\.pkg$|\\\\.iso$\")",
+      "Bash(find /Users/ap/Desktop/E_M_DT -maxdepth 3 -not -path \"*/node_modules*\" | sort)",
+      "Bash(cp \"/Users/ap/Downloads/IMG_7013.jpeg\" \"/Users/ap/Desktop/E_M_DT/src/assets/profile.jpeg\" && ls -la /Users/ap/Desktop/E_M_DT/src/assets)"
     ]
   }
 }

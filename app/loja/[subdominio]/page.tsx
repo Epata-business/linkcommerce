@@ -24,7 +24,22 @@ async function getLojaComProdutos(subdominio: string) {
 export async function generateMetadata({ params }: PageProps) {
   const loja = await prisma.loja.findUnique({ where: { subdominio: params.subdominio } });
   if (!loja) return {};
-  return { title: loja.nome };
+  const url = `https://${params.subdominio}.linkcommerce.app`;
+  const desc = `Compre online na ${loja.nome}. Entrega rápida e pagamento seguro.`;
+  return {
+    title: loja.nome,
+    description: desc,
+    openGraph: {
+      title: loja.nome,
+      description: desc,
+      url,
+      siteName: loja.nome,
+      type: "website",
+      images: loja.logotipoUrl ? [{ url: loja.logotipoUrl, width: 400, height: 400 }] : [],
+    },
+    twitter: { card: "summary", title: loja.nome, description: desc },
+    metadataBase: new URL(url),
+  };
 }
 
 function isDirectImageUrl(url: string | null) {
