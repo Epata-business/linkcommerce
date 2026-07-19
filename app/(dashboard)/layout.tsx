@@ -4,6 +4,7 @@ import { auth, signOut } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { StorePreviewButton } from "@/components/dashboard/store-preview-button";
+import { DashboardLocaleSwitcher } from "@/components/dashboard/locale-switcher";
 
 const navLinks = [
   { href: "/dashboard", label: "Início" },
@@ -21,6 +22,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const role = (session.user as { role?: string }).role;
   const jar = cookies();
   const adminOverride = jar.get("admin_loja_override")?.value;
+  const currentLang = jar.get("LC")?.value ?? "pt";
 
   // Admin sem override → vai para o painel admin
   if (role === "ADMIN_PLATAFORMA" && !adminOverride) redirect("/admin");
@@ -32,12 +34,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
     nomeLojaAdmin = loja?.nome ?? null;
   }
 
-  // Subdomínio e nome da loja do utilizador actual (para preview)
+  // Subdomínio, nome e moeda da loja do utilizador actual
   const lojaAtual = await (async () => {
     const lojaId = (session.user as { lojaId?: string }).lojaId
       ?? (role === "ADMIN_PLATAFORMA" && adminOverride ? adminOverride : null);
     if (!lojaId) return null;
-    return prisma.loja.findUnique({ where: { id: lojaId }, select: { subdominio: true, nome: true } });
+    return prisma.loja.findUnique({ where: { id: lojaId }, select: { subdominio: true, nome: true, moeda: true } });
   })();
 
   return (
@@ -71,6 +73,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               </Link>
             ))}
           </nav>
+
           {/* Preview da loja */}
           {lojaAtual && (
             <div className="px-2 pb-3">
@@ -80,6 +83,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
               />
             </div>
           )}
+
+          {/* Selector de idioma + moeda */}
+          <div className="border-t border-slate-800 px-2 py-3">
+            <DashboardLocaleSwitcher
+              currentLang={currentLang}
+              currentMoeda={lojaAtual?.moeda ?? "EUR"}
+            />
+          </div>
 
           <div className="border-t border-slate-800 px-4 py-4">
             <p className="truncate text-xs text-slate-400">{session.user.email}</p>

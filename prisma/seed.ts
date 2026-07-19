@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   const planos = [
-    { nome: "Free", slug: "free", precoMensal: 0, comissaoPercentual: 3, limiteProdutos: 10, ordem: 0 },
+    { nome: "Free", slug: "free", precoMensal: 1, comissaoPercentual: 3, limiteProdutos: 10, ordem: 0 },
     {
       nome: "Starter",
       slug: "starter",
@@ -17,7 +17,7 @@ async function main() {
     {
       nome: "Growth",
       slug: "growth",
-      precoMensal: 49,
+      precoMensal: 15,
       comissaoPercentual: 1,
       limiteProdutos: null,
       permiteDominioProprio: true,
@@ -27,7 +27,7 @@ async function main() {
     {
       nome: "Enterprise",
       slug: "enterprise",
-      precoMensal: 199,
+      precoMensal: 50,
       comissaoPercentual: 0,
       limiteProdutos: null,
       permiteDominioProprio: true,

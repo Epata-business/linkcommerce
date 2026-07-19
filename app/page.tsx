@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { getLocale, t } from "@/lib/i18n";
+import { getLocale, getLocaleCurrency, localeCurrencySymbol, t } from "@/lib/i18n";
 import { LiveDashboard } from "@/components/landing/live-dashboard";
 import { LanguageSwitcher } from "@/components/landing/language-switcher";
+import { PricingSection } from "@/components/landing/pricing-section";
 import dynamic from "next/dynamic";
 
 const HeroBackground  = dynamic(() => import("@/components/landing/HeroBackground"), { ssr: false });
@@ -104,11 +105,31 @@ const COPY = {
   },
 } as const;
 
-const PLANS = [
-  { key: "Free",       price: "0€",       period: "",      desc_pt: "Até 10 produtos · 1 utilizador",   desc_en: "Up to 10 products · 1 user",          desc_fr: "Jusqu'à 10 produits · 1 utilisateur", desc_es: "Hasta 10 productos · 1 usuario",       popular: false },
-  { key: "Starter",    price: "19€",      period: "/mês",  desc_pt: "Até 100 produtos + domínio próprio", desc_en: "Up to 100 products + custom domain",  desc_fr: "100 produits + domaine personnalisé", desc_es: "100 productos + dominio propio",       popular: false },
-  { key: "Growth",     price: "49€",      period: "/mês",  desc_pt: "Ilimitado + API + IA incluída",     desc_en: "Unlimited + API + AI included",       desc_fr: "Illimité + API + IA incluse",         desc_es: "Ilimitado + API + IA incluida",        popular: true  },
-  { key: "Enterprise", price: "199€",     period: "/mês",  desc_pt: "White-label + 0% comissão",         desc_en: "White-label + 0% commission",         desc_fr: "White-label + 0% commission",         desc_es: "White-label + 0% comisión",            popular: false },
+const PLANS_AOA = [
+  {
+    key: "start", name: "Link Start", price: 1000, popular: false, cta_pt: "Criar Loja", cta_en: "Create Store",
+    target: "starter",
+    features_pt: ["Até 10 produtos", "Link na Bio", "Layout leve e rápido", "Suporte por email"],
+    features_en: ["Up to 10 products", "Bio Link", "Light & fast layout", "Email support"],
+  },
+  {
+    key: "growth", name: "Link Crescimento", price: 5000, popular: false, cta_pt: "Começar Agora", cta_en: "Get Started",
+    target: "starter",
+    features_pt: ["Até 50 produtos", "Automação WhatsApp", "Taxas de entrega por zona", "Relatórios básicos"],
+    features_en: ["Up to 50 products", "WhatsApp automation", "Delivery zones", "Basic reports"],
+  },
+  {
+    key: "pro", name: "Link Profissional", price: 12000, popular: true, cta_pt: "Escolher Plano", cta_en: "Choose Plan",
+    target: "scale",
+    features_pt: ["Produtos ilimitados", "Upload de comprovativo", "Cupões de desconto", "Pagamentos integrados", "Analytics avançado"],
+    features_en: ["Unlimited products", "Proof of payment upload", "Discount coupons", "Integrated payments", "Advanced analytics"],
+  },
+  {
+    key: "premium", name: "Link Premium", price: 25000, popular: false, cta_pt: "Falar c/ Equipa", cta_en: "Talk to Us",
+    target: "scale",
+    features_pt: ["Domínio .COM incluído", "Suporte VIP", "3 Utilizadores", "White-label", "Sem comissão por venda"],
+    features_en: ["Included .COM domain", "VIP support", "3 Users", "White-label", "0% sales commission"],
+  },
 ];
 
 const FLOW = [
@@ -122,18 +143,12 @@ const FLOW = [
 export default function HomePage() {
   const locale = getLocale();
   const c = COPY[locale] ?? COPY.pt;
-
-  const planDesc = (p: typeof PLANS[0]) => {
-    if (locale === "en") return p.desc_en;
-    if (locale === "fr") return p.desc_fr;
-    if (locale === "es") return p.desc_es;
-    return p.desc_pt;
-  };
+  const sym = localeCurrencySymbol(locale); // €, $, Kz
+  const cur = getLocaleCurrency(locale);    // EUR, USD, AOA
 
   const flowItems = [
     { link:"/comecar", text: locale==="en"?"Online Store":locale==="fr"?"Boutique en ligne":locale==="es"?"Tienda online":"Loja Online",        image:"https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=200&fit=crop" },
     { link:"/comecar", text: locale==="en"?"Point of Sale":locale==="fr"?"Point de vente":locale==="es"?"Punto de venta":"Ponto de Venda",       image:"https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=200&fit=crop" },
-    { link:"/comecar", text: locale==="en"?"Claude AI":locale==="fr"?"Claude IA":locale==="es"?"Claude IA":"Claude IA",                          image:"https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=400&h=200&fit=crop" },
     { link:"/comecar", text: locale==="en"?"Analytics":locale==="fr"?"Analytique":locale==="es"?"Análisis":"Analytics",                          image:"https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=200&fit=crop" },
   ];
 
@@ -169,14 +184,6 @@ export default function HomePage() {
         {/* Gradient overlay — keeps text crisp */}
         <div className="absolute inset-0 pointer-events-none" style={{ background:"linear-gradient(180deg,rgba(8,10,18,0.35) 0%,rgba(8,10,18,0.1) 40%,rgba(8,10,18,0.65) 100%)" }} />
 
-        {/* Badge */}
-        <div className="relative z-10 mb-7">
-          <span className="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-semibold"
-            style={{ borderColor: "rgba(21,61,236,0.5)", background: "rgba(21,61,236,0.12)", color: "#a5b4fc" }}>
-            <span className="h-1.5 w-1.5 rounded-full bg-[#153DEC] animate-pulse" />
-            {t("landing_badge", locale)}
-          </span>
-        </div>
 
         {/* Title */}
         <h1 className="relative z-10 text-center text-5xl sm:text-6xl lg:text-[72px] font-extrabold leading-[1.08] mb-5 tracking-tight">
@@ -244,7 +251,7 @@ export default function HomePage() {
                       <div className="h-2 rounded-full w-24" style={{ background: "rgba(255,255,255,0.12)" }} />
                       <div className="h-1.5 rounded-full w-16" style={{ background: "rgba(255,255,255,0.07)" }} />
                     </div>
-                    <span className="text-xs font-bold text-green-400">89€</span>
+                    <span className="text-xs font-bold text-green-400">{cur === "AOA" ? `89 ${sym}` : `${sym}89`}</span>
                   </div>
                   <div className="flex gap-2 items-center">
                     <div className="w-10 h-10 rounded-lg" style={{ background: "rgba(21,61,236,0.3)" }} />
@@ -252,7 +259,7 @@ export default function HomePage() {
                       <div className="h-2 rounded-full w-20" style={{ background: "rgba(255,255,255,0.12)" }} />
                       <div className="h-1.5 rounded-full w-12" style={{ background: "rgba(255,255,255,0.07)" }} />
                     </div>
-                    <span className="text-xs font-bold text-green-400">124€</span>
+                    <span className="text-xs font-bold text-green-400">{cur === "AOA" ? `124 ${sym}` : `${sym}124`}</span>
                   </div>
                   <div className="flex gap-2 items-center">
                     <div className="w-10 h-10 rounded-lg" style={{ background: "rgba(131,129,251,0.2)" }} />
@@ -260,7 +267,7 @@ export default function HomePage() {
                       <div className="h-2 rounded-full w-28" style={{ background: "rgba(255,255,255,0.12)" }} />
                       <div className="h-1.5 rounded-full w-14" style={{ background: "rgba(255,255,255,0.07)" }} />
                     </div>
-                    <span className="text-xs font-bold text-green-400">45€</span>
+                    <span className="text-xs font-bold text-green-400">{cur === "AOA" ? `45 ${sym}` : `${sym}45`}</span>
                   </div>
                   <div className="mt-3 rounded-lg py-2 text-center text-[10px] font-bold text-white"
                     style={{ background: "linear-gradient(90deg,#153DEC,#8381FB)" }}>
@@ -417,122 +424,7 @@ export default function HomePage() {
 
       {/* ── PLANOS ── */}
       <section className="py-24 px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-xs font-semibold tracking-widest text-[#8381FB] uppercase mb-3">
-              {locale === "en" ? "Pricing" : locale === "fr" ? "Tarifs" : locale === "es" ? "Precios" : "Preços"}
-            </p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold">{c.plans_title}</h2>
-            <p className="mt-3 text-white/40">{c.plans_sub}</p>
-          </div>
-
-          {/* Row 1 — Free & Starter: planos de entrada, mesmo peso visual */}
-          <div className="grid sm:grid-cols-2 gap-4 mb-4">
-            {PLANS.slice(0, 2).map((p) => (
-              <div key={p.key}
-                className="rounded-3xl p-7 flex flex-col sm:flex-row sm:items-center gap-5 transition-all duration-300 hover:-translate-y-0.5"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <div className="flex-1">
-                  <p className="text-xs font-semibold text-white/35 uppercase tracking-widest mb-1">{p.key}</p>
-                  <div className="flex items-baseline gap-1 mb-2">
-                    <span className="text-4xl font-extrabold text-white">{p.price}</span>
-                    {p.period && <span className="text-sm text-white/30">{p.period}</span>}
-                  </div>
-                  <p className="text-xs text-white/40 leading-relaxed">{planDesc(p)}</p>
-                </div>
-                <Link href="/comecar"
-                  className="shrink-0 rounded-full px-6 py-2.5 text-sm font-semibold text-center transition-all hover:scale-105 whitespace-nowrap"
-                  style={{ background: "rgba(21,61,236,0.15)", color: "#8381FB", border: "1px solid rgba(21,61,236,0.3)" }}>
-                  {c.plans_btn}
-                </Link>
-              </div>
-            ))}
-          </div>
-
-          {/* Row 2 — Growth & Enterprise: destaque diferenciado entre eles */}
-          <div className="grid sm:grid-cols-2 gap-4">
-            {/* Growth — azul vibrante, badge popular */}
-            <div className="relative rounded-3xl p-7 flex flex-col transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-              style={{ background: "linear-gradient(145deg,#153DEC 0%,#0a2a8a 100%)", border: "1px solid rgba(21,61,236,0.7)", boxShadow: "0 0 60px rgba(21,61,236,0.25)" }}>
-              {/* Glow interno */}
-              <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-2xl opacity-20 pointer-events-none"
-                style={{ background: "#8381FB" }} />
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-sm font-bold text-blue-200 uppercase tracking-widest">{PLANS[2].key}</p>
-                  <span className="rounded-full px-3 py-0.5 text-[10px] font-bold text-white"
-                    style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.25)" }}>
-                    {c.plans_popular}
-                  </span>
-                </div>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-5xl font-extrabold text-white">{PLANS[2].price}</span>
-                  <span className="text-sm text-blue-200">{PLANS[2].period}</span>
-                </div>
-                <p className="text-sm text-blue-200 mb-6 leading-relaxed">{planDesc(PLANS[2])}</p>
-                <ul className="space-y-2 mb-6">
-                  {(locale === "en"
-                    ? ["Unlimited products","Custom domain","API access","Claude AI included","Priority support"]
-                    : locale === "fr"
-                    ? ["Produits illimités","Domaine personnalisé","Accès API","Claude IA inclus","Support prioritaire"]
-                    : locale === "es"
-                    ? ["Productos ilimitados","Dominio propio","Acceso API","Claude IA incluida","Soporte prioritario"]
-                    : ["Produtos ilimitados","Domínio próprio","Acesso a API","Claude IA incluída","Suporte prioritário"]
-                  ).map((feat) => (
-                    <li key={feat} className="flex items-center gap-2 text-sm text-blue-100">
-                      <span className="text-green-300 text-xs">✓</span> {feat}
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/comecar"
-                  className="rounded-full py-3 text-sm font-semibold text-center transition-all hover:scale-105 block text-white"
-                  style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.3)" }}>
-                  {c.plans_btn}
-                </Link>
-              </div>
-            </div>
-
-            {/* Enterprise — dark premium, violeta sutil */}
-            <div className="relative rounded-3xl p-7 flex flex-col transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-              style={{ background: "linear-gradient(145deg,#12102a 0%,#0d0a20 100%)", border: "1px solid rgba(131,129,251,0.35)", boxShadow: "0 0 60px rgba(131,129,251,0.1)" }}>
-              <div className="absolute top-0 left-0 w-48 h-48 rounded-full blur-3xl opacity-10 pointer-events-none"
-                style={{ background: "#8381FB" }} />
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-sm font-bold text-[#c4b5fd] uppercase tracking-widest">{PLANS[3].key}</p>
-                  <span className="rounded-full px-3 py-0.5 text-[10px] font-bold"
-                    style={{ background: "rgba(131,129,251,0.15)", color: "#c4b5fd", border: "1px solid rgba(131,129,251,0.3)" }}>
-                    {locale === "en" ? "WHITE-LABEL" : locale === "fr" ? "MARQUE BLANCHE" : locale === "es" ? "MARCA PROPIA" : "WHITE-LABEL"}
-                  </span>
-                </div>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-5xl font-extrabold text-white">{PLANS[3].price}</span>
-                  <span className="text-sm text-white/40">{PLANS[3].period}</span>
-                </div>
-                <p className="text-sm text-white/50 mb-6 leading-relaxed">{planDesc(PLANS[3])}</p>
-                <ul className="space-y-2 mb-6">
-                  {(locale === "en"
-                    ? ["Everything in Growth","0% transaction fees","White-label branding","Dedicated account manager","Custom integrations"]
-                    : locale === "fr"
-                    ? ["Tout de Growth","0% de frais","Marque blanche","Gestionnaire dédié","Intégrations sur mesure"]
-                    : locale === "es"
-                    ? ["Todo de Growth","0% comisiones","Marca propia","Gestor dedicado","Integraciones a medida"]
-                    : ["Tudo do Growth","0% comissão","Marca branca","Gestor dedicado","Integrações personalizadas"]
-                  ).map((feat) => (
-                    <li key={feat} className="flex items-center gap-2 text-sm text-white/60">
-                      <span className="text-[#8381FB] text-xs">✓</span> {feat}
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/comecar"
-                  className="rounded-full py-3 text-sm font-semibold text-center transition-all hover:scale-105 block"
-                  style={{ background: "rgba(131,129,251,0.15)", color: "#c4b5fd", border: "1px solid rgba(131,129,251,0.3)" }}>
-                  {c.plans_btn}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PricingSection locale={locale} />
       </section>
 
       {/* ── CTA FINAL ── */}

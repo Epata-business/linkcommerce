@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatarPreco } from "@/lib/moeda";
-import { getLocale } from "@/lib/i18n";
+import { getLocale, t } from "@/lib/i18n";
 import { AddToCartButton } from "@/components/storefront/add-to-cart-button";
 import { ProductGallery } from "@/components/storefront/product-gallery";
 
@@ -108,17 +108,17 @@ export default async function ProdutoPage({ params }: Props) {
           <div className="flex items-center gap-2 flex-wrap">
             {produto.stock <= 0 ? (
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-500 uppercase tracking-wide">
-                Esgotado
+                {t("product_out_of_stock", locale)}
               </span>
             ) : produto.stock <= 5 ? (
               <span className="rounded-full px-3 py-1 text-xs font-bold text-white uppercase tracking-wide"
                 style={{ background: "#f97316" }}>
-                Últimas {produto.stock} unidades
+                {t("product_last_units", locale).replace("{n}", String(produto.stock))}
               </span>
             ) : (
               <span className="rounded-full px-3 py-1 text-xs font-bold text-white uppercase tracking-wide"
                 style={{ background: cor }}>
-                Em stock
+                {t("product_in_stock", locale)}
               </span>
             )}
             {produto.sku && (
@@ -169,9 +169,9 @@ export default async function ProdutoPage({ params }: Props) {
           {/* Garantias */}
           <div className="grid grid-cols-3 gap-3 pt-2">
             {[
-              { icon: "🔒", label: "Pagamento seguro" },
-              { icon: "↩️", label: "14 dias devolução" },
-              { icon: "📦", label: "Envio rápido" },
+              { icon: "🔒", label: t("checkout_guarantee_payment", locale) },
+              { icon: "↩️", label: t("checkout_guarantee_returns", locale) },
+              { icon: "📦", label: t("checkout_guarantee_shipping", locale) },
             ].map((g) => (
               <div key={g.label} className="flex flex-col items-center gap-1.5 rounded-2xl border border-slate-100 p-3 text-center">
                 <span className="text-xl">{g.icon}</span>
@@ -185,7 +185,7 @@ export default async function ProdutoPage({ params }: Props) {
       {/* ── Produtos relacionados ── */}
       {relacionados.length > 0 && (
         <section className="max-w-6xl mx-auto px-4 py-12 border-t border-slate-100 mt-4">
-          <h2 className="text-xl font-bold text-slate-900 mb-6">Pode também gostar</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-6">{t("product_related", locale)}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {relacionados.map((p) => {
               const img = isDirectImageUrl(p.imagemUrl);
@@ -203,7 +203,7 @@ export default async function ProdutoPage({ params }: Props) {
                       </div>
                     )}
                     {p.stock <= 0 && (
-                      <span className="absolute top-2 left-2 rounded-full bg-slate-900/70 px-2 py-0.5 text-[9px] font-bold text-white uppercase">Esgotado</span>
+                      <span className="absolute top-2 left-2 rounded-full bg-slate-900/70 px-2 py-0.5 text-[9px] font-bold text-white uppercase">{t("product_out_of_stock", locale)}</span>
                     )}
                   </div>
                   <div className="p-3">

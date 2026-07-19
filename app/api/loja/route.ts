@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 
@@ -32,6 +33,11 @@ export async function POST(request: Request) {
 
   const planoFree = await prisma.plano.findFirst({ where: { slug: "free" } });
 
+  // Moeda padrão com base no idioma escolhido pelo utilizador
+  const VALID_CURRENCIES = ["EUR", "USD", "AOA"];
+  const cookieCur = cookies().get("CUR")?.value ?? "";
+  const moedaPadrao = VALID_CURRENCIES.includes(cookieCur) ? cookieCur : "EUR";
+
   const loja = await prisma.loja.create({
     data: {
       nome,
@@ -40,6 +46,7 @@ export async function POST(request: Request) {
       tipoNegocio: tipoNegocio ?? null,
       corPrimaria: corPrimaria ?? "#0F172A",
       corSecundaria: corSecundaria ?? "#6366f1",
+      moeda: moedaPadrao,
     },
   });
 
