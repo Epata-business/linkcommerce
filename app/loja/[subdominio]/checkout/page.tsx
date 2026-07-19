@@ -180,6 +180,8 @@ function Stepper({ atual, steps }: { atual: number; steps: string[] }) {
   );
 }
 
+interface ZonaEntrega { id: string; nome: string; preco: number; prazo: string | null; }
+
 export default function CheckoutPage({ params }: { params: { subdominio: string } }) {
   const router = useRouter();
   const itens = useCartStore((s) => s.itens);
@@ -189,7 +191,7 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
   const [passo, setPasso] = useState(0);
   const [aSubmeter, setASubmeter] = useState(false);
   const [erro, setErro] = useState("");
-  const [metodoPagamento, setMetodoPagamento] = useState("cartao");
+  const [metodoPagamento, setMetodoPagamento] = useState("multicaixa");
   const [morada, setMorada] = useState({ rua: "", cidade: "", codigoPostal: "", pais: "" });
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -197,11 +199,19 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
   const [bi, setBi] = useState("");
   const [nifComprador, setNifComprador] = useState("");
   const [cor, setCor] = useState("#153DFC");
+  const [zonas, setZonas] = useState<ZonaEntrega[]>([]);
+  const [zonaId, setZonaId] = useState("");
+  const [comprovanteFile, setComprovanteFile] = useState<File | null>(null);
 
   useEffect(() => {
     useCartStore.persist.rehydrate();
     const l = getClientLocale();
     setLocale(l);
+    // Carregar zonas de entrega da loja
+    fetch(`/api/loja/${params.subdominio}/zonas-entrega`)
+      .then(r => r.ok ? r.json() : [])
+      .then((z: ZonaEntrega[]) => { setZonas(z); if (z.length > 0) setZonaId(z[0].id); })
+      .catch(() => {});
     const c = getComputedStyle(document.documentElement).getPropertyValue("--cor-primaria").trim();
     if (c) setCor(c);
     setMorada(m => ({ ...m, pais: (TR[l] ?? TR.pt).country_default }));
@@ -211,7 +221,9 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
   const steps = [tr.step_info, tr.step_delivery, tr.step_payment];
 
   const subtotal = itens.reduce((s, i) => s + i.precoUnitario * i.quantidade, 0);
-  const total = subtotal;
+  const zonaSeleccionada = zonas.find(z => z.id === zonaId);
+  const custoEntrega = zonaSeleccionada ? Number(zonaSeleccionada.preco) : 0;
+  const total = subtotal + custoEntrega;
 
   const METODOS = [
     { id: "cartao",     label: tr.pay_card,         sub: tr.pay_card_sub,        icon: <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" stroke="currentColor" strokeWidth={1.5}><rect x="1" y="4" width="22" height="16" rx="2" /><path strokeLinecap="round" d="M1 10h22" /></svg> },
@@ -328,6 +340,32 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
                       </select>
                     </div>
                   </div>
+                  {/* Zonas de entrega */}
+                  {zonas.length > 0 && (
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+                        {locale === "en" ? "Delivery zone" : locale === "fr" ? "Zone de livraison" : locale === "es" ? "Zona de entrega" : "Zona de entrega"}
+                      </label>
+                      <div className="space-y-2">
+                        {zonas.map(z => (
+                          <button key={z.id} type="button" onClick={() => setZonaId(z.id)}
+                            className="w-full flex items-center justify-between rounded-xl border-2 px-4 py-3 text-left transition-all"
+                            style={{ borderColor: zonaId === z.id ? cor : "#e2e8f0", background: zonaId === z.id ? `${cor}08` : "#fff" }}>
+                            <div>
+                              <p className="text-sm font-semibold text-slate-800">{z.nome}</p>
+                              {z.prazo && <p className="text-xs text-slate-400">🕐 {z.prazo}</p>}
+                            </div>
+                            <span className="text-sm font-bold" style={{ color: cor }}>
+                              {Number(z.preco) === 0
+                                ? (locale === "en" ? "Free" : "Grátis")
+                                : `${Number(z.preco).toLocaleString("pt-AO")} Kz`}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="rounded-xl border border-amber-100 bg-amber-50 p-3 text-xs text-amber-700">{tr.delivery_note}</div>
                   <div className="flex gap-3 mt-4">
                     <button onClick={() => { setErro(""); setPasso(0); }}
@@ -373,6 +411,26 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
                   {metodoPagamento === "mbway" && <div className="rounded-xl border border-red-100 bg-red-50 p-3 text-xs text-red-700">{tr.mbway_note}</div>}
                   {metodoPagamento === "multibanco" && <div className="rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs text-blue-700">{tr.multibanco_note}</div>}
                   {metodoPagamento === "multicaixa" && <div className="rounded-xl border border-yellow-100 bg-yellow-50 p-3 text-xs text-yellow-800">{tr.multicaixa_note}</div>}
+
+                  {/* Upload comprovativo para Multicaixa e transferência */}
+                  {(metodoPagamento === "multicaixa" || metodoPagamento === "multibanco") && (
+                    <div className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-4">
+                      <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">
+                        📎 {locale === "en" ? "Attach payment proof (optional)" : "Anexar comprovativo de pagamento (opcional)"}
+                      </label>
+                      <p className="text-xs text-slate-400 mb-3">
+                        {locale === "en"
+                          ? "Upload a photo/screenshot of your bank transfer or Multicaixa confirmation."
+                          : "Carregue foto ou print do talão de transferência bancária ou confirmação Multicaixa Express."}
+                      </p>
+                      <input type="file" accept="image/*,application/pdf"
+                        onChange={(e) => setComprovanteFile(e.target.files?.[0] ?? null)}
+                        className="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 cursor-pointer" />
+                      {comprovanteFile && (
+                        <p className="mt-2 text-xs text-green-600 font-medium">✓ {comprovanteFile.name}</p>
+                      )}
+                    </div>
+                  )}
 
                   {erro && <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{erro}</div>}
 
@@ -434,8 +492,19 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
                   <span>{tr.subtotal}</span><span>{formatarPreco(subtotal, "EUR")}</span>
                 </div>
                 <div className="flex justify-between text-sm text-slate-500">
-                  <span>{tr.shipping}</span><span className="text-green-600 font-medium">{tr.shipping_calc}</span>
+                  <span>{tr.shipping}</span>
+                  <span className={custoEntrega === 0 ? "text-green-600 font-medium" : "font-medium text-slate-700"}>
+                    {zonaSeleccionada
+                      ? (custoEntrega === 0 ? (locale === "en" ? "Free" : "Grátis") : `${custoEntrega.toLocaleString("pt-AO")} Kz`)
+                      : tr.shipping_calc}
+                  </span>
                 </div>
+                {zonaSeleccionada && (
+                  <div className="flex justify-between text-xs text-slate-400">
+                    <span>📍 {zonaSeleccionada.nome}</span>
+                    {zonaSeleccionada.prazo && <span>🕐 {zonaSeleccionada.prazo}</span>}
+                  </div>
+                )}
               </div>
               <div className="border-t border-slate-100 mt-3 pt-3 flex justify-between items-center">
                 <span className="font-bold text-slate-800">{tr.total}</span>

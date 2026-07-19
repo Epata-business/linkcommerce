@@ -107,7 +107,7 @@ export default async function StorefrontLayout({ children, params }: Props) {
         </div>
       </footer>
 
-      <WhatsAppButton numero={null} />
+      <WhatsAppButton numero={loja.telefoneWA} />
     </div>
   );
 }

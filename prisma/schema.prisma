@@ -159,6 +159,7 @@ model Loja {
   moeda         String   @default("EUR") // EUR | USD | AOA
   nif           String?  // Número de Identificação Fiscal da loja
   moradaFiscal  String?  // Morada completa da loja para faturas
+  telefoneWA    String?  // Número WhatsApp da loja (ex: +244900000000)
 
   planoId       String?
   plano         Plano?   @relation(fields: [planoId], references: [id])
@@ -171,6 +172,7 @@ model Loja {
   cupoes        Cupao[]
   metodosPagamento MetodoPagamentoLoja[]
   metodosEnvio  MetodoEnvio[]
+  zonasEntrega  ZonaEntrega[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -217,6 +219,19 @@ model MetodoEnvio {
   ativo     Boolean   @default(true)
 
   @@map("metodos_envio")
+}
+
+model ZonaEntrega {
+  id        String   @id @default(cuid())
+  lojaId    String
+  loja      Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  nome      String   // ex: "Talatona", "Viana", "Luanda Centro"
+  preco     Decimal  @db.Decimal(10, 2)
+  prazo     String?  // ex: "1-2 dias", "Mesmo dia"
+  ativo     Boolean  @default(true)
+  ordem     Int      @default(0)
+
+  @@map("zonas_entrega")
 }
 
 // -----------------------------------------------------------------------------
@@ -319,6 +334,7 @@ model Pedido {
 
   cupaoId       String?
   cupao         Cupao?       @relation(fields: [cupaoId], references: [id])
+  comprovanteUrl String?    // URL do comprovativo de pagamento (Multicaixa/transferência)
 
   itens         ItemPedido[]
 

@@ -12,6 +12,7 @@ const navLinks = [
   { href: "/dashboard/pedidos", label: "Pedidos" },
   { href: "/dashboard/clientes", label: "Clientes" },
   { href: "/dashboard/marketing", label: "Marketing" },
+  { href: "/dashboard/envios", label: "Envios" },
   { href: "/dashboard/configuracoes", label: "Configurações" },
 ];
 

@@ -31,6 +31,7 @@ export default async function ConfiguracoesPage() {
         moeda: formData.get("moeda") as string,
         nif: (formData.get("nif") as string) || null,
         moradaFiscal: (formData.get("moradaFiscal") as string) || null,
+        telefoneWA: (formData.get("telefoneWA") as string) || null,
       },
     });
 
@@ -105,6 +106,14 @@ export default async function ConfiguracoesPage() {
             <p className="mt-1 text-xs text-muted-foreground">
               Afeta como os preços são apresentados na loja e nos relatórios.
             </p>
+          </div>
+
+          {/* WhatsApp */}
+          <div className="border-t border-slate-100 pt-4 mt-2">
+            <h3 className="text-sm font-semibold text-slate-700 mb-1">WhatsApp da loja</h3>
+            <p className="text-xs text-slate-400 mb-3">O botão flutuante de WhatsApp aparece na tua loja para os clientes contactarem directamente.</p>
+            <input name="telefoneWA" defaultValue={loja.telefoneWA ?? ""} placeholder="+244 900 000 000"
+              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
           </div>
 
           {/* Dados fiscais */}
