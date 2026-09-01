@@ -260,6 +260,17 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
     setASubmeter(true);
     setErro("");
     try {
+      // Upload do comprovativo se existir
+      let comprovanteUrl: string | undefined;
+      if (comprovanteFile && (metodoPagamento === "multicaixa" || metodoPagamento === "multibanco")) {
+        const fd = new FormData();
+        fd.append("ficheiro", comprovanteFile);
+        const upRes = await fetch("/api/upload-comprovativo", { method: "POST", body: fd });
+        const upData = await upRes.json();
+        if (!upRes.ok) throw new Error(upData.erro ?? "Erro ao enviar comprovativo");
+        comprovanteUrl = upData.url;
+      }
+
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -273,6 +284,8 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
           clienteEmail: email, clienteNome: nome, clienteTelefone: telefone,
           morada: { ...morada, bi, nif: nifComprador, clienteTelefone: telefone },
           metodoPagamento,
+          comprovanteUrl,
+          zonaEntregaId: zonaId ?? undefined,
         }),
       });
       const data = await res.json();

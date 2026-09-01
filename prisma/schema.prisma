@@ -230,6 +230,7 @@ model ZonaEntrega {
   prazo     String?  // ex: "1-2 dias", "Mesmo dia"
   ativo     Boolean  @default(true)
   ordem     Int      @default(0)
+  pedidos   Pedido[]
 
   @@map("zonas_entrega")
 }
@@ -335,6 +336,8 @@ model Pedido {
   cupaoId       String?
   cupao         Cupao?       @relation(fields: [cupaoId], references: [id])
   comprovanteUrl String?    // URL do comprovativo de pagamento (Multicaixa/transferência)
+  zonaEntregaId  String?
+  zonaEntrega    ZonaEntrega? @relation(fields: [zonaEntregaId], references: [id])
 
   itens         ItemPedido[]
 

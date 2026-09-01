@@ -13,6 +13,7 @@ const navLinks = [
   { href: "/dashboard/clientes", label: "Clientes" },
   { href: "/dashboard/marketing", label: "Marketing" },
   { href: "/dashboard/envios", label: "Envios" },
+  { href: "/dashboard/qrcode", label: "QR Code" },
   { href: "/dashboard/configuracoes", label: "Configurações" },
 ];
 

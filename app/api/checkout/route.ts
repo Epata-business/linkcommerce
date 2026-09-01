@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
+import { enviarEmailConfirmacaoPedido } from "@/lib/email";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 
@@ -28,6 +29,8 @@ const CheckoutSchema = z.object({
   clienteTelefone: z.string().optional(),
   morada: MoradaSchema.optional(),
   metodoPagamento: z.enum(["cartao", "mbway", "multibanco", "multicaixa", "paypal"]).default("cartao"),
+  comprovanteUrl: z.string().url().optional(),
+  zonaEntregaId: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -35,7 +38,7 @@ export async function POST(req: NextRequest) {
   const parsed = CheckoutSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ erro: "Dados inválidos" }, { status: 400 });
 
-  const { subdominio, itens, clienteEmail, clienteNome, clienteTelefone, morada, metodoPagamento } = parsed.data;
+  const { subdominio, itens, clienteEmail, clienteNome, clienteTelefone, morada, metodoPagamento, comprovanteUrl, zonaEntregaId } = parsed.data;
 
   const loja = await prisma.loja.findUnique({
     where: { subdominio, publicada: true },
@@ -105,6 +108,8 @@ export async function POST(req: NextRequest) {
         status: "PENDING",
         channel: "ONLINE",
         clientUuid,
+        comprovanteUrl: comprovanteUrl ?? null,
+        zonaEntregaId: zonaEntregaId ?? null,
         itens: {
           create: itens.map((i) => ({
             produtoId: i.produtoId,
@@ -114,7 +119,21 @@ export async function POST(req: NextRequest) {
           })),
         },
       },
+      include: { itens: true },
     });
+
+    const emailLojista = loja.utilizadores[0]?.email ?? undefined;
+    void enviarEmailConfirmacaoPedido({
+      nomeLoja: loja.nome,
+      clienteNome,
+      clienteEmail,
+      pedidoId: pedido.id,
+      itens: itens.map((i) => ({ titulo: i.titulo, quantidade: i.quantidade, precoUnitario: i.precoUnitario })),
+      total,
+      moeda: loja.moeda ?? "AOA",
+      emailLojista,
+    });
+
     return NextResponse.json({
       modo: "multicaixa",
       pedidoId: pedido.id,

@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 const HeroBackground  = dynamic(() => import("@/components/landing/HeroBackground"), { ssr: false });
 const FlowingMenu     = dynamic(() => import("@/components/landing/FlowingMenu"),     { ssr: false });
 const GlobalNetwork   = dynamic(() => import("@/components/landing/GlobalNetwork"),   { ssr: false });
+import { AngolaSection } from "@/components/landing/angola-section";
 
 /* ── Textos por secção (fallback inline para não sobrecarregar i18n) ── */
 const COPY = {
@@ -374,6 +375,9 @@ export default function HomePage() {
 
       {/* ── GLOBAL NETWORK ── */}
       <GlobalNetwork locale={locale} />
+
+      {/* ── ANGOLA ── */}
+      <AngolaSection />
 
       {/* ── FLOW ── */}
       <section className="py-20 px-6 relative overflow-hidden"

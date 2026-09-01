@@ -8,7 +8,11 @@ import { MOEDAS } from "@/lib/moeda";
 import { BackButton } from "@/components/ui/back-button";
 import Link from "next/link";
 
-export default async function ConfiguracoesPage() {
+export default async function ConfiguracoesPage({
+  searchParams,
+}: {
+  searchParams: { saved?: string };
+}) {
   const lojaId = await getLojaId();
   const loja = await prisma.loja.findUnique({
     where: { id: lojaId },
@@ -36,12 +40,22 @@ export default async function ConfiguracoesPage() {
     });
 
     revalidatePath("/dashboard/configuracoes");
+    redirect("/dashboard/configuracoes?saved=1");
   }
 
   return (
     <div className="p-6 max-w-2xl">
       <BackButton href="/dashboard" label="← Dashboard" />
       <h1 className="text-2xl font-semibold">Configurações</h1>
+
+      {searchParams.saved === "1" && (
+        <div className="mt-4 flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+          <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          Alterações guardadas com sucesso.
+        </div>
+      )}
 
       {/* Plano atual */}
       <div className="mt-6 rounded-lg border bg-white p-5">
