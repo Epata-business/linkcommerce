@@ -9,6 +9,7 @@ const HeroBackground  = dynamic(() => import("@/components/landing/HeroBackgroun
 const FlowingMenu     = dynamic(() => import("@/components/landing/FlowingMenu"),     { ssr: false });
 const GlobalNetwork   = dynamic(() => import("@/components/landing/GlobalNetwork"),   { ssr: false });
 import { AngolaSection } from "@/components/landing/angola-section";
+import { QuemSomosSection } from "@/components/landing/quem-somos-section";
 
 /* ── Textos por secção (fallback inline para não sobrecarregar i18n) ── */
 const COPY = {
@@ -449,6 +450,8 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
+
+      <QuemSomosSection />
 
       {/* ── FOOTER ── */}
       <footer className="px-6 py-8" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
