@@ -19,9 +19,9 @@ export default function EntrarPage({
   const locale = getLocale();
 
   const stats = [
-    { v: "+2 400", l: t("stat_stores", locale) },
-    { v: "€1.2M", l: t("stat_sales", locale) },
-    { v: "4.9★", l: t("stat_rating", locale) },
+    { v: "🇦🇴", l: locale === "en" ? "Made in Angola" : "Feito em Angola" },
+    { v: "0%", l: locale === "en" ? "Sales commission" : locale === "fr" ? "Commission vente" : "Comissão de venda" },
+    { v: "2026", l: locale === "en" ? "Launch year" : locale === "fr" ? "Année de lancement" : "Ano de lançamento" },
   ];
 
   return (
@@ -55,8 +55,8 @@ export default function EntrarPage({
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white" style={{ background: "linear-gradient(135deg,#153DFC,#8381FB)" }}>A</div>
               <div>
-                <p className="text-sm font-semibold text-white">Ana Pereira</p>
-                <p className="text-xs text-white/50">Boutique da Ana · Lisboa</p>
+                <p className="text-sm font-semibold text-white">Maria Luísa</p>
+                <p className="text-xs text-white/50">Boutique da Maria · Luanda</p>
               </div>
             </div>
           </div>

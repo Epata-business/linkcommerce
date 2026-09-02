@@ -33,7 +33,7 @@ const COPY = {
     plans_popular: "POPULAR",
     plans_btn: "Começar",
     cta_title: "Pronto para abrir a sua loja?",
-    cta_sub: "Junte-se a centenas de lojistas que já vendem com o LinkCommerce.",
+    cta_sub: "Crie a sua loja angolana em minutos. Sem comissões escondidas.",
     cta_btn: "Criar a minha loja grátis →",
   },
   en: {
@@ -56,7 +56,7 @@ const COPY = {
     plans_popular: "POPULAR",
     plans_btn: "Get started",
     cta_title: "Ready to open your store?",
-    cta_sub: "Join hundreds of merchants already selling with LinkCommerce.",
+    cta_sub: "Create your store in minutes. No hidden commissions.",
     cta_btn: "Create my store for free →",
   },
   fr: {
@@ -79,7 +79,7 @@ const COPY = {
     plans_popular: "POPULAIRE",
     plans_btn: "Commencer",
     cta_title: "Prêt à ouvrir votre boutique?",
-    cta_sub: "Rejoignez des centaines de commerçants qui vendent avec LinkCommerce.",
+    cta_sub: "Créez votre boutique en minutes. Sans commissions cachées.",
     cta_btn: "Créer ma boutique gratuitement →",
   },
   es: {
@@ -102,7 +102,7 @@ const COPY = {
     plans_popular: "POPULAR",
     plans_btn: "Empezar",
     cta_title: "¿Listo para abrir tu tienda?",
-    cta_sub: "Únete a cientos de comerciantes que ya venden con LinkCommerce.",
+    cta_sub: "Crea tu tienda en minutos. Sin comisiones ocultas.",
     cta_btn: "Crear mi tienda gratis →",
   },
 } as const;
@@ -162,9 +162,26 @@ export default function HomePage() {
       {/* ── NAV ── */}
       <nav className="fixed top-0 inset-x-0 z-50 px-6 py-4" style={{ background: "rgba(8,10,18,0.85)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <span className="text-xl font-bold tracking-tight">
+          <Link href="/" className="text-xl font-bold tracking-tight text-white">
             Link<span className="text-gradient">Commerce</span>
-          </span>
+          </Link>
+
+          {/* Links de secção — desktop */}
+          <div className="hidden md:flex items-center gap-1 text-sm">
+            <a href="#funcionalidades" className="px-3 py-2 text-white/55 hover:text-white transition-colors rounded-lg hover:bg-white/5">
+              {locale === "en" ? "Features" : locale === "fr" ? "Fonctionnalités" : locale === "es" ? "Funciones" : "Funcionalidades"}
+            </a>
+            <a href="#angola" className="px-3 py-2 text-white/55 hover:text-white transition-colors rounded-lg hover:bg-white/5">
+              Angola
+            </a>
+            <a href="#precos" className="px-3 py-2 text-white/55 hover:text-white transition-colors rounded-lg hover:bg-white/5">
+              {locale === "en" ? "Pricing" : locale === "fr" ? "Tarifs" : locale === "es" ? "Precios" : "Preços"}
+            </a>
+            <a href="#quem-somos" className="px-3 py-2 text-white/55 hover:text-white transition-colors rounded-lg hover:bg-white/5">
+              {locale === "en" ? "About Us" : locale === "fr" ? "À propos" : locale === "es" ? "Quiénes somos" : "Quem Somos"}
+            </a>
+          </div>
+
           <div className="flex items-center gap-3">
             <LanguageSwitcher current={locale} />
             <Link href="/entrar" className="text-sm font-medium text-white/60 hover:text-white transition-colors px-3 py-2">
@@ -217,25 +234,37 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── STATS BAR ── */}
+      {/* ── DESTAQUES BAR ── */}
       <div className="relative py-10 px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(21,61,236,0.04)" }}>
         <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
           {[
-            { num: "500+",   label: c.stats_stores },
-            { num: "12K+",   label: c.stats_orders },
-            { num: "30+",    label: c.stats_countries },
-            { num: "99.9%",  label: c.stats_uptime },
+            {
+              icon: "⚡",
+              label: locale === "en" ? "Live since 2026" : locale === "fr" ? "En ligne depuis 2026" : locale === "es" ? "Activo desde 2026" : "Em funcionamento desde 2026",
+            },
+            {
+              icon: "🇦🇴",
+              label: locale === "en" ? "Built for Angola" : locale === "fr" ? "Conçu pour l'Angola" : locale === "es" ? "Hecho para Angola" : "Feito para Angola",
+            },
+            {
+              icon: "💳",
+              label: locale === "en" ? "Multicaixa & KWiK" : "Multicaixa & KWiK",
+            },
+            {
+              icon: "🤖",
+              label: locale === "en" ? "AI-powered" : locale === "fr" ? "IA intégrée" : locale === "es" ? "Con IA integrada" : "IA integrada",
+            },
           ].map((s) => (
-            <div key={s.label}>
-              <p className="text-3xl font-extrabold text-gradient">{s.num}</p>
-              <p className="text-xs text-white/35 mt-1 font-medium">{s.label}</p>
+            <div key={s.label} className="flex flex-col items-center gap-1.5">
+              <span className="text-2xl">{s.icon}</span>
+              <p className="text-xs text-white/50 font-medium leading-snug">{s.label}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* ── FEATURE CARDS (Shopify style) ── */}
-      <section className="py-24 px-6">
+      <section id="funcionalidades" className="py-24 px-6">
         <div className="max-w-6xl mx-auto space-y-5">
 
           {/* Row 1: Sell everywhere (wide) + POS (narrow) */}
@@ -378,7 +407,7 @@ export default function HomePage() {
       <GlobalNetwork locale={locale} />
 
       {/* ── ANGOLA ── */}
-      <AngolaSection />
+      <div id="angola"><AngolaSection /></div>
 
       {/* ── FLOW ── */}
       <section className="py-20 px-6 relative overflow-hidden"
@@ -428,7 +457,7 @@ export default function HomePage() {
       </div>
 
       {/* ── PLANOS ── */}
-      <section className="py-24 px-6">
+      <section id="precos" className="py-24 px-6">
         <PricingSection locale={locale} />
       </section>
 
@@ -451,7 +480,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <QuemSomosSection />
+      <div id="quem-somos"><QuemSomosSection /></div>
 
       {/* ── FOOTER ── */}
       <footer className="px-6 py-8" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>

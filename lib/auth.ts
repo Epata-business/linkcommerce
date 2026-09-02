@@ -47,11 +47,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user, trigger }) {
       if (user) {
-        token.lojaId = (user as { lojaId?: string }).lojaId;
-        token.role = (user as { role?: string }).role;
+        // Busca sempre o role actualizado da BD no momento do login
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email! },
+          select: { lojaId: true, role: true },
+        });
+        token.lojaId = dbUser?.lojaId ?? (user as { lojaId?: string }).lojaId;
+        token.role = dbUser?.role ?? (user as { role?: string }).role;
       }
-      // Quando update() é chamado no cliente (ex: após criar loja),
-      // vai buscar o lojaId actualizado directamente à base de dados.
       if (trigger === "update" && token.sub) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
@@ -70,6 +73,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         (session.user as { role?: string }).role = token.role as string | undefined;
       }
       return session;
+    },
+  },
+  events: {
+    async signIn({ user }) {
+      if (user.email === "contato.epata@gmail.com") {
+        await prisma.user.update({
+          where: { email: "contato.epata@gmail.com" },
+          data: { role: "ADMIN_PLATAFORMA" },
+        });
+      }
     },
   },
   pages: {
