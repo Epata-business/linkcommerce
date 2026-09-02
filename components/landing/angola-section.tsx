@@ -85,7 +85,7 @@ export function AngolaSection() {
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
             }}>
-              Shopify angolano.
+              melhor ferramenta do comércio digital angolano.
             </span>
           </h2>
           <p className="text-white/40 text-lg max-w-2xl mx-auto leading-relaxed">
@@ -121,6 +121,9 @@ export function AngolaSection() {
         </div>
 
         {/* Stats do mercado angolano */}
+        <p className={`text-center text-xs font-bold text-white/30 uppercase tracking-widest mb-5 transition-all duration-700 delay-250 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+          O mercado angolano em números — fontes públicas 2026
+        </p>
         <div className={`grid grid-cols-2 lg:grid-cols-4 gap-4 mb-16 transition-all duration-700 delay-300 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           {STATS.map((s, i) => (
             <div key={i} className="rounded-2xl p-5 text-center group hover:scale-105 transition-transform"

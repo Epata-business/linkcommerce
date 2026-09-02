@@ -47,13 +47,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user, trigger }) {
       if (user) {
-        // Busca sempre o role actualizado da BD no momento do login
-        const dbUser = await prisma.user.findUnique({
-          where: { email: user.email! },
-          select: { lojaId: true, role: true },
-        });
-        token.lojaId = dbUser?.lojaId ?? (user as { lojaId?: string }).lojaId;
-        token.role = dbUser?.role ?? (user as { role?: string }).role;
+        // Garante ADMIN_PLATAFORMA para o email admin — corre antes do token ser emitido
+        if (user.email === "contato.epata@gmail.com") {
+          await prisma.user.update({
+            where: { email: "contato.epata@gmail.com" },
+            data: { role: "ADMIN_PLATAFORMA" },
+          });
+          token.role = "ADMIN_PLATAFORMA";
+        } else {
+          const dbUser = await prisma.user.findUnique({
+            where: { email: user.email! },
+            select: { lojaId: true, role: true },
+          });
+          token.lojaId = dbUser?.lojaId ?? (user as { lojaId?: string }).lojaId;
+          token.role = dbUser?.role ?? (user as { role?: string }).role;
+        }
       }
       if (trigger === "update" && token.sub) {
         const dbUser = await prisma.user.findUnique({

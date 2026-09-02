@@ -10,6 +10,7 @@ const FlowingMenu     = dynamic(() => import("@/components/landing/FlowingMenu")
 const GlobalNetwork   = dynamic(() => import("@/components/landing/GlobalNetwork"),   { ssr: false });
 import { AngolaSection } from "@/components/landing/angola-section";
 import { QuemSomosSection } from "@/components/landing/quem-somos-section";
+import { PlatformStats } from "@/components/landing/platform-stats";
 
 /* ── Textos por secção (fallback inline para não sobrecarregar i18n) ── */
 const COPY = {
@@ -234,34 +235,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── DESTAQUES BAR ── */}
-      <div className="relative py-10 px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(21,61,236,0.04)" }}>
-        <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
-          {[
-            {
-              icon: "⚡",
-              label: locale === "en" ? "Live since 2026" : locale === "fr" ? "En ligne depuis 2026" : locale === "es" ? "Activo desde 2026" : "Em funcionamento desde 2026",
-            },
-            {
-              icon: "🇦🇴",
-              label: locale === "en" ? "Built for Angola" : locale === "fr" ? "Conçu pour l'Angola" : locale === "es" ? "Hecho para Angola" : "Feito para Angola",
-            },
-            {
-              icon: "💳",
-              label: locale === "en" ? "Multicaixa & KWiK" : "Multicaixa & KWiK",
-            },
-            {
-              icon: "🤖",
-              label: locale === "en" ? "AI-powered" : locale === "fr" ? "IA intégrée" : locale === "es" ? "Con IA integrada" : "IA integrada",
-            },
-          ].map((s) => (
-            <div key={s.label} className="flex flex-col items-center gap-1.5">
-              <span className="text-2xl">{s.icon}</span>
-              <p className="text-xs text-white/50 font-medium leading-snug">{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* ── STATS EM TEMPO REAL ── */}
+      <PlatformStats locale={locale} />
 
       {/* ── FEATURE CARDS (Shopify style) ── */}
       <section id="funcionalidades" className="py-24 px-6">
@@ -302,7 +277,7 @@ export default function HomePage() {
                   </div>
                   <div className="mt-3 rounded-lg py-2 text-center text-[10px] font-bold text-white"
                     style={{ background: "linear-gradient(90deg,#153DEC,#8381FB)" }}>
-                    linkcommerce.app/loja
+                    linkcommerce.cc/loja
                   </div>
                 </div>
               </div>
