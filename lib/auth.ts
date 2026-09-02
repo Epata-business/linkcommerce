@@ -1,17 +1,11 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
+import GitHub from "next-auth/providers/github";
+import Facebook from "next-auth/providers/facebook";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-
-// -----------------------------------------------------------------------------
-// lib/auth.ts
-// NextAuth.js v5. Suporta email/senha e Google, conforme pedido
-// ("O utilizador pode criar conta via email/senha ou Google").
-// A sessão inclui lojaId e role para que o middleware (middleware.ts) e os
-// Server Actions saibam a que tenant/permissões o pedido pertence.
-// -----------------------------------------------------------------------------
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -20,6 +14,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
+    GitHub({
+      clientId: process.env.GITHUB_ID,
+      clientSecret: process.env.GITHUB_SECRET,
+    }),
+    Facebook({
+      clientId: process.env.FACEBOOK_CLIENT_ID,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
     }),
     Credentials({
       name: "Email e Senha",
