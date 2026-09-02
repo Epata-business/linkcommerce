@@ -3,6 +3,12 @@ import { getToken } from "next-auth/jwt";
 
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "linkcommerce.app";
 
+// NextAuth v5 mudou o nome do cookie de "next-auth.session-token" para "authjs.session-token"
+const COOKIE_NAME =
+  process.env.NODE_ENV === "production"
+    ? "__Secure-authjs.session-token"
+    : "authjs.session-token";
+
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const hostname = req.headers.get("host") ?? "";
@@ -25,7 +31,11 @@ export async function middleware(req: NextRequest) {
   const precisaAuth = rotas.some(r => url.pathname.startsWith(r));
   if (!precisaAuth) return NextResponse.next();
 
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET,
+    cookieName: COOKIE_NAME,
+  });
   const role = token?.role as string | undefined;
 
   if (url.pathname.startsWith("/dashboard") && !["LOJISTA", "ADMIN_PLATAFORMA"].includes(role ?? "")) {
