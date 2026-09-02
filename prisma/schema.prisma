@@ -371,6 +371,25 @@ enum TipoCupao {
   VALOR_FIXO
 }
 
+// -----------------------------------------------------------------------------
+// ANALYTICS DA PLATAFORMA (agregado, sem dados pessoais)
+// Regista eventos de utilização real para cálculo de métricas públicas.
+// Nunca guardar: IP, user-agent, email, nome, sessão ou qualquer dado pessoal.
+// -----------------------------------------------------------------------------
+
+model EventoPlataforma {
+  id      String   @id @default(cuid())
+  // 'store_view' | 'cta_click'
+  tipo    String
+  // lojaId agregado — permite saber quantas lojas têm actividade, mas nunca exposto individualmente
+  lojaId  String?
+  // Apenas a data (sem hora) — granularidade diária, sem timestamp preciso
+  dia     DateTime @db.Date
+
+  @@index([tipo, dia])
+  @@map("eventos_plataforma")
+}
+
 model Cupao {
   id        String     @id @default(cuid())
   lojaId    String

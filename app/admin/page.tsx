@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { calcularMetricasAdmin, arredondarPublico } from "@/lib/metricas-publicas";
 
 export default async function AdminPage() {
-  const [totalLojas, totalUtilizadores, totalPedidos, totalReceita, lojasMaisRecentes] = await Promise.all([
+  const [metricas, totalLojas, totalUtilizadores, totalPedidos, totalReceita, lojasMaisRecentes] = await Promise.all([
+    calcularMetricasAdmin(),
     prisma.loja.count(),
     prisma.user.count(),
     prisma.pedido.count(),
@@ -49,6 +51,37 @@ export default async function AdminPage() {
             <p className="text-xs text-slate-500 mt-1">{s.label}</p>
           </div>
         ))}
+      </div>
+
+      {/* Tração Pública — métricas internas vs valores divulgados */}
+      <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden mb-8">
+        <div className="px-5 py-4 border-b border-slate-100">
+          <h2 className="font-semibold text-slate-800">Tração Pública</h2>
+          <p className="text-xs text-slate-400 mt-0.5">Valores internos exactos vs. valor público divulgado no website institucional</p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-x divide-slate-100">
+          {[
+            { label: "Lojas activas", interno: metricas.lojas.activas, definicao: "publicada=true" },
+            { label: "Pedidos válidos", interno: metricas.pedidos.validos, definicao: "status≠CANCELLED" },
+            { label: "Produtos activos", interno: metricas.produtos, definicao: "ativo=true" },
+            { label: "Clientes registados", interno: metricas.clientes, definicao: "Total registos (não únicos global)" },
+            { label: "Views este mês", interno: metricas.views.esteMes, definicao: "store_view — sem bots" },
+          ].map(m => (
+            <div key={m.label} className="px-5 py-4">
+              <p className="text-xs text-slate-400 mb-1">{m.label}</p>
+              <p className="text-xs text-slate-300 mb-2 leading-tight">{m.definicao}</p>
+              <p className="text-lg font-extrabold text-slate-900">{m.interno}</p>
+              <p className="text-xs text-slate-400 mt-1">Público: <span className="font-bold text-indigo-600">{arredondarPublico(m.interno)}</span></p>
+            </div>
+          ))}
+        </div>
+        <div className="px-5 py-3 border-t border-slate-100 bg-slate-50">
+          <p className="text-[10px] text-slate-400">
+            Volume EUR: <strong>{metricas.volume.EUR}</strong> € &nbsp;|&nbsp;
+            Volume AOA: <strong>{metricas.volume.AOA}</strong> Kz &nbsp;|&nbsp;
+            <span className="text-amber-600">{metricas.volume.aviso}</span>
+          </p>
+        </div>
       </div>
 
       {/* Lojas recentes */}

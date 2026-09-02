@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { AddToCartButton } from "@/components/storefront/add-to-cart-button";
+import { StoreTracker } from "@/components/storefront/store-tracker";
 import { formatarPreco } from "@/lib/moeda";
 import { getLocale, t } from "@/lib/i18n";
 
@@ -66,6 +67,9 @@ export default async function StorefrontPage({ params }: PageProps) {
 
   return (
     <>
+      {/* Tracker de visita real — client-side, filtra bots no servidor */}
+      <StoreTracker lojaId={loja.id} />
+
       {/* ── Hero ── */}
       <section
         className="relative overflow-hidden py-20 px-4"

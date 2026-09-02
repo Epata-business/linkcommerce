@@ -10,7 +10,7 @@ const FlowingMenu     = dynamic(() => import("@/components/landing/FlowingMenu")
 const GlobalNetwork   = dynamic(() => import("@/components/landing/GlobalNetwork"),   { ssr: false });
 import { AngolaSection } from "@/components/landing/angola-section";
 import { QuemSomosSection } from "@/components/landing/quem-somos-section";
-import { PlatformStats } from "@/components/landing/platform-stats";
+import { TraccaoSection } from "@/components/landing/traccao-section";
 
 /* ── Textos por secção (fallback inline para não sobrecarregar i18n) ── */
 const COPY = {
@@ -143,6 +143,9 @@ const FLOW = [
   { icon: "🚚", pt: "Entrega",   en: "Delivery", fr: "Livraison",es: "Entrega"   },
 ];
 
+// Revalida a landing page a cada hora — mantém as métricas actualizadas sem queries excessivas
+export const revalidate = 3600;
+
 export default function HomePage() {
   const locale = getLocale();
   const c = COPY[locale] ?? COPY.pt;
@@ -235,8 +238,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── STATS EM TEMPO REAL ── */}
-      <PlatformStats locale={locale} />
+      {/* ── TRAÇÃO REAL ── */}
+      <TraccaoSection locale={locale} />
 
       {/* ── FEATURE CARDS (Shopify style) ── */}
       <section id="funcionalidades" className="py-24 px-6">
