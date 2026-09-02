@@ -14,7 +14,7 @@ export async function middleware(req: NextRequest) {
     hostname !== `www.${ROOT_DOMAIN}` &&
     !hostname.includes("localhost") &&
     !hostname.includes("vercel.app") &&
-    hostname.endsWith(ROOT_DOMAIN);
+    hostname.endsWith(`.${ROOT_DOMAIN}`);
 
   if (ehSubdominioDeLoja) {
     return NextResponse.rewrite(new URL(`/loja/${subdominio}${url.pathname}`, req.url));
