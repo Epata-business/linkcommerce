@@ -78,14 +78,14 @@ export function AngolaSection() {
         {/* Headline principal */}
         <div className={`text-center mb-6 transition-all duration-700 delay-100 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] mb-4">
-            <span className="text-white">Somos o </span>
+            <span className="text-white">Somos a </span>
             <span style={{
               background: "linear-gradient(135deg, #153DEC, #8381FB, #cc0000)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
             }}>
-              melhor ferramenta do comércio digital angolano.
+              melhor ferramenta do comércio eletrónico angolano.
             </span>
           </h2>
           <p className="text-white/40 text-lg max-w-2xl mx-auto leading-relaxed">
