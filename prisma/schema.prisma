@@ -29,6 +29,7 @@ enum CicloFaturacao {
 
 enum StatusSubscricao {
   TRIAL
+  PENDENTE_TRANSFERENCIA
   ATIVA
   EM_FALTA
   CANCELADA
@@ -66,6 +67,8 @@ model Subscricao {
   stripeSubscriptionId   String?  @unique
   trialFimEm      DateTime?
   proximaCobranca DateTime?
+  comprovanteUrl  String?   // URL do comprovativo de transferência bancária (AOA)
+  moedaPagamento  String?   // "EUR" ou "AOA" — registo da moeda usada na subscrição
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
