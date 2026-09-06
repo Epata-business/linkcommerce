@@ -26,12 +26,12 @@ interface Props {
 }
 
 const PLANO_HIGHLIGHT: Record<string, string> = {
-  growth: "border-blue-400 ring-2 ring-blue-100 shadow-lg",
+  basic: "border-blue-400 ring-2 ring-blue-100 shadow-lg",
 };
 
 const PLANO_BADGE: Record<string, { texto: string; cor: string }> = {
-  growth: { texto: "Mais popular", cor: "bg-blue-600 text-white" },
-  enterprise: { texto: "Para grandes empresas", cor: "bg-slate-800 text-white" },
+  basic: { texto: "Mais popular", cor: "bg-blue-600 text-white" },
+  pro: { texto: "Para grandes empresas", cor: "bg-slate-800 text-white" },
 };
 
 export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, statusSubscricao, proximaCobranca }: Props) {
