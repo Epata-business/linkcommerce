@@ -14,9 +14,10 @@ interface Props {
     stock: number;
     imagemUrl: string;
   };
+  moeda?: string;
 }
 
-export function ProdutoRowActions({ produto }: Props) {
+export function ProdutoRowActions({ produto, moeda }: Props) {
   return (
     <div className="flex justify-end gap-2">
       <ProdutoFormDialog
@@ -27,6 +28,7 @@ export function ProdutoRowActions({ produto }: Props) {
         }
         produtoExistente={produto}
         onSubmitAction={(formData) => atualizarProduto(produto.id, formData)}
+        moeda={moeda}
       />
       <Button
         size="sm"

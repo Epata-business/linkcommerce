@@ -28,9 +28,11 @@ interface ProdutoFormDialogProps {
     variantes?: VarianteExistente[];
   };
   onSubmitAction?: (formData: FormData) => Promise<void>;
+  moeda?: string;
 }
 
-export function ProdutoFormDialog({ trigger, produtoExistente, onSubmitAction }: ProdutoFormDialogProps) {
+export function ProdutoFormDialog({ trigger, produtoExistente, onSubmitAction, moeda = "EUR" }: ProdutoFormDialogProps) {
+  const simboloMoeda = moeda === "AOA" ? "Kz" : moeda === "USD" ? "$" : "€";
   const [aberto, setAberto] = useState(false);
   const [titulo, setTitulo] = useState(produtoExistente?.titulo ?? "");
   const [descricao, setDescricao] = useState(produtoExistente?.descricao ?? "");
@@ -223,7 +225,7 @@ export function ProdutoFormDialog({ trigger, produtoExistente, onSubmitAction }:
                   <div className="grid grid-cols-3 gap-3">
                     <div>
                       <div className="flex items-center justify-between mb-1">
-                        <label className="text-sm font-medium text-slate-700">Preço (€)</label>
+                        <label className="text-sm font-medium text-slate-700">Preço ({simboloMoeda})</label>
                         <button type="button" onClick={handlePreco} disabled={!titulo || aGerarIA !== null}
                           className="text-[10px] text-green-600 font-medium disabled:opacity-40">✨ IA</button>
                       </div>
@@ -266,7 +268,7 @@ export function ProdutoFormDialog({ trigger, produtoExistente, onSubmitAction }:
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-slate-800">{v.nomeOpcao}</p>
                             <p className="text-xs text-slate-400">
-                              {v.precoExtra > 0 ? `+${v.precoExtra}€` : "sem extra"} · stock: {v.stock}
+                              {v.precoExtra > 0 ? `+${v.precoExtra}${simboloMoeda}` : "sem extra"} · stock: {v.stock}
                               {v.sku ? ` · SKU: ${v.sku}` : ""}
                             </p>
                           </div>
@@ -291,7 +293,7 @@ export function ProdutoFormDialog({ trigger, produtoExistente, onSubmitAction }:
                       className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30" />
                     <div className="grid grid-cols-3 gap-2">
                       <div>
-                        <label className="text-xs text-slate-400 mb-1 block">Preço extra (€)</label>
+                        <label className="text-xs text-slate-400 mb-1 block">Preço extra ({simboloMoeda})</label>
                         <input type="number" step="0.01" placeholder="0"
                           value={novaVariante.precoExtra}
                           onChange={(e) => setNovaVariante(v => ({ ...v, precoExtra: e.target.value }))}

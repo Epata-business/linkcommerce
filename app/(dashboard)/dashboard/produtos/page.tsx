@@ -30,7 +30,7 @@ export default async function ProdutosPage() {
             {produtos.length} produto{produtos.length === 1 ? "" : "s"} na sua loja
           </p>
         </div>
-        <ProdutoFormDialog trigger={<Button>+ Novo produto</Button>} />
+        <ProdutoFormDialog trigger={<Button>+ Novo produto</Button>} moeda={moeda} />
       </div>
 
       <div className="mt-6 overflow-hidden rounded-lg border">
@@ -75,6 +75,7 @@ export default async function ProdutosPage() {
                       stock: produto.stock,
                       imagemUrl: produto.imagemUrl ?? "",
                     }}
+                    moeda={moeda}
                   />
                 </td>
               </tr>
