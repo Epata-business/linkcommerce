@@ -56,6 +56,7 @@ export default function OnboardingPage() {
     if (!res.ok) {
       setLoading(false);
       if (data.erro === "subdominio-em-uso") setErro("Este subdomínio já está em uso. Escolha outro.");
+      else if (data.erro === "ja-tem-loja") { router.push("/dashboard"); return; }
       else setErro("Erro ao criar a loja. Tente novamente.");
       return;
     }

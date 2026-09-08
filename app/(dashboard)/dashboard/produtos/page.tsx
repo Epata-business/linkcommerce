@@ -33,8 +33,8 @@ export default async function ProdutosPage() {
         <ProdutoFormDialog trigger={<Button>+ Novo produto</Button>} moeda={moeda} />
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-lg border">
-        <table className="w-full text-sm">
+      <div className="mt-6 overflow-hidden rounded-lg border overflow-x-auto">
+        <table className="w-full text-sm min-w-[600px]">
           <thead className="bg-muted/50 text-left">
             <tr>
               <th className="p-3">Produto</th>

@@ -31,6 +31,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ erro: "utilizador-nao-encontrado" }, { status: 404 });
   }
 
+  // Impedir criação de segunda loja
+  if (user.lojaId) {
+    return NextResponse.json({ erro: "ja-tem-loja", lojaId: user.lojaId }, { status: 409 });
+  }
+
   const planoFree = await prisma.plano.findFirst({ where: { slug: "free" } });
 
   // Moeda padrão com base no idioma escolhido pelo utilizador
