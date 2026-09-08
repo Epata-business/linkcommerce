@@ -191,7 +191,12 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
   const [passo, setPasso] = useState(0);
   const [aSubmeter, setASubmeter] = useState(false);
   const [erro, setErro] = useState("");
-  const [metodoPagamento, setMetodoPagamento] = useState("multicaixa");
+  const [metodoPagamento, setMetodoPagamento] = useState(() =>
+    typeof document !== "undefined" &&
+    document.querySelector("[data-moeda]")?.getAttribute("data-moeda") === "AOA"
+      ? "multicaixa"
+      : "cartao"
+  );
   const [morada, setMorada] = useState({ rua: "", cidade: "", codigoPostal: "", pais: "" });
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -199,7 +204,11 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
   const [bi, setBi] = useState("");
   const [nifComprador, setNifComprador] = useState("");
   const [cor, setCor] = useState("#153DFC");
-  const [moeda, setMoeda] = useState("EUR");
+  const [moeda, setMoeda] = useState(() =>
+    typeof document !== "undefined"
+      ? (document.querySelector("[data-moeda]")?.getAttribute("data-moeda") ?? "EUR")
+      : "EUR"
+  );
   const [zonas, setZonas] = useState<ZonaEntrega[]>([]);
   const [zonaId, setZonaId] = useState("");
   const [comprovanteFile, setComprovanteFile] = useState<File | null>(null);
@@ -228,13 +237,14 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
   const custoEntrega = zonaSeleccionada ? Number(zonaSeleccionada.preco) : 0;
   const total = subtotal + custoEntrega;
 
-  const METODOS = [
-    { id: "cartao",     label: tr.pay_card,         sub: tr.pay_card_sub,        icon: <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" stroke="currentColor" strokeWidth={1.5}><rect x="1" y="4" width="22" height="16" rx="2" /><path strokeLinecap="round" d="M1 10h22" /></svg> },
-    { id: "mbway",      label: "MB WAY",             sub: tr.pay_mbway_sub,       icon: <span className="text-xl font-black text-red-500">MB</span>,     paisFlag: "🇵🇹" },
-    { id: "multibanco", label: "Multibanco",         sub: tr.pay_multibanco_sub,  icon: <span className="text-xl font-black text-blue-600">ATM</span>,   paisFlag: "🇵🇹" },
-    { id: "multicaixa", label: "Multicaixa Express", sub: tr.pay_multicaixa_sub,  icon: <span className="text-xl font-black text-yellow-600">MCX</span>, paisFlag: "🇦🇴" },
-    { id: "paypal",     label: "PayPal",             sub: tr.pay_paypal_sub,      icon: <span className="text-xl font-bold text-blue-700">P</span> },
+  const TODOS_METODOS = [
+    { id: "cartao",     label: tr.pay_card,         sub: tr.pay_card_sub,        icon: <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" stroke="currentColor" strokeWidth={1.5}><rect x="1" y="4" width="22" height="16" rx="2" /><path strokeLinecap="round" d="M1 10h22" /></svg>, moedas: ["EUR","USD"] },
+    { id: "mbway",      label: "MB WAY",             sub: tr.pay_mbway_sub,       icon: <span className="text-xl font-black text-red-500">MB</span>,     paisFlag: "🇵🇹", moedas: ["EUR"] },
+    { id: "multibanco", label: "Multibanco",         sub: tr.pay_multibanco_sub,  icon: <span className="text-xl font-black text-blue-600">ATM</span>,   paisFlag: "🇵🇹", moedas: ["EUR"] },
+    { id: "multicaixa", label: "Multicaixa Express", sub: tr.pay_multicaixa_sub,  icon: <span className="text-xl font-black text-yellow-600">MCX</span>, paisFlag: "🇦🇴", moedas: ["AOA"] },
+    { id: "paypal",     label: "PayPal",             sub: tr.pay_paypal_sub,      icon: <span className="text-xl font-bold text-blue-700">P</span>, moedas: ["EUR","USD"] },
   ];
+  const METODOS = TODOS_METODOS.filter(m => m.moedas.includes(moeda));
 
   const COUNTRIES = locale === "en"
     ? ["Angola","Portugal","Brazil","Mozambique","Cape Verde","Other"]

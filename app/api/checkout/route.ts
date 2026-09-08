@@ -141,6 +141,11 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // AOA não é suportado pelo Stripe — forçar multicaixa
+  if (loja.moeda === "AOA") {
+    return NextResponse.json({ erro: "Lojas AOA só aceitam pagamento Multicaixa" }, { status: 400 });
+  }
+
   const paymentMethods = metodoStripeMap[metodoPagamento] ?? ["card"];
 
   // Guardar pedido na DB ANTES do Stripe — dados ficam sempre salvos
