@@ -72,7 +72,7 @@ export default async function StorefrontLayout({ children, params }: Props) {
 
           <div className="flex items-center gap-2">
             <StorefrontLanguageSwitcher current={locale} cor={cor} />
-            <CartDrawer corPrimaria={cor} locale={locale} />
+            <CartDrawer corPrimaria={cor} locale={locale} moeda={loja.moeda ?? "EUR"} />
           </div>
         </div>
       </header>

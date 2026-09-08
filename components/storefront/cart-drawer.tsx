@@ -16,7 +16,7 @@ const labels: Record<Locale, {
   es: { cart: "Carrito", empty_title: "Tu carrito está vacío", empty_sub: "Añade productos para continuar", checkout: "Finalizar compra →", secure: "Pago seguro con SSL", qty: "uds." },
 };
 
-export function CartDrawer({ corPrimaria, locale = "pt", subdominio }: { corPrimaria: string; locale?: Locale; subdominio?: string }) {
+export function CartDrawer({ corPrimaria, locale = "pt", subdominio, moeda = "EUR" }: { corPrimaria: string; locale?: Locale; subdominio?: string; moeda?: string }) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -107,10 +107,10 @@ export function CartDrawer({ corPrimaria, locale = "pt", subdominio }: { corPrim
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-slate-800 truncate">{item.titulo}</p>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    {item.quantidade}× {formatarPreco(item.precoUnitario, "EUR")}
+                    {item.quantidade}× {formatarPreco(item.precoUnitario, moeda)}
                   </p>
                   <p className="text-sm font-bold mt-1" style={{ color: corPrimaria }}>
-                    {formatarPreco(item.precoUnitario * item.quantidade, "EUR")}
+                    {formatarPreco(item.precoUnitario * item.quantidade, moeda)}
                   </p>
                 </div>
                 <button
@@ -132,7 +132,7 @@ export function CartDrawer({ corPrimaria, locale = "pt", subdominio }: { corPrim
             <div className="flex justify-between items-center">
               <span className="text-slate-500 text-sm">Total</span>
               <span className="text-2xl font-black" style={{ color: corPrimaria }}>
-                {formatarPreco(total, "EUR")}
+                {formatarPreco(total, moeda)}
               </span>
             </div>
             <button

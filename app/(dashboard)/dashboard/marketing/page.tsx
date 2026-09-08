@@ -2,16 +2,18 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getLojaId } from "@/lib/get-loja-id";
 import { revalidatePath } from "next/cache";
+import { formatarPreco } from "@/lib/moeda";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button";
 
 export default async function MarketingPage() {
   const lojaId = await getLojaId();
 
-  const cupoes = await prisma.cupao.findMany({
-    where: { lojaId },
-    orderBy: { codigo: "asc" },
-  });
+  const [cupoes, loja] = await Promise.all([
+    prisma.cupao.findMany({ where: { lojaId }, orderBy: { codigo: "asc" } }),
+    prisma.loja.findUnique({ where: { id: lojaId }, select: { moeda: true } }),
+  ]);
+  const moeda = loja?.moeda ?? "EUR";
 
   async function criarCupao(formData: FormData) {
     "use server";
@@ -100,11 +102,11 @@ export default async function MarketingPage() {
             {cupoes.map((cupao) => (
               <tr key={cupao.id} className="border-t">
                 <td className="p-3 font-mono font-medium">{cupao.codigo}</td>
-                <td className="p-3">{cupao.tipo === "PERCENTAGEM" ? "%" : "€"}</td>
+                <td className="p-3">{cupao.tipo === "PERCENTAGEM" ? "%" : moeda}</td>
                 <td className="p-3">
                   {cupao.tipo === "PERCENTAGEM"
                     ? `${Number(cupao.valor)}%`
-                    : Number(cupao.valor).toLocaleString("pt-PT", { style: "currency", currency: "EUR" })}
+                    : formatarPreco(Number(cupao.valor), moeda)}
                 </td>
                 <td className="p-3">
                   {cupao.usosAtuais}{cupao.usosMaximos ? ` / ${cupao.usosMaximos}` : ""}

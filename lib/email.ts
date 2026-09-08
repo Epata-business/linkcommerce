@@ -212,3 +212,47 @@ export async function enviarEmailConfirmacaoPedido(data: PedidoEmailData) {
 
   await Promise.allSettled(promises);
 }
+
+export async function enviarEmailSubscricaoAOA(data: {
+  emailLojista: string;
+  nomeLoja: string;
+  nomePlano: string;
+  aprovado: boolean;
+}) {
+  const assunto = data.aprovado
+    ? `✅ Subscrição activada — ${data.nomeLoja}`
+    : `❌ Subscrição recusada — ${data.nomeLoja}`;
+
+  const corpo = data.aprovado
+    ? `<!DOCTYPE html><html><body style="font-family:-apple-system,sans-serif;background:#f8fafc;padding:40px 20px">
+        <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+          <table style="max-width:520px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+            <tr><td style="background:linear-gradient(135deg,#153DFC,#8381FB);padding:28px;text-align:center">
+              <h1 style="margin:0;color:#fff;font-size:20px;font-weight:800">LinkCommerce</h1>
+            </td></tr>
+            <tr><td style="padding:32px">
+              <p style="font-size:22px;margin:0 0 8px">✅ Plano activado!</p>
+              <p style="color:#475569;font-size:15px;margin:0 0 20px">O plano <strong>${data.nomePlano}</strong> da loja <strong>${data.nomeLoja}</strong> foi activado com sucesso.</p>
+              <p style="color:#475569;font-size:14px">Pode agora utilizar todas as funcionalidades incluídas no seu plano. Aceda ao painel em <a href="https://app.linkcommerce.cc/dashboard" style="color:#153DFC">app.linkcommerce.cc</a>.</p>
+            </td></tr>
+          </table>
+        </td></tr></table>
+      </body></html>`
+    : `<!DOCTYPE html><html><body style="font-family:-apple-system,sans-serif;background:#f8fafc;padding:40px 20px">
+        <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+          <table style="max-width:520px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+            <tr><td style="background:#1e293b;padding:28px;text-align:center">
+              <h1 style="margin:0;color:#fff;font-size:20px;font-weight:800">LinkCommerce</h1>
+            </td></tr>
+            <tr><td style="padding:32px">
+              <p style="font-size:20px;margin:0 0 8px">Transferência não confirmada</p>
+              <p style="color:#475569;font-size:15px;margin:0 0 20px">Não foi possível confirmar o pagamento do plano <strong>${data.nomePlano}</strong> para a loja <strong>${data.nomeLoja}</strong>.</p>
+              <p style="color:#475569;font-size:14px">Por favor, verifique se o comprovativo está correcto e tente novamente, ou contacte o suporte LinkCommerce.</p>
+              <p style="color:#475569;font-size:14px;margin-top:16px">Aceda a <a href="https://app.linkcommerce.cc/dashboard/configuracoes/planos" style="color:#153DFC">app.linkcommerce.cc/dashboard/configuracoes/planos</a> para submeter um novo comprovativo.</p>
+            </td></tr>
+          </table>
+        </td></tr></table>
+      </body></html>`;
+
+  await resend.emails.send({ from: FROM, to: data.emailLojista, subject: assunto, html: corpo }).catch(() => {});
+}

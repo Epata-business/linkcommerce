@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatarPreco } from "@/lib/moeda";
 
 interface Zona {
   id: string;
@@ -110,9 +111,7 @@ export function ZonasEntregaManager({ zonas: inicial, moeda }: { zonas: Zona[]; 
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-sm font-bold text-indigo-600">
-                    {moeda === "AOA"
-                      ? `${Number(z.preco).toLocaleString("pt-AO")} Kz`
-                      : `${sym}${Number(z.preco).toFixed(2)}`}
+                    {formatarPreco(Number(z.preco), moeda)}
                   </span>
                   <button onClick={() => remover(z.id)}
                     className="text-slate-300 hover:text-red-500 transition-colors text-lg leading-none">×</button>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { enviarEmailSubscricaoAOA } from "@/lib/email";
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await auth();
@@ -13,7 +14,15 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ erro: "Acção inválida" }, { status: 400 });
   }
 
-  const subscricao = await prisma.subscricao.findUnique({ where: { id: params.id } });
+  const subscricao = await prisma.subscricao.findUnique({
+    where: { id: params.id },
+    include: {
+      loja: {
+        select: { nome: true, utilizadores: { where: { role: "LOJISTA" }, select: { email: true }, take: 1 } },
+      },
+      plano: { select: { nome: true } },
+    },
+  });
   if (!subscricao) return NextResponse.json({ erro: "Subscrição não encontrada" }, { status: 404 });
 
   if (acao === "aprovar") {
@@ -28,6 +37,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       where: { id: subscricao.lojaId },
       data: { planoId: subscricao.planoId },
     });
+
+    const emailLojista = subscricao.loja.utilizadores[0]?.email;
+    if (emailLojista) {
+      void enviarEmailSubscricaoAOA({
+        emailLojista,
+        nomeLoja: subscricao.loja.nome,
+        nomePlano: subscricao.plano.nome,
+        aprovado: true,
+      });
+    }
   } else {
     const planoFree = await prisma.plano.findFirst({ where: { slug: "free" } });
     await prisma.subscricao.update({
@@ -38,6 +57,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         ...(planoFree ? { planoId: planoFree.id } : {}),
       },
     });
+
+    const emailLojista = subscricao.loja.utilizadores[0]?.email;
+    if (emailLojista) {
+      void enviarEmailSubscricaoAOA({
+        emailLojista,
+        nomeLoja: subscricao.loja.nome,
+        nomePlano: subscricao.plano.nome,
+        aprovado: false,
+      });
+    }
   }
 
   return NextResponse.json({ ok: true });
