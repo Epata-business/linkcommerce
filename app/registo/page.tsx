@@ -71,7 +71,8 @@ export default function RegistoPage({
             action={async (formData: FormData) => {
               "use server";
               const nome = formData.get("nome") as string;
-              const email = formData.get("email") as string;
+              const emailRaw = formData.get("email") as string;
+              const email = emailRaw.toLowerCase().trim();
               const password = formData.get("password") as string;
 
               if (!nome || !email || !password || password.length < 6) {

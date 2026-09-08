@@ -9,6 +9,7 @@ interface Pendente {
   subdominio: string;
   plano: string;
   precoMensal: number;
+  moedaLoja: string;
   comprovanteUrl: string;
   atualizadoEm: string;
 }
@@ -39,7 +40,7 @@ export function SubscricoesAdmin({ pendentes }: { pendentes: Pendente[] }) {
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
               <p className="font-bold text-slate-900">{s.loja}</p>
-              <p className="text-sm text-slate-400">{s.subdominio}.linkcommerce.cc · Plano {s.plano} · €{s.precoMensal}/mês</p>
+              <p className="text-sm text-slate-400">{s.subdominio}.linkcommerce.app · Plano {s.plano} · {s.moedaLoja === "AOA" ? `${s.precoMensal.toLocaleString("pt-AO")} Kz` : `€${s.precoMensal}`}/mês</p>
               <p className="text-xs text-slate-300 mt-1">Submetido em {new Date(s.atualizadoEm).toLocaleString("pt-PT")}</p>
             </div>
             <div className="flex gap-2">

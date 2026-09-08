@@ -3,7 +3,10 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
-  const { nome, email, password } = await request.json();
+  const body = await request.json();
+  const nome = body.nome;
+  const email = (body.email as string)?.toLowerCase().trim();
+  const password = body.password;
 
   if (!nome || !email || !password || password.length < 6) {
     return NextResponse.json({ erro: "dados-invalidos" }, { status: 400 });

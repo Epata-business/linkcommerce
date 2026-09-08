@@ -28,6 +28,7 @@ export default async function SubscricoesPage() {
             subdominio: s.loja.subdominio,
             plano: s.plano.nome,
             precoMensal: Number(s.plano.precoMensal),
+            moedaLoja: s.loja.moeda ?? "AOA",
             comprovanteUrl: s.comprovanteUrl ?? "",
             atualizadoEm: s.updatedAt.toISOString(),
           }))}
