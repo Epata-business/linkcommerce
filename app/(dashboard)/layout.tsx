@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { StorePreviewButton } from "@/components/dashboard/store-preview-button";
 import { DashboardLocaleSwitcher } from "@/components/dashboard/locale-switcher";
+import { MobileSidebar } from "@/components/dashboard/mobile-sidebar";
 
 const navLinks = [
   { href: "/dashboard", label: "Início" },
@@ -22,12 +23,18 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!session?.user) redirect("/entrar");
 
   const role = (session.user as { role?: string }).role;
+  const lojaId = (session.user as { lojaId?: string }).lojaId;
   const jar = cookies();
   const adminOverride = jar.get("admin_loja_override")?.value;
   const currentLang = jar.get("LC")?.value ?? "pt";
 
   // Admin sem override → vai para o painel admin
   if (role === "ADMIN_PLATAFORMA" && !adminOverride) redirect("/admin");
+
+  // Lojista sem loja → onboarding (escolher plano primeiro)
+  if (role !== "ADMIN_PLATAFORMA" && !lojaId) {
+    redirect("/onboarding");
+  }
 
   // Nome da loja que o admin está a ver
   let nomeLojaAdmin: string | null = null;
@@ -37,12 +44,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   // Subdomínio, nome e moeda da loja do utilizador actual
-  const lojaAtual = await (async () => {
-    const lojaId = (session.user as { lojaId?: string }).lojaId
-      ?? (role === "ADMIN_PLATAFORMA" && adminOverride ? adminOverride : null);
-    if (!lojaId) return null;
-    return prisma.loja.findUnique({ where: { id: lojaId }, select: { subdominio: true, nome: true, moeda: true } });
-  })();
+  const lojaAtualId = lojaId ?? (role === "ADMIN_PLATAFORMA" && adminOverride ? adminOverride : null);
+  const lojaAtual = lojaAtualId
+    ? await prisma.loja.findUnique({
+        where: { id: lojaAtualId },
+        select: { subdominio: true, nome: true, moeda: true },
+      })
+    : null;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -58,51 +66,50 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
       )}
 
-      <div className="flex flex-1">
-        {/* Sidebar */}
-        <aside className="flex w-56 flex-col border-r bg-slate-900 text-white">
+      {/* Barra mobile topo */}
+      <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900 px-4 py-3 md:hidden">
+        <span className="text-base font-bold text-white tracking-tight">LinkCommerce</span>
+        <MobileSidebar
+          navLinks={navLinks}
+          email={session.user.email ?? ""}
+          subdominio={lojaAtual?.subdominio ?? null}
+          nomeLoja={lojaAtual?.nome ?? null}
+          currentLang={currentLang}
+          currentMoeda={lojaAtual?.moeda ?? "EUR"}
+        />
+      </div>
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar — apenas desktop */}
+        <aside className="hidden md:flex w-56 flex-col border-r border-slate-800 bg-slate-900 text-white">
           <div className="px-4 py-5">
             <span className="text-lg font-bold tracking-tight">LinkCommerce</span>
           </div>
-          <nav className="flex-1 space-y-1 px-2 pb-4">
+          <nav className="flex-1 space-y-1 px-2 pb-4 overflow-y-auto">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="block rounded px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-white"
+                className="block rounded px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          {/* Preview da loja */}
           {lojaAtual && (
             <div className="px-2 pb-3">
-              <StorePreviewButton
-                subdominio={lojaAtual.subdominio}
-                nomeLoja={lojaAtual.nome}
-              />
+              <StorePreviewButton subdominio={lojaAtual.subdominio} nomeLoja={lojaAtual.nome} />
             </div>
           )}
 
-          {/* Selector de idioma + moeda */}
           <div className="border-t border-slate-800 px-2 py-3">
-            <DashboardLocaleSwitcher
-              currentLang={currentLang}
-              currentMoeda={lojaAtual?.moeda ?? "EUR"}
-            />
+            <DashboardLocaleSwitcher currentLang={currentLang} currentMoeda={lojaAtual?.moeda ?? "EUR"} />
           </div>
 
           <div className="border-t border-slate-800 px-4 py-4">
             <p className="truncate text-xs text-slate-400">{session.user.email}</p>
-            <form
-              action={async () => {
-                "use server";
-                await signOut({ redirectTo: "/" });
-              }}
-              className="mt-2"
-            >
+            <form action={async () => { "use server"; await signOut({ redirectTo: "/" }); }} className="mt-2">
               <button type="submit" className="text-xs text-slate-500 hover:text-white transition-colors">
                 Sair →
               </button>

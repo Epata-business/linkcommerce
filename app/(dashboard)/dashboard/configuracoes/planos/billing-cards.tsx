@@ -33,6 +33,7 @@ interface Props {
   proximaCobranca: string | null;
   moedaLoja: string;
   dadosBancarios: DadosBancarios;
+  isOnboarding?: boolean;
 }
 
 const PLANO_HIGHLIGHT: Record<string, string> = {
@@ -53,7 +54,7 @@ const PRECO_AOA: Record<string, number> = {
   pro: 53000,
 };
 
-export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, statusSubscricao, proximaCobranca, moedaLoja, dadosBancarios }: Props) {
+export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, statusSubscricao, proximaCobranca, moedaLoja, dadosBancarios, isOnboarding }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
@@ -233,9 +234,17 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
                   Plano actual
                 </button>
               ) : isFree ? (
-                <button disabled className="w-full rounded-xl py-2.5 text-sm font-bold bg-slate-50 text-slate-400 border border-slate-200 cursor-default">
-                  Sempre disponível
-                </button>
+                isOnboarding ? (
+                  <button
+                    onClick={() => router.push("/dashboard")}
+                    className="w-full rounded-xl py-2.5 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors">
+                    Continuar gratuitamente →
+                  </button>
+                ) : (
+                  <button disabled className="w-full rounded-xl py-2.5 text-sm font-bold bg-slate-50 text-slate-400 border border-slate-200 cursor-default">
+                    Sempre disponível
+                  </button>
+                )
               ) : isAOA ? (
                 <button
                   onClick={() => setPlanoAoaId(plano.id)}

@@ -24,6 +24,7 @@ export default async function StorefrontLayout({ children, params }: Props) {
 
   return (
     <div
+      data-moeda={loja.moeda ?? "EUR"}
       style={{
         ["--cor-primaria" as string]: cor,
         ["--cor-secundaria" as string]: loja.corSecundaria,

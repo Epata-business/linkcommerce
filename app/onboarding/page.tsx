@@ -65,7 +65,7 @@ export default function OnboardingPage() {
     await update({});
     // Pequena pausa para garantir que o cookie é escrito
     await new Promise((r) => setTimeout(r, 800));
-    router.push("/dashboard");
+    router.push("/dashboard/configuracoes/planos?onboarding=1");
     router.refresh();
   }
 
@@ -191,8 +191,8 @@ export default function OnboardingPage() {
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-slate-900">A lançar a sua loja…</h2>
-            <p className="text-sm text-slate-500">Só um momento!</p>
+            <h2 className="text-2xl font-bold text-slate-900">Loja criada!</h2>
+            <p className="text-sm text-slate-500">A preparar a escolha do plano…</p>
           </div>
         )}
 

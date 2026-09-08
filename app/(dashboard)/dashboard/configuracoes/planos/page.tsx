@@ -6,7 +6,7 @@ import { BillingCards } from "./billing-cards";
 export default async function PlanosPage({
   searchParams,
 }: {
-  searchParams: { sucesso?: string };
+  searchParams: { sucesso?: string; onboarding?: string };
 }) {
   const lojaId = await getLojaId();
 
@@ -25,10 +25,18 @@ export default async function PlanosPage({
     <div className="mx-auto max-w-5xl p-6">
       <BackButton href="/dashboard/configuracoes" label="← Configurações" />
 
-      <div className="mt-4 mb-8 text-center">
-        <h1 className="text-2xl font-bold text-slate-900">Planos LinkCommerce</h1>
-        <p className="text-slate-500 mt-1">Escolha o plano que melhor se adapta ao seu negócio.</p>
-      </div>
+      {searchParams.onboarding === "1" ? (
+        <div className="mt-4 mb-8 text-center">
+          <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Último passo</p>
+          <h1 className="text-2xl font-bold text-slate-900">Escolha o seu plano</h1>
+          <p className="text-slate-500 mt-1">Pode sempre mudar de plano mais tarde. Comece gratuitamente.</p>
+        </div>
+      ) : (
+        <div className="mt-4 mb-8 text-center">
+          <h1 className="text-2xl font-bold text-slate-900">Planos LinkCommerce</h1>
+          <p className="text-slate-500 mt-1">Escolha o plano que melhor se adapta ao seu negócio.</p>
+        </div>
+      )}
 
       {searchParams.sucesso === "1" && (
         <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 p-5 text-center">
@@ -45,6 +53,7 @@ export default async function PlanosPage({
       )}
 
       <BillingCards
+        isOnboarding={searchParams.onboarding === "1"}
         planos={planos.map(p => ({
           id: p.id,
           nome: p.nome,

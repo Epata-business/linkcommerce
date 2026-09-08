@@ -199,6 +199,7 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
   const [bi, setBi] = useState("");
   const [nifComprador, setNifComprador] = useState("");
   const [cor, setCor] = useState("#153DFC");
+  const [moeda, setMoeda] = useState("EUR");
   const [zonas, setZonas] = useState<ZonaEntrega[]>([]);
   const [zonaId, setZonaId] = useState("");
   const [comprovanteFile, setComprovanteFile] = useState<File | null>(null);
@@ -214,6 +215,8 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
       .catch(() => {});
     const c = getComputedStyle(document.documentElement).getPropertyValue("--cor-primaria").trim();
     if (c) setCor(c);
+    const m = document.querySelector("[data-moeda]")?.getAttribute("data-moeda") ?? "EUR";
+    setMoeda(m);
     setMorada(m => ({ ...m, pais: (TR[l] ?? TR.pt).country_default }));
   }, []);
 
@@ -371,7 +374,7 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
                             <span className="text-sm font-bold" style={{ color: cor }}>
                               {Number(z.preco) === 0
                                 ? (locale === "en" ? "Free" : "Grátis")
-                                : `${Number(z.preco).toLocaleString("pt-AO")} Kz`}
+                                : formatarPreco(Number(z.preco), moeda)}
                             </span>
                           </button>
                         ))}
@@ -457,7 +460,7 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
                       style={{ background: `linear-gradient(135deg,${cor},${cor}bb)` }}>
                       {aSubmeter
                         ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{tr.processing}</>
-                        : `${tr.confirm} · ${formatarPreco(total, "EUR")}`}
+                        : `${tr.confirm} · ${formatarPreco(total, moeda)}`}
                     </button>
                   </div>
 
@@ -495,20 +498,20 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
                       <p className="text-xs text-slate-400">{tr.qty} {item.quantidade}</p>
                     </div>
                     <span className="text-sm font-bold text-slate-800 flex-shrink-0">
-                      {formatarPreco(item.precoUnitario * item.quantidade, "EUR")}
+                      {formatarPreco(item.precoUnitario * item.quantidade, moeda)}
                     </span>
                   </div>
                 ))}
               </div>
               <div className="border-t border-slate-100 pt-3 space-y-2">
                 <div className="flex justify-between text-sm text-slate-500">
-                  <span>{tr.subtotal}</span><span>{formatarPreco(subtotal, "EUR")}</span>
+                  <span>{tr.subtotal}</span><span>{formatarPreco(subtotal, moeda)}</span>
                 </div>
                 <div className="flex justify-between text-sm text-slate-500">
                   <span>{tr.shipping}</span>
                   <span className={custoEntrega === 0 ? "text-green-600 font-medium" : "font-medium text-slate-700"}>
                     {zonaSeleccionada
-                      ? (custoEntrega === 0 ? (locale === "en" ? "Free" : "Grátis") : `${custoEntrega.toLocaleString("pt-AO")} Kz`)
+                      ? (custoEntrega === 0 ? (locale === "en" ? "Free" : "Grátis") : formatarPreco(custoEntrega, moeda))
                       : tr.shipping_calc}
                   </span>
                 </div>
@@ -521,7 +524,7 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
               </div>
               <div className="border-t border-slate-100 mt-3 pt-3 flex justify-between items-center">
                 <span className="font-bold text-slate-800">{tr.total}</span>
-                <span className="text-2xl font-black" style={{ color: cor }}>{formatarPreco(total, "EUR")}</span>
+                <span className="text-2xl font-black" style={{ color: cor }}>{formatarPreco(total, moeda)}</span>
               </div>
             </div>
 
