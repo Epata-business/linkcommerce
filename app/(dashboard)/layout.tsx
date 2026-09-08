@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { StorePreviewButton } from "@/components/dashboard/store-preview-button";
 import { DashboardLocaleSwitcher } from "@/components/dashboard/locale-switcher";
 import { MobileSidebar } from "@/components/dashboard/mobile-sidebar";
+import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 
 const navLinks = [
   { href: "/dashboard", label: "Início" },
@@ -85,17 +86,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <div className="px-4 py-5">
             <span className="text-lg font-bold tracking-tight">LinkCommerce</span>
           </div>
-          <nav className="flex-1 space-y-1 px-2 pb-4 overflow-y-auto">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="block rounded px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          <DashboardNav links={navLinks} />
 
           {lojaAtual && (
             <div className="px-2 pb-3">
