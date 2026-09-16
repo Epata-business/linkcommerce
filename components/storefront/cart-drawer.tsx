@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useRouter, usePathname } from "next/navigation";
 import { useCartStore } from "@/store/cart-store";
 import { formatarPreco } from "@/lib/moeda";
@@ -35,29 +36,11 @@ export function CartDrawer({ corPrimaria, locale = "pt", subdominio, moeda = "EU
     router.push(`/loja/${sub}/checkout`);
   }
 
-  return (
-    <>
-      {/* Cart button */}
-      <button
-        onClick={() => setOpen(true)}
-        className="relative flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
-        style={{ background: `linear-gradient(135deg, ${corPrimaria}, ${corPrimaria}bb)` }}
-      >
-        {/* Ícone saco de compras */}
-        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-          <line x1="3" y1="6" x2="21" y2="6" />
-          <path d="M16 10a4 4 0 0 1-8 0" />
-        </svg>
-        <span className="hidden sm:inline">{L.cart}</span>
-        {count > 0 && (
-          <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-black shadow-sm ring-2"
-            style={{ color: corPrimaria }}>
-            {count > 9 ? "9+" : count}
-          </span>
-        )}
-      </button>
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
+  const portal = mounted ? (
+    <>
       {/* Backdrop */}
       {open && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
@@ -146,6 +129,33 @@ export function CartDrawer({ corPrimaria, locale = "pt", subdominio, moeda = "EU
           </div>
         )}
       </div>
+    </>
+  ) : null;
+
+  return (
+    <>
+      {/* Cart button — fica no header normalmente */}
+      <button
+        onClick={() => setOpen(true)}
+        className="relative flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+        style={{ background: `linear-gradient(135deg, ${corPrimaria}, ${corPrimaria}bb)` }}
+      >
+        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <path d="M16 10a4 4 0 0 1-8 0" />
+        </svg>
+        <span className="hidden sm:inline">{L.cart}</span>
+        {count > 0 && (
+          <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-black shadow-sm ring-2"
+            style={{ color: corPrimaria }}>
+            {count > 9 ? "9+" : count}
+          </span>
+        )}
+      </button>
+
+      {/* Backdrop + drawer via portal para escapar ao backdrop-filter do header */}
+      {mounted && createPortal(portal, document.body)}
     </>
   );
 }
