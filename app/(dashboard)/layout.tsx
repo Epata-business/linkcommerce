@@ -37,6 +37,20 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect("/onboarding");
   }
 
+  // Lojista sem subscrição activa → forçar escolha/pagamento de plano
+  if (role !== "ADMIN_PLATAFORMA" && lojaId && !adminOverride) {
+    const subscricao = await prisma.subscricao.findUnique({
+      where: { lojaId },
+      select: { status: true },
+    });
+    // ATIVA = acesso completo
+    // PENDENTE_TRANSFERENCIA = redirigir para planos (mostram mensagem "em análise")
+    // sem subscrição ou CANCELADA = redirigir para planos
+    if (subscricao?.status !== "ATIVA") {
+      redirect("/dashboard/configuracoes/planos?primeiro-acesso=1");
+    }
+  }
+
   // Nome da loja que o admin está a ver
   let nomeLojaAdmin: string | null = null;
   if (role === "ADMIN_PLATAFORMA" && adminOverride) {

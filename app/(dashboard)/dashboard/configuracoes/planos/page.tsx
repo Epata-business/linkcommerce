@@ -6,7 +6,7 @@ import { BillingCards } from "./billing-cards";
 export default async function PlanosPage({
   searchParams,
 }: {
-  searchParams: { sucesso?: string; onboarding?: string };
+  searchParams: { sucesso?: string; onboarding?: string; "primeiro-acesso"?: string };
 }) {
   const lojaId = await getLojaId();
 
@@ -25,11 +25,17 @@ export default async function PlanosPage({
     <div className="mx-auto max-w-5xl p-6">
       <BackButton href="/dashboard/configuracoes" label="← Configurações" />
 
-      {searchParams.onboarding === "1" ? (
+      {searchParams["primeiro-acesso"] === "1" ? (
+        <div className="mt-4 mb-8 text-center">
+          <p className="text-xs font-semibold text-red-500 uppercase tracking-wider mb-1">Acesso bloqueado</p>
+          <h1 className="text-2xl font-bold text-slate-900">Escolha um plano para continuar</h1>
+          <p className="text-slate-500 mt-1">Para aceder ao dashboard precisa de ter uma subscrição activa.</p>
+        </div>
+      ) : searchParams.onboarding === "1" ? (
         <div className="mt-4 mb-8 text-center">
           <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Último passo</p>
           <h1 className="text-2xl font-bold text-slate-900">Escolha o seu plano</h1>
-          <p className="text-slate-500 mt-1">Pode sempre mudar de plano mais tarde. Comece gratuitamente.</p>
+          <p className="text-slate-500 mt-1">Subscreva para activar a sua loja e começar a vender.</p>
         </div>
       ) : (
         <div className="mt-4 mb-8 text-center">

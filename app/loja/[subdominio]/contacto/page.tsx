@@ -42,7 +42,7 @@ export default async function ContactoPage({ params }: PageProps) {
 
       <div className="grid sm:grid-cols-2 gap-4 mb-10">
         {[
-          { icon: "📧", titulo: t("contact_email_label", locale), desc: `suporte@${params.subdominio}.linkcommerce.app` },
+          { icon: "📧", titulo: t("contact_email_label", locale), desc: `suporte@${params.subdominio}.linkcommerce.cc` },
           { icon: "⏱️", titulo: t("contact_response", locale), desc: t("contact_response_val", locale) },
         ].map((item) => (
           <div key={item.titulo} className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">

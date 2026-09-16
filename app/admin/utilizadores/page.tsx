@@ -54,7 +54,7 @@ export default async function AdminUtilizadoresPage() {
                     {u.loja ? (
                       <div>
                         <p className="text-slate-700">{u.loja.nome}</p>
-                        <p className="text-xs text-slate-400">{u.loja.subdominio}.linkcommerce.app</p>
+                        <p className="text-xs text-slate-400">{u.loja.subdominio}.linkcommerce.cc</p>
                       </div>
                     ) : <span className="text-slate-400">—</span>}
                   </td>

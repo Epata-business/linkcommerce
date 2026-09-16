@@ -25,7 +25,7 @@ async function getLojaComProdutos(subdominio: string) {
 export async function generateMetadata({ params }: PageProps) {
   const loja = await prisma.loja.findUnique({ where: { subdominio: params.subdominio } });
   if (!loja) return {};
-  const url = `https://${params.subdominio}.linkcommerce.app`;
+  const url = `https://${params.subdominio}.linkcommerce.cc`;
   const desc = `Compre online na ${loja.nome}. Entrega rápida e pagamento seguro.`;
   return {
     title: loja.nome,

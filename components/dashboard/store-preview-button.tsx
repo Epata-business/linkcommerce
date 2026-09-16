@@ -147,7 +147,7 @@ export function StorePreviewButton({ subdominio, nomeLoja }: Props) {
                         <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
                       </div>
                       <div className="flex-1 rounded px-3 py-0.5 text-[10px] text-white/30 text-center" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                        {nomeLoja.toLowerCase().replace(/\s/g, '')}.linkcommerce.app
+                        {nomeLoja.toLowerCase().replace(/\s/g, '')}.linkcommerce.cc
                       </div>
                     </div>
                     <iframe

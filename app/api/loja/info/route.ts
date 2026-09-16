@@ -12,7 +12,7 @@ export async function GET() {
 
   const url = loja.dominioProprio
     ? `https://${loja.dominioProprio}`
-    : `https://${loja.subdominio}.linkcommerce.app`;
+    : `https://${loja.subdominio}.linkcommerce.cc`;
 
   return NextResponse.json({ subdominio: loja.subdominio, nome: loja.nome, url });
 }

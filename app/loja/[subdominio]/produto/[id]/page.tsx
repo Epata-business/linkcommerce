@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props) {
   ]);
   if (!produto) return {};
   const desc = produto.descricao ?? `Compre ${produto.titulo} na loja ${loja?.nome ?? ""}.`;
-  const url = `https://${params.subdominio}.linkcommerce.app/produto/${params.id}`;
+  const url = `https://${params.subdominio}.linkcommerce.cc/produto/${params.id}`;
   return {
     title: `${produto.titulo} — ${loja?.nome ?? ""}`,
     description: desc,
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props) {
       images: produto.imagemUrl ? [{ url: produto.imagemUrl, width: 800, height: 800, alt: produto.titulo }] : [],
     },
     twitter: { card: "summary_large_image", title: produto.titulo, description: desc },
-    metadataBase: new URL(`https://${params.subdominio}.linkcommerce.app`),
+    metadataBase: new URL(`https://${params.subdominio}.linkcommerce.cc`),
   };
 }
 
@@ -170,7 +170,7 @@ export default async function ProdutoPage({ params }: Props) {
           {/* Comprar pelo WhatsApp */}
           {telefoneWA && produto.stock > 0 && (
             <a
-              href={`https://wa.me/${telefoneWA}?text=${encodeURIComponent(`Olá! Tenho interesse em comprar: ${produto.titulo} — ${formatarPreco(preco, moeda)}\n${`https://${params.subdominio}.linkcommerce.app/produto/${params.id}`}`)}`}
+              href={`https://wa.me/${telefoneWA}?text=${encodeURIComponent(`Olá! Tenho interesse em comprar: ${produto.titulo} — ${formatarPreco(preco, moeda)}\n${`https://${params.subdominio}.linkcommerce.cc/produto/${params.id}`}`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2.5 w-full rounded-2xl py-4 font-bold text-white text-sm transition-all hover:opacity-90 active:scale-95"

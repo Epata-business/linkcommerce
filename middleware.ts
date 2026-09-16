@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "linkcommerce.app";
+const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "linkcommerce.cc";
 
 // NextAuth v5 mudou o nome do cookie de "next-auth.session-token" para "authjs.session-token"
 const COOKIE_NAME =

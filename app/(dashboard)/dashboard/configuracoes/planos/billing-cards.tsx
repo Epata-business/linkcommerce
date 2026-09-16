@@ -234,15 +234,22 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
                   Plano actual
                 </button>
               ) : isFree ? (
-                isOnboarding ? (
+                isAOA ? (
                   <button
-                    onClick={() => router.push("/dashboard")}
-                    className="w-full rounded-xl py-2.5 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors">
-                    Continuar gratuitamente →
+                    onClick={() => setPlanoAoaId(plano.id)}
+                    className="w-full rounded-xl py-2.5 text-sm font-bold text-white bg-blue-600 hover:opacity-90 transition-all active:scale-95">
+                    Transferência bancária
+                  </button>
+                ) : !plano.stripePriceId ? (
+                  <button disabled className="w-full rounded-xl py-2.5 text-sm font-bold bg-slate-100 text-slate-400 cursor-default">
+                    Em breve
                   </button>
                 ) : (
-                  <button disabled className="w-full rounded-xl py-2.5 text-sm font-bold bg-slate-50 text-slate-400 border border-slate-200 cursor-default">
-                    Sempre disponível
+                  <button
+                    onClick={() => handleSubscribe(plano.id)}
+                    disabled={loading !== null}
+                    className="w-full rounded-xl py-2.5 text-sm font-bold text-white bg-slate-900 hover:opacity-90 active:scale-95 disabled:opacity-60 transition-all">
+                    {loading === plano.id ? "A redirecionar…" : "Escolher plano"}
                   </button>
                 )
               ) : isAOA ? (

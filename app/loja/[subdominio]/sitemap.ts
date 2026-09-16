@@ -6,7 +6,7 @@ export default async function sitemap({
 }: {
   params: { subdominio: string };
 }): Promise<MetadataRoute.Sitemap> {
-  const base = `https://${params.subdominio}.linkcommerce.app`;
+  const base = `https://${params.subdominio}.linkcommerce.cc`;
 
   const produtos = await prisma.produto.findMany({
     where: { loja: { subdominio: params.subdominio }, ativo: true },

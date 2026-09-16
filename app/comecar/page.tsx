@@ -226,7 +226,7 @@ export default function ComecarPage() {
                     <label className="block text-sm font-medium text-slate-700 mb-1">Endereço da loja</label>
                     <div className="flex rounded-xl border border-slate-200 overflow-hidden focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100">
                       <input name="subdominio" type="text" placeholder="boutique-ana" required pattern="[a-zA-Z0-9-]+" className="flex-1 px-4 py-2.5 text-sm outline-none" />
-                      <span className="flex items-center border-l px-3 text-xs text-slate-400 bg-slate-50">.linkcommerce.app</span>
+                      <span className="flex items-center border-l px-3 text-xs text-slate-400 bg-slate-50">.linkcommerce.cc</span>
                     </div>
                   </div>
                   <div className="rounded-xl overflow-hidden border border-slate-100 text-xs">

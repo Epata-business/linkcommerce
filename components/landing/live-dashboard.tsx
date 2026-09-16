@@ -72,7 +72,7 @@ export function LiveDashboard() {
           <span className="h-3 w-3 rounded-full bg-red-500/70" />
           <span className="h-3 w-3 rounded-full bg-yellow-500/70" />
           <span className="h-3 w-3 rounded-full bg-green-500/70" />
-          <span className="ml-3 text-xs text-white/30 font-montserrat">linkcommerce.app/dashboard</span>
+          <span className="ml-3 text-xs text-white/30 font-montserrat">linkcommerce.cc/dashboard</span>
           <span className="ml-auto flex items-center gap-1.5 text-xs text-green-400">
             <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
             Ao vivo

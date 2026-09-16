@@ -107,7 +107,7 @@ export async function GET(req: NextRequest, { params }: { params: { pedidoId: st
     <div class="header">
       <div class="logo-area">
         <h1>${pedido.loja?.nome ?? "Loja"}</h1>
-        <p>${pedido.loja?.subdominio}.linkcommerce.app</p>
+        <p>${pedido.loja?.subdominio}.linkcommerce.cc</p>
         ${pedido.loja?.nif ? `<p style="margin-top:6px;font-size:12px;opacity:.9">NIF: <strong>${pedido.loja.nif}</strong></p>` : ""}
         ${moradaJson.telefone ? `<p style="font-size:12px;opacity:.8">Tel: ${moradaJson.telefone}</p>` : ""}
         ${pedido.loja?.moradaFiscal ? `<p style="font-size:12px;opacity:.8;max-width:220px;line-height:1.4">${pedido.loja.moradaFiscal}</p>` : ""}

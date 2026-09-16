@@ -145,7 +145,7 @@ export default function OnboardingPage() {
                   <div className="flex rounded-xl border border-slate-200 overflow-hidden focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100">
                     <input name="subdominio" type="text" placeholder="boutique-ana" required pattern="[a-zA-Z0-9-]+"
                       className="flex-1 px-4 py-2.5 text-sm outline-none" />
-                    <span className="flex items-center border-l border-slate-200 px-3 text-xs text-slate-400 bg-slate-50">.linkcommerce.app</span>
+                    <span className="flex items-center border-l border-slate-200 px-3 text-xs text-slate-400 bg-slate-50">.linkcommerce.cc</span>
                   </div>
                   <p className="mt-1 text-xs text-slate-400">Apenas letras, números e hífens.</p>
                 </div>

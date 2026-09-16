@@ -150,7 +150,7 @@ export default async function ConfiguracoesPage({
 
           <div className="pt-1">
             <p className="text-xs text-muted-foreground">
-              Subdomínio: <strong>{loja.subdominio}.linkcommerce.app</strong>
+              Subdomínio: <strong>{loja.subdominio}.linkcommerce.cc</strong>
             </p>
           </div>
           <Button type="submit">Guardar alterações</Button>

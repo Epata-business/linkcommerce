@@ -154,7 +154,7 @@ export function QuestionarioForm() {
         <p className="text-slate-300 text-lg max-w-sm mx-auto mb-8">
           As suas respostas vão moldar o LinkCommerce. Entraremos em contacto em breve.
         </p>
-        <a href="https://linkcommerce.app"
+        <a href="https://linkcommerce.cc"
           className="inline-block rounded-2xl bg-gradient-to-r from-blue-600 to-violet-600 px-8 py-4 text-base font-bold text-white hover:opacity-90 transition-opacity">
           Conhecer o LinkCommerce →
         </a>

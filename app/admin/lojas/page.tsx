@@ -55,7 +55,7 @@ export default async function AdminLojasPage() {
                       </div>
                       <div>
                         <p className="font-semibold text-slate-800">{loja.nome}</p>
-                        <p className="text-xs text-slate-400">{loja.subdominio}.linkcommerce.app</p>
+                        <p className="text-xs text-slate-400">{loja.subdominio}.linkcommerce.cc</p>
                       </div>
                     </div>
                   </td>
