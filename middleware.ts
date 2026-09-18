@@ -50,10 +50,10 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  // Passa o pathname como header para os Server Components lerem
-  const response = NextResponse.next();
-  response.headers.set("x-pathname", url.pathname);
-  return response;
+  // Passa o pathname como REQUEST header para os Server Components lerem via headers()
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-pathname", url.pathname);
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 export const config = {
