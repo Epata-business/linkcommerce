@@ -38,8 +38,8 @@ export async function POST(req: NextRequest) {
     mode: "subscription",
     payment_method_types: ["card"],
     line_items: [{ price: plano.stripePriceId, quantity: 1 }],
-    success_url: `${process.env.NEXTAUTH_URL}/dashboard/configuracoes/planos?sucesso=1`,
-    cancel_url: `${process.env.NEXTAUTH_URL}/dashboard/configuracoes/planos`,
+    success_url: `${process.env.NEXTAUTH_URL}/subscrever?sucesso=1`,
+    cancel_url: `${process.env.NEXTAUTH_URL}/subscrever`,
     metadata: { lojaId: session.user.lojaId, planoId },
     subscription_data: { metadata: { lojaId: session.user.lojaId, planoId } },
   });
