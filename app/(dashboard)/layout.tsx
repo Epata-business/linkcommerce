@@ -24,13 +24,22 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!session?.user) redirect("/entrar");
 
   const role = (session.user as { role?: string }).role;
-  const lojaId = (session.user as { lojaId?: string }).lojaId;
   const jar = cookies();
   const adminOverride = jar.get("admin_loja_override")?.value;
   const currentLang = jar.get("LC")?.value ?? "pt";
 
   // Admin sem override → vai para o painel admin
   if (role === "ADMIN_PLATAFORMA" && !adminOverride) redirect("/admin");
+
+  // JWT pode estar desactualizado — fallback à DB para lojaId
+  let lojaId = (session.user as { lojaId?: string }).lojaId ?? null;
+  if (!lojaId && role !== "ADMIN_PLATAFORMA" && session.user.email) {
+    const dbUser = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { lojaId: true },
+    });
+    lojaId = dbUser?.lojaId ?? null;
+  }
 
   // Lojista sem loja → onboarding (escolher plano primeiro)
   if (role !== "ADMIN_PLATAFORMA" && !lojaId) {

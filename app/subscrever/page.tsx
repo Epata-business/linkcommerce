@@ -13,7 +13,15 @@ export default async function SubscreverPage({
   const session = await auth();
   if (!session?.user) redirect("/entrar");
 
-  const lojaId = (session.user as { lojaId?: string }).lojaId;
+  // JWT pode estar desactualizado logo após criação da loja — fallback à DB
+  let lojaId = (session.user as { lojaId?: string }).lojaId ?? null;
+  if (!lojaId && session.user.email) {
+    const dbUser = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { lojaId: true },
+    });
+    lojaId = dbUser?.lojaId ?? null;
+  }
   if (!lojaId) redirect("/onboarding");
 
   const [planos, loja] = await Promise.all([

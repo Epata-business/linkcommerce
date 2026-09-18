@@ -7,14 +7,25 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2026-06
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user?.lojaId) return NextResponse.json({ erro: "Não autorizado" }, { status: 401 });
+  if (!session?.user) return NextResponse.json({ erro: "Não autorizado" }, { status: 401 });
+
+  // JWT pode estar desactualizado — fallback à DB
+  let lojaId = (session.user as { lojaId?: string }).lojaId ?? null;
+  if (!lojaId && session.user.email) {
+    const dbUser = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { lojaId: true },
+    });
+    lojaId = dbUser?.lojaId ?? null;
+  }
+  if (!lojaId) return NextResponse.json({ erro: "Não autorizado" }, { status: 401 });
 
   const { planoId } = await req.json();
 
   const [plano, loja] = await Promise.all([
     prisma.plano.findUnique({ where: { id: planoId } }),
     prisma.loja.findUnique({
-      where: { id: session.user.lojaId },
+      where: { id: lojaId },
       include: { subscricao: true },
     }),
   ]);
@@ -28,7 +39,7 @@ export async function POST(req: NextRequest) {
     const customer = await stripe.customers.create({
       email: session.user.email ?? undefined,
       name: loja?.nome ?? undefined,
-      metadata: { lojaId: session.user.lojaId },
+      metadata: { lojaId },
     });
     stripeCustomerId = customer.id;
   }
@@ -40,8 +51,8 @@ export async function POST(req: NextRequest) {
     line_items: [{ price: plano.stripePriceId, quantity: 1 }],
     success_url: `${process.env.NEXTAUTH_URL}/subscrever?sucesso=1`,
     cancel_url: `${process.env.NEXTAUTH_URL}/subscrever`,
-    metadata: { lojaId: session.user.lojaId, planoId },
-    subscription_data: { metadata: { lojaId: session.user.lojaId, planoId } },
+    metadata: { lojaId, planoId },
+    subscription_data: { metadata: { lojaId, planoId } },
   });
 
   return NextResponse.json({ url: checkoutSession.url });

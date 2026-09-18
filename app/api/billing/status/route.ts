@@ -4,7 +4,14 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   const session = await auth();
-  const lojaId = (session?.user as { lojaId?: string })?.lojaId;
+  let lojaId = (session?.user as { lojaId?: string })?.lojaId ?? null;
+  if (!lojaId && session?.user?.email) {
+    const dbUser = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { lojaId: true },
+    });
+    lojaId = dbUser?.lojaId ?? null;
+  }
   if (!lojaId) return NextResponse.json({ ativa: false });
 
   const sub = await prisma.subscricao.findUnique({
