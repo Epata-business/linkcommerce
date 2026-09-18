@@ -64,10 +64,9 @@ export default function OnboardingPage() {
     setStep("loading");
     // Dispara update() — o JWT callback vai buscar o lojaId à DB
     await update({});
-    // Pequena pausa para garantir que o cookie é escrito
-    await new Promise((r) => setTimeout(r, 800));
-    router.push("/dashboard/configuracoes/planos?onboarding=1");
-    router.refresh();
+    // Hard reload para garantir que o cookie JWT actualizado é enviado com o próximo request
+    await new Promise((r) => setTimeout(r, 600));
+    window.location.href = "/dashboard/configuracoes/planos?onboarding=1";
   }
 
   return (
