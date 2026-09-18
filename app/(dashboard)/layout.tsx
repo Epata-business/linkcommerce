@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { auth, signOut } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -38,19 +38,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   // Lojista sem subscrição activa → forçar escolha/pagamento de plano
-  // (excepto na própria página de planos para evitar redirect loop)
   if (role !== "ADMIN_PLATAFORMA" && lojaId && !adminOverride) {
-    const pathname = headers().get("x-pathname") ?? "";
-    const naPaginaDePlanos = pathname.startsWith("/dashboard/configuracoes/planos");
-
-    if (!naPaginaDePlanos) {
-      const subscricao = await prisma.subscricao.findUnique({
-        where: { lojaId },
-        select: { status: true },
-      });
-      if (subscricao?.status !== "ATIVA") {
-        redirect("/dashboard/configuracoes/planos?primeiro-acesso=1");
-      }
+    const subscricao = await prisma.subscricao.findUnique({
+      where: { lojaId },
+      select: { status: true },
+    });
+    if (subscricao?.status !== "ATIVA") {
+      redirect("/subscrever");
     }
   }
 

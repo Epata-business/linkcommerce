@@ -61,7 +61,7 @@ export default function OnboardingPage() {
         setStep("loading");
         await update({});
         await new Promise((r) => setTimeout(r, 600));
-        window.location.href = "/dashboard/configuracoes/planos?onboarding=1";
+        window.location.href = "/subscrever";
         return;
       }
       else setErro("Erro ao criar a loja. Tente novamente.");
@@ -73,7 +73,7 @@ export default function OnboardingPage() {
     await update({});
     // Hard reload para garantir que o cookie JWT actualizado é enviado com o próximo request
     await new Promise((r) => setTimeout(r, 600));
-    window.location.href = "/dashboard/configuracoes/planos?onboarding=1";
+    window.location.href = "/subscrever";
   }
 
   return (
