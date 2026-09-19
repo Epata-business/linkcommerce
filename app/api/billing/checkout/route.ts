@@ -47,7 +47,6 @@ export async function POST(req: NextRequest) {
   const checkoutSession = await stripe.checkout.sessions.create({
     customer: stripeCustomerId,
     mode: "subscription",
-    payment_method_types: ["card"],
     line_items: [{ price: plano.stripePriceId, quantity: 1 }],
     success_url: `${process.env.NEXTAUTH_URL}/subscrever?sucesso=1`,
     cancel_url: `${process.env.NEXTAUTH_URL}/subscrever`,
