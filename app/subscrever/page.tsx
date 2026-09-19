@@ -77,6 +77,7 @@ export default async function SubscreverPage({
             temSubscricaoStripe={!!loja?.subscricao?.stripeSubscriptionId}
             statusSubscricao={loja?.subscricao?.status ?? null}
             proximaCobranca={loja?.subscricao?.proximaCobranca?.toISOString() ?? null}
+            inicioSubscricao={loja?.subscricao?.createdAt?.toISOString() ?? null}
             moedaLoja={loja?.moeda ?? "EUR"}
             dadosBancarios={{
               titular: process.env.BANCO_TITULAR ?? "",

@@ -77,6 +77,7 @@ export default async function PlanosPage({
         temSubscricaoStripe={!!subscricao?.stripeSubscriptionId}
         statusSubscricao={subscricao?.status ?? null}
         proximaCobranca={subscricao?.proximaCobranca?.toISOString() ?? null}
+        inicioSubscricao={subscricao?.createdAt?.toISOString() ?? null}
         moedaLoja={loja?.moeda ?? "EUR"}
         dadosBancarios={{
           titular: process.env.BANCO_TITULAR ?? "",

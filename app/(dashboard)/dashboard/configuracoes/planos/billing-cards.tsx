@@ -31,6 +31,7 @@ interface Props {
   temSubscricaoStripe: boolean;
   statusSubscricao: string | null;
   proximaCobranca: string | null;
+  inicioSubscricao: string | null;
   moedaLoja: string;
   dadosBancarios: DadosBancarios;
   isOnboarding?: boolean;
@@ -54,7 +55,7 @@ const PRECO_AOA: Record<string, number> = {
   pro: 53000,
 };
 
-export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, statusSubscricao, proximaCobranca, moedaLoja, dadosBancarios, isOnboarding }: Props) {
+export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, statusSubscricao, proximaCobranca, inicioSubscricao, moedaLoja, dadosBancarios, isOnboarding }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
@@ -139,10 +140,13 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
       {temSubscricaoStripe && proximaCobranca && (
         <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-5 flex items-center justify-between">
           <div>
-            <p className="text-sm font-semibold text-slate-700">Subscrição activa</p>
+            <p className="text-sm font-semibold text-slate-700">
+              Subscrição activa
+              {statusSubscricao && <span className="ml-2 text-xs font-normal text-slate-400">{statusMap[statusSubscricao] ?? statusSubscricao}</span>}
+            </p>
             <p className="text-xs text-slate-400 mt-0.5">
-              Próxima cobrança: {new Date(proximaCobranca).toLocaleDateString("pt-PT")}
-              {statusSubscricao && ` · ${statusMap[statusSubscricao] ?? statusSubscricao}`}
+              {inicioSubscricao && <>Início: <span className="text-slate-600 font-medium">{new Date(inicioSubscricao).toLocaleDateString("pt-PT")}</span> · </>}
+              Próxima cobrança: <span className="text-slate-600 font-medium">{new Date(proximaCobranca).toLocaleDateString("pt-PT")}</span>
             </p>
           </div>
           <button onClick={handlePortal} disabled={portalLoading}
