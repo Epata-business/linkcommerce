@@ -25,7 +25,7 @@ export default async function SubscreverPage({
   if (!lojaId) redirect("/onboarding");
 
   const [planos, loja] = await Promise.all([
-    prisma.plano.findMany({ orderBy: { ordem: "asc" } }),
+    prisma.plano.findMany({ where: { slug: { not: "free" } }, orderBy: { ordem: "asc" } }),
     prisma.loja.findUnique({
       where: { id: lojaId },
       include: { subscricao: { include: { plano: true } } },
