@@ -46,7 +46,16 @@ export default async function ConfiguracoesPage({
   return (
     <div className="p-6 max-w-2xl">
       <BackButton href="/dashboard" label="← Dashboard" />
-      <h1 className="text-2xl font-semibold">Configurações</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Configurações</h1>
+        <Link href="/dashboard/configuracoes/perfil"
+          className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+          <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          O meu perfil
+        </Link>
+      </div>
 
       {searchParams.saved === "1" && (
         <div className="mt-4 flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
