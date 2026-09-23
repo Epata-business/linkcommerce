@@ -29,13 +29,13 @@ const COPY = {
     stats_uptime: "Disponibilidade",
     how_title: "Do produto ao cliente",
     how_sub: "Cada passo do seu negócio, integrado e automatizado.",
-    plans_title: "Comece grátis, cresça ao seu ritmo",
+    plans_title: "Planos simples, sem surpresas",
     plans_sub: "Sem surpresas. Mude de plano quando quiser.",
     plans_popular: "POPULAR",
     plans_btn: "Começar",
     cta_title: "Pronto para abrir a sua loja?",
     cta_sub: "Crie a sua loja angolana em minutos. Sem comissões escondidas.",
-    cta_btn: "Criar a minha loja grátis →",
+    cta_btn: "Criar a minha loja →",
   },
   en: {
     feat_sell_title: "Sell everywhere",
@@ -52,13 +52,13 @@ const COPY = {
     stats_uptime: "Uptime",
     how_title: "From product to customer",
     how_sub: "Every step of your business, integrated and automated.",
-    plans_title: "Start free, grow at your pace",
+    plans_title: "Simple plans, no surprises",
     plans_sub: "No surprises. Change plans whenever you want.",
     plans_popular: "POPULAR",
     plans_btn: "Get started",
     cta_title: "Ready to open your store?",
     cta_sub: "Create your store in minutes. No hidden commissions.",
-    cta_btn: "Create my store for free →",
+    cta_btn: "Create my store →",
   },
   fr: {
     feat_sell_title: "Vendez partout",
@@ -75,13 +75,13 @@ const COPY = {
     stats_uptime: "Disponibilité",
     how_title: "Du produit au client",
     how_sub: "Chaque étape de votre entreprise, intégrée et automatisée.",
-    plans_title: "Commencez gratuitement",
+    plans_title: "Des forfaits simples, sans surprises",
     plans_sub: "Sans surprises. Changez de forfait quand vous voulez.",
     plans_popular: "POPULAIRE",
     plans_btn: "Commencer",
     cta_title: "Prêt à ouvrir votre boutique?",
     cta_sub: "Créez votre boutique en minutes. Sans commissions cachées.",
-    cta_btn: "Créer ma boutique gratuitement →",
+    cta_btn: "Créer ma boutique →",
   },
   es: {
     feat_sell_title: "Vende en todas partes",
@@ -98,42 +98,16 @@ const COPY = {
     stats_uptime: "Disponibilidad",
     how_title: "Del producto al cliente",
     how_sub: "Cada paso de tu negocio, integrado y automatizado.",
-    plans_title: "Empieza gratis, crece a tu ritmo",
+    plans_title: "Planes simples, sin sorpresas",
     plans_sub: "Sin sorpresas. Cambia de plan cuando quieras.",
     plans_popular: "POPULAR",
     plans_btn: "Empezar",
     cta_title: "¿Listo para abrir tu tienda?",
     cta_sub: "Crea tu tienda en minutos. Sin comisiones ocultas.",
-    cta_btn: "Crear mi tienda gratis →",
+    cta_btn: "Crear mi tienda →",
   },
 } as const;
 
-const PLANS_AOA = [
-  {
-    key: "start", name: "Link Start", price: 1000, popular: false, cta_pt: "Criar Loja", cta_en: "Create Store",
-    target: "starter",
-    features_pt: ["Até 10 produtos", "Link na Bio", "Layout leve e rápido", "Suporte por email"],
-    features_en: ["Up to 10 products", "Bio Link", "Light & fast layout", "Email support"],
-  },
-  {
-    key: "growth", name: "Link Crescimento", price: 5000, popular: false, cta_pt: "Começar Agora", cta_en: "Get Started",
-    target: "starter",
-    features_pt: ["Até 50 produtos", "Automação WhatsApp", "Taxas de entrega por zona", "Relatórios básicos"],
-    features_en: ["Up to 50 products", "WhatsApp automation", "Delivery zones", "Basic reports"],
-  },
-  {
-    key: "pro", name: "Link Profissional", price: 12000, popular: true, cta_pt: "Escolher Plano", cta_en: "Choose Plan",
-    target: "scale",
-    features_pt: ["Produtos ilimitados", "Upload de comprovativo", "Cupões de desconto", "Pagamentos integrados", "Analytics avançado"],
-    features_en: ["Unlimited products", "Proof of payment upload", "Discount coupons", "Integrated payments", "Advanced analytics"],
-  },
-  {
-    key: "premium", name: "Link Premium", price: 25000, popular: false, cta_pt: "Falar c/ Equipa", cta_en: "Talk to Us",
-    target: "scale",
-    features_pt: ["Domínio .COM incluído", "Suporte VIP", "3 Utilizadores", "White-label", "Sem comissão por venda"],
-    features_en: ["Included .COM domain", "VIP support", "3 Users", "White-label", "0% sales commission"],
-  },
-];
 
 const FLOW = [
   { icon: "📦", pt: "Produto",   en: "Product",  fr: "Produit",  es: "Producto"  },
@@ -223,7 +197,7 @@ export default function HomePage() {
           <Link href="/comecar"
             className="rounded-full px-8 py-3.5 text-base font-semibold text-white transition-all hover:scale-105"
             style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)", boxShadow: "0 0 32px rgba(21,61,236,0.55)" }}>
-            {locale === "en" ? "Create my store for free →" : locale === "fr" ? "Créer ma boutique →" : locale === "es" ? "Crear mi tienda →" : "Criar a minha loja grátis →"}
+            {locale === "en" ? "Create my store →" : locale === "fr" ? "Créer ma boutique →" : locale === "es" ? "Crear mi tienda →" : "Criar a minha loja →"}
           </Link>
           <Link href="/entrar"
             className="rounded-full px-8 py-3.5 text-base font-medium text-white/60 border transition-all hover:border-white/30 hover:text-white"

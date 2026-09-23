@@ -5,105 +5,103 @@ import Link from "next/link";
 
 const PLANS = [
   {
-    key: "start",
-    name: "Link Start",
-    price: 1000,
-    priceNote_pt: "no primeiro mês",
-    priceNote_en: "first month",
+    key: "starter",
+    name: "Starter",
+    price: 5,
     popular: false,
     target: "starter",
     cta_pt: "Criar Loja",
     cta_en: "Create Store",
+    commission_pt: "Comissão 2% por venda",
+    commission_en: "2% commission per sale",
     features_pt: [
-      "Até 10 produtos",
-      "Link na Bio",
-      "Layout leve e rápido",
+      "Até 50 produtos",
+      "Loja online completa",
+      "WhatsApp como CTA",
       "Suporte por email",
     ],
     features_en: [
-      "Up to 10 products",
-      "Bio Link",
-      "Light & fast layout",
+      "Up to 50 products",
+      "Full online store",
+      "WhatsApp CTA",
       "Email support",
     ],
   },
   {
-    key: "growth",
-    name: "Link Crescimento",
-    price: 5000,
-    priceNote_pt: "por mês",
-    priceNote_en: "per month",
-    popular: false,
+    key: "basic",
+    name: "Basic",
+    price: 15,
+    popular: true,
     target: "starter",
     cta_pt: "Começar Agora",
     cta_en: "Get Started",
+    commission_pt: "Comissão 1.5% por venda",
+    commission_en: "1.5% commission per sale",
     features_pt: [
-      "Até 50 produtos",
-      "Automação WhatsApp",
-      "Taxas de entrega por zona",
-      "Relatórios básicos",
+      "Até 200 produtos",
+      "Domínio próprio",
+      "Cupões de desconto",
+      "Relatórios de vendas",
     ],
     features_en: [
-      "Up to 50 products",
-      "WhatsApp automation",
-      "Delivery zones",
-      "Basic reports",
+      "Up to 200 products",
+      "Custom domain",
+      "Discount coupons",
+      "Sales reports",
     ],
   },
   {
-    key: "pro",
-    name: "Link Profissional",
-    price: 12000,
-    priceNote_pt: "por mês",
-    priceNote_en: "per month",
-    popular: true,
+    key: "growth",
+    name: "Growth",
+    price: 29,
+    popular: false,
     target: "scale",
     cta_pt: "Escolher Plano",
     cta_en: "Choose Plan",
+    commission_pt: "Comissão 1% por venda",
+    commission_en: "1% commission per sale",
     features_pt: [
       "Produtos ilimitados",
-      "Upload de comprovativo",
-      "Cupões de desconto",
-      "Pagamentos integrados",
+      "Domínio próprio",
+      "Acesso à API",
       "Analytics avançado",
     ],
     features_en: [
       "Unlimited products",
-      "Proof upload",
-      "Discount coupons",
-      "Integrated payments",
+      "Custom domain",
+      "API access",
       "Advanced analytics",
     ],
   },
   {
-    key: "premium",
-    name: "Link Premium",
-    price: 25000,
-    priceNote_pt: "por mês",
-    priceNote_en: "per month",
+    key: "pro",
+    name: "Pro",
+    price: 59,
     popular: false,
     target: "scale",
     cta_pt: "Falar c/ Equipa",
     cta_en: "Talk to Us",
+    commission_pt: "0% comissão por venda",
+    commission_en: "0% commission per sale",
     features_pt: [
-      "Domínio .COM incluído",
-      "Suporte VIP prioritário",
-      "3 Utilizadores",
+      "Produtos ilimitados",
+      "Domínio próprio",
       "White-label",
-      "0% comissão por venda",
+      "Acesso à API",
+      "Suporte VIP prioritário",
     ],
     features_en: [
-      "Included .COM domain",
-      "Priority VIP support",
-      "3 Users",
+      "Unlimited products",
+      "Custom domain",
       "White-label",
-      "0% sales commission",
+      "API access",
+      "Priority VIP support",
     ],
   },
 ];
 
 function fmt(n: number) {
-  return n.toLocaleString("pt-AO") + " Kz";
+  return "€" + n;
 }
 
 interface Props {
@@ -195,7 +193,6 @@ export function PricingSection({ locale }: Props) {
           const price = calcPrice(plan.price);
           const features = isEn ? plan.features_en : plan.features_pt;
           const cta = isEn ? plan.cta_en : plan.cta_pt;
-          const note = isEn ? plan.priceNote_en : plan.priceNote_pt;
 
           return (
             <div
@@ -222,14 +219,16 @@ export function PricingSection({ locale }: Props) {
                     <span className="text-3xl font-black text-white">{fmt(price)}</span>
                   </div>
                   <p className="text-xs text-white/35 mt-1">
-                    {anual ? (isEn ? "billed annually" : "cobrado anualmente") : note}
-                    {plan.key === "start" && !anual && (
-                      <span className="ml-1 text-[#8381FB]">✦</span>
-                    )}
+                    {anual ? (isEn ? "billed annually" : "cobrado anualmente") : (isEn ? "per month" : "por mês")}
                   </p>
                 </div>
 
                 <ul className="space-y-2.5 mb-6 flex-1">
+                  {/* Comissão em destaque */}
+                  <li className="flex items-start gap-2 text-sm font-semibold" style={{ color: plan.popular ? "#a5f3fc" : "#fbbf24" }}>
+                    <span className="mt-0.5 flex-shrink-0">💰</span>
+                    {isEn ? plan.commission_en : plan.commission_pt}
+                  </li>
                   {features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm text-white/70">
                       <span className="mt-0.5 text-green-400 flex-shrink-0">✓</span>
@@ -255,12 +254,10 @@ export function PricingSection({ locale }: Props) {
         })}
       </div>
 
-      {/* Nota do Link Start */}
       <p className="text-center text-xs text-white/25 mt-8">
-        <span className="text-[#8381FB]">✦</span>{" "}
         {isEn
-          ? "Link Start: 1.000 Kz only in the first month. Renews at 2.500 Kz/month from the second month."
-          : "Link Start: 1.000 Kz apenas no primeiro mês. Renova a 2.500 Kz/mês a partir do segundo mês."}
+          ? "Payments processed securely by Stripe · Cancel anytime"
+          : "Pagamentos processados com segurança pela Stripe · Cancele quando quiser"}
       </p>
     </div>
   );
