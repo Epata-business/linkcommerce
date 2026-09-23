@@ -232,11 +232,6 @@ export function PricingSection({ locale }: Props) {
                 </div>
 
                 <ul className="space-y-2.5 mb-6 flex-1">
-                  {/* Comissão em destaque */}
-                  <li className="flex items-start gap-2 text-sm font-semibold" style={{ color: plan.popular ? "#a5f3fc" : "#fbbf24" }}>
-                    <span className="mt-0.5 flex-shrink-0">💰</span>
-                    {isEn ? plan.commission_en : plan.commission_pt}
-                  </li>
                   {features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm text-white/70">
                       <span className="mt-0.5 text-green-400 flex-shrink-0">✓</span>
