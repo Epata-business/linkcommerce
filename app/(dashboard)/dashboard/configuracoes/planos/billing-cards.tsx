@@ -46,13 +46,13 @@ const PLANO_BADGE: Record<string, { texto: string; cor: string }> = {
   pro: { texto: "Para grandes empresas", cor: "bg-slate-800 text-white" },
 };
 
-// Preços em AOA (kwanzas) por plano
+// Preços em Kz para o mercado angolano — alinhados com a landing page
 const PRECO_AOA: Record<string, number> = {
-  free: 1000,
-  starter: 4500,
-  basic: 13500,
-  growth: 26000,
-  pro: 53000,
+  free: 0,
+  starter: 2500,
+  basic: 7500,
+  growth: 15000,
+  pro: 30000,
 };
 
 export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, statusSubscricao, proximaCobranca, inicioSubscricao, moedaLoja, dadosBancarios, isOnboarding }: Props) {
@@ -171,9 +171,8 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
           const highlight = PLANO_HIGHLIGHT[plano.slug] ?? "border-slate-200";
           const badge = PLANO_BADGE[plano.slug];
           const isFree = plano.precoMensal === 0 || plano.slug === "free";
-          const precoExibir = isAOA
-            ? `${(PRECO_AOA[plano.slug] ?? 0).toLocaleString("pt-AO")} Kz`
-            : `€${plano.precoMensal}`;
+          const precoKz = PRECO_AOA[plano.slug] ?? 0;
+          const precoExibir = `${precoKz.toLocaleString("pt-AO")} Kz`;
 
           return (
             <div key={plano.id}
@@ -192,13 +191,12 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
 
               <h2 className="text-lg font-bold text-slate-900 mt-1">{plano.nome}</h2>
               <div className="mt-3 mb-4">
-                {isFree ? (
-                  <p className="text-2xl font-black text-slate-900">{isAOA ? "1.000 Kz" : "1€"}<span className="text-sm font-normal text-slate-400">/mês</span></p>
-                ) : (
-                  <p className="text-2xl font-black text-slate-900">
-                    {precoExibir}
-                    <span className="text-sm font-normal text-slate-400">/mês</span>
-                  </p>
+                <p className="text-2xl font-black text-slate-900">
+                  {isFree ? "0 Kz" : precoExibir}
+                  <span className="text-sm font-normal text-slate-400">/mês</span>
+                </p>
+                {!isFree && (
+                  <p className="text-xs text-slate-400 mt-0.5">≈ €{plano.precoMensal}</p>
                 )}
               </div>
 
@@ -206,12 +204,6 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
                 <li className="flex items-start gap-2">
                   <span className="text-green-500 font-bold mt-0.5">✓</span>
                   {plano.limiteProdutos ? `Até ${plano.limiteProdutos} produtos` : "Produtos ilimitados"}
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className={plano.comissaoPercentual > 0 ? "text-amber-400 font-bold mt-0.5" : "text-green-500 font-bold mt-0.5"}>
-                    {plano.comissaoPercentual > 0 ? "!" : "✓"}
-                  </span>
-                  Comissão {plano.comissaoPercentual}% por venda
                 </li>
                 <li className={`flex items-start gap-2 ${!plano.permiteDominioProprio ? "text-slate-300" : ""}`}>
                   <span className={plano.permiteDominioProprio ? "text-green-500 font-bold mt-0.5" : "text-slate-300 mt-0.5"}>
