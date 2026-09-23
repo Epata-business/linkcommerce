@@ -9,7 +9,7 @@ const PLANS = [
   {
     key: "starter",
     name: "Starter",
-    priceKz: 6000,
+    priceKz: 2500,
     priceEur: 5,
     popular: false,
     target: "starter",
@@ -33,7 +33,7 @@ const PLANS = [
   {
     key: "basic",
     name: "Basic",
-    priceKz: 18000,
+    priceKz: 7500,
     priceEur: 15,
     popular: true,
     target: "starter",
@@ -57,7 +57,7 @@ const PLANS = [
   {
     key: "growth",
     name: "Growth",
-    priceKz: 35000,
+    priceKz: 15000,
     priceEur: 29,
     popular: false,
     target: "scale",
@@ -81,7 +81,7 @@ const PLANS = [
   {
     key: "pro",
     name: "Pro",
-    priceKz: 70000,
+    priceKz: 30000,
     priceEur: 59,
     popular: false,
     target: "scale",
