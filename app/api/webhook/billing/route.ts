@@ -7,14 +7,18 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2026-06
 const webhookSecret = process.env.STRIPE_BILLING_WEBHOOK_SECRET!;
 
 export async function POST(req: NextRequest) {
-  const body = await req.text();
-  const sig = req.headers.get("stripe-signature")!;
+  // Ler corpo como ArrayBuffer para garantir integridade dos bytes
+  const buf = await req.arrayBuffer();
+  const body = Buffer.from(buf).toString("utf8");
+  const sig = req.headers.get("stripe-signature") ?? "";
+
+  console.log("[billing-webhook] body-len:", body.length, "| sig-prefix:", sig.slice(0, 30), "| secret-prefix:", webhookSecret?.slice(0, 14));
 
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
   } catch (err) {
-    console.error("[billing-webhook] sig-fail | secret-prefix:", webhookSecret?.slice(0, 14), "| err:", String(err));
+    console.error("[billing-webhook] sig-fail | err:", String(err).slice(0, 120));
     return NextResponse.json({ erro: "Assinatura inválida" }, { status: 400 });
   }
 
