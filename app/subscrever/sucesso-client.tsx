@@ -10,25 +10,25 @@ export function SubscreverSucesso({ jaAtiva }: { jaAtiva: boolean }) {
 
   useEffect(() => {
     if (ativa) {
-      setTimeout(() => router.push("/dashboard"), 2000);
+      router.push("/dashboard");
       return;
     }
-    // Polling — verifica a cada 2s até a subscrição estar activa (max 30s)
-    if (tentativas >= 15) return;
+    // Polling — verifica a cada 1s até a subscrição estar activa (max 30s)
+    if (tentativas >= 30) return;
     const timer = setTimeout(async () => {
       try {
         const res = await fetch("/api/billing/status");
         const data = await res.json();
         if (data.ativa) {
           setAtiva(true);
-          setTimeout(() => router.push("/dashboard"), 1500);
+          router.push("/dashboard");
         } else {
           setTentativas(t => t + 1);
         }
       } catch {
         setTentativas(t => t + 1);
       }
-    }, 2000);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [tentativas, ativa, router]);
 
@@ -52,7 +52,7 @@ export function SubscreverSucesso({ jaAtiva }: { jaAtiva: boolean }) {
       </div>
       <h1 className="text-2xl font-bold text-slate-900">Pagamento recebido!</h1>
       <p className="text-slate-500 mt-2">A confirmar a subscrição…</p>
-      {tentativas >= 15 && (
+      {tentativas >= 30 && (
         <p className="text-sm text-amber-600 mt-4">
           A activação está a demorar mais que o esperado.{" "}
           <button onClick={() => router.push("/dashboard")} className="underline font-semibold">

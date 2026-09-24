@@ -213,6 +213,48 @@ export async function enviarEmailConfirmacaoPedido(data: PedidoEmailData) {
   await Promise.allSettled(promises);
 }
 
+export async function notificarNovaSubscricao(data: {
+  nomeLoja: string;
+  nomePlano: string;
+  valor: number;
+  moeda: string;
+  stripeCustomerId: string;
+}) {
+  const adminEmail = process.env.ADMIN_EMAIL ?? "contato.epata@gmail.com";
+  const html = `<!DOCTYPE html><html><body style="font-family:-apple-system,sans-serif;background:#f8fafc;padding:40px 20px">
+    <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+      <table style="max-width:520px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+        <tr><td style="background:linear-gradient(135deg,#153DFC,#8381FB);padding:28px;text-align:center">
+          <h1 style="margin:0;color:#fff;font-size:20px;font-weight:800">LinkCommerce</h1>
+          <p style="margin:8px 0 0;color:rgba(255,255,255,0.7);font-size:13px">Nova subscrição activada</p>
+        </td></tr>
+        <tr><td style="padding:32px">
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;margin-bottom:24px;text-align:center">
+            <p style="margin:0 0 4px;font-size:12px;color:#16a34a;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Receita gerada</p>
+            <p style="margin:0;font-size:28px;font-weight:900;color:#15803d">${new Intl.NumberFormat("pt-PT", { style: "currency", currency: data.moeda }).format(data.valor)}</p>
+          </div>
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
+            <tr><td style="padding:10px 0;border-bottom:1px solid #f1f5f9;color:#64748b;font-size:14px">Loja</td><td style="padding:10px 0;border-bottom:1px solid #f1f5f9;font-weight:700;text-align:right;font-size:14px">${data.nomeLoja}</td></tr>
+            <tr><td style="padding:10px 0;border-bottom:1px solid #f1f5f9;color:#64748b;font-size:14px">Plano</td><td style="padding:10px 0;border-bottom:1px solid #f1f5f9;font-weight:700;text-align:right;font-size:14px">${data.nomePlano}</td></tr>
+            <tr><td style="padding:10px 0;color:#64748b;font-size:14px">Cliente Stripe</td><td style="padding:10px 0;font-weight:600;text-align:right;font-size:13px;font-family:monospace;color:#475569">${data.stripeCustomerId}</td></tr>
+          </table>
+          <a href="https://dashboard.stripe.com/customers/${data.stripeCustomerId}" style="display:block;background:linear-gradient(135deg,#153DFC,#8381FB);color:#fff;text-decoration:none;text-align:center;padding:14px;border-radius:12px;font-weight:700;font-size:14px">Ver no Stripe →</a>
+        </td></tr>
+        <tr><td style="background:#f8fafc;padding:14px;text-align:center;border-top:1px solid #e2e8f0">
+          <p style="margin:0;font-size:11px;color:#94a3b8">LinkCommerce · Notificação automática de plataforma</p>
+        </td></tr>
+      </table>
+    </td></tr></table>
+  </body></html>`;
+
+  await resend.emails.send({
+    from: FROM,
+    to: adminEmail,
+    subject: `💰 Nova subscrição — ${data.nomeLoja} (${data.nomePlano})`,
+    html,
+  }).catch(() => {});
+}
+
 export async function enviarEmailSubscricaoAOA(data: {
   emailLojista: string;
   nomeLoja: string;

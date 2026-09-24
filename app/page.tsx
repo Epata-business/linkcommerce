@@ -121,19 +121,15 @@ const FLOW = [
 // Revalida a landing page a cada hora — mantém as métricas actualizadas sem queries excessivas
 export const revalidate = 3600;
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string>;
-}) {
+export default async function HomePage() {
   const locale = getLocale();
   const c = COPY[locale] ?? COPY.pt;
   const sym = localeCurrencySymbol(locale); // €, $, Kz
   const cur = getLocaleCurrency(locale);    // EUR, USD, AOA
 
-  // Geo-detecção via Vercel; em dev usa ?_geo=AO para simular Angola
+  // Geo-detecção via Vercel; em dev ?_geo=AO (via middleware) simula Angola
   const hdrs = await headers();
-  const geoOverride = process.env.NODE_ENV === "development" ? (searchParams?._geo ?? null) : null;
+  const geoOverride = hdrs.get("x-geo-override");
   const country = geoOverride ?? hdrs.get("x-vercel-ip-country") ?? (cur === "AOA" ? "AO" : "XX");
   const isAngola = country === "AO";
 

@@ -16,7 +16,11 @@ async function getLojaComProdutos(subdominio: string) {
       produtos: {
         where: { ativo: true },
         orderBy: { createdAt: "desc" },
-        include: { variantes: true },
+        select: {
+          id: true, titulo: true, descricao: true,
+          preco: true, imagemUrl: true, stock: true,
+          variantes: { select: { id: true, nomeOpcao: true, precoExtra: true, stock: true } },
+        },
       },
     },
   });
@@ -226,44 +230,6 @@ export default async function StorefrontPage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* ── Reviews ── */}
-      <section className="max-w-6xl mx-auto px-4 py-16">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl font-bold text-slate-900">{t("store_reviews_title", locale)}</h2>
-          <div className="flex items-center justify-center gap-1 mt-2">
-            {Array.from({length:5}).map((_,i)=>(
-              <span key={i} className="text-amber-400 text-xl">★</span>
-            ))}
-            <span className="ml-2 text-sm text-slate-500">{t("store_reviews_rating", locale)}</span>
-          </div>
-        </div>
-        <div className="grid sm:grid-cols-3 gap-5">
-          {[
-            { nome: "Maria S.", texto: t("store_reviews_sub", locale), nota: 5 },
-            { nome: "João P.", texto: t("store_reviews_sub", locale), nota: 5 },
-            { nome: "Ana M.", texto: t("store_reviews_sub", locale), nota: 4 },
-          ].map((r, idx) => (
-            <div key={idx}
-              className="rounded-2xl border border-slate-100 bg-white p-5 hover:shadow-md transition-shadow"
-              style={{ borderTop: `3px solid ${cor}` }}>
-              <div className="flex gap-0.5 mb-3">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <span key={i} className={`text-base ${i < r.nota ? "text-amber-400" : "text-slate-200"}`}>★</span>
-                ))}
-              </div>
-              <p className="text-sm text-slate-600 italic leading-relaxed">"{r.texto}"</p>
-              <div className="mt-4 flex items-center gap-2 pt-3 border-t border-slate-50">
-                <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                  style={{ background: cor }}>
-                  {r.nome.charAt(0)}
-                </div>
-                <p className="text-xs font-semibold text-slate-700">{r.nome}</p>
-                <span className="ml-auto text-[10px] text-green-600 font-medium">{t("store_verified", locale)}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
     </>
   );
 }
