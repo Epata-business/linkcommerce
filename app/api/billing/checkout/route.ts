@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     customer: stripeCustomerId,
     mode: "subscription",
     line_items: [{ price: plano.stripePriceId, quantity: 1 }],
-    success_url: `${process.env.NEXTAUTH_URL}/subscrever?sucesso=1`,
+    success_url: `${process.env.NEXTAUTH_URL}/subscrever?sucesso=1&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.NEXTAUTH_URL}/subscrever`,
     metadata: { lojaId, planoId },
     subscription_data: { metadata: { lojaId, planoId } },
