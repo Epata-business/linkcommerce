@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
+import { notificarNovaSubscricao } from "@/lib/email";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2026-06-24.dahlia" });
 const webhookSecret = process.env.STRIPE_BILLING_WEBHOOK_SECRET!;
@@ -12,7 +13,8 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
-  } catch {
+  } catch (err) {
+    console.error("[billing-webhook] sig-fail | secret-prefix:", webhookSecret?.slice(0, 14), "| err:", String(err));
     return NextResponse.json({ erro: "Assinatura inválida" }, { status: 400 });
   }
 
@@ -37,6 +39,21 @@ export async function POST(req: NextRequest) {
       create: { lojaId, planoId, stripeCustomerId, stripeSubscriptionId, status: "ATIVA", proximaCobranca },
     });
     await prisma.loja.update({ where: { id: lojaId }, data: { planoId } });
+
+    // Notificar o admin da plataforma
+    const [loja, plano] = await Promise.all([
+      prisma.loja.findUnique({ where: { id: lojaId }, select: { nome: true, moeda: true } }),
+      prisma.plano.findUnique({ where: { id: planoId }, select: { nome: true, precoMensal: true } }),
+    ]);
+    if (loja && plano) {
+      await notificarNovaSubscricao({
+        nomeLoja: loja.nome,
+        nomePlano: plano.nome,
+        valor: Number(plano.precoMensal),
+        moeda: "EUR",
+        stripeCustomerId,
+      });
+    }
   }
 
   if (event.type === "customer.subscription.updated") {
