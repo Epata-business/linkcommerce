@@ -27,9 +27,16 @@ export async function middleware(req: NextRequest) {
   }
 
   // 2) Protege rotas autenticadas — lê JWT directamente (sem importar Prisma/bcrypt)
+  // Injeta headers úteis em todos os requests
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-pathname", url.pathname);
+  if (process.env.NODE_ENV === "development" && url.searchParams.get("_geo")) {
+    requestHeaders.set("x-geo-override", url.searchParams.get("_geo")!);
+  }
+
   const rotas = ["/dashboard", "/pos", "/admin"];
   const precisaAuth = rotas.some(r => url.pathname.startsWith(r));
-  if (!precisaAuth) return NextResponse.next();
+  if (!precisaAuth) return NextResponse.next({ request: { headers: requestHeaders } });
 
   const token = await getToken({
     req,
@@ -50,9 +57,6 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  // Passa o pathname como REQUEST header para os Server Components lerem via headers()
-  const requestHeaders = new Headers(req.headers);
-  requestHeaders.set("x-pathname", url.pathname);
   return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
