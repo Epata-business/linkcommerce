@@ -279,7 +279,7 @@ export function PricingSection({ locale, isAngola = false }: Props) {
         </p>
         {/* Nota de transferência bancária */}
         <a
-          href="https://wa.me/244900000000"
+          href="https://wa.me/244939720871"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-all hover:opacity-80"
