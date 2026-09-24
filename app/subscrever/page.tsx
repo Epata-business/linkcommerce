@@ -9,13 +9,14 @@ import { SubscreverSucesso } from "./sucesso-client";
 export default async function SubscreverPage({
   searchParams,
 }: {
-  searchParams: { sucesso?: string };
+  searchParams: { sucesso?: string; _geo?: string };
 }) {
   const session = await auth();
   if (!session?.user) redirect("/entrar");
 
   const hdrs = await headers();
-  const country = hdrs.get("x-vercel-ip-country") ?? "XX";
+  const geoOverride = process.env.NODE_ENV === "development" ? (searchParams._geo ?? null) : null;
+  const country = geoOverride ?? hdrs.get("x-vercel-ip-country") ?? "XX";
   const isAngola = country === "AO";
 
   // JWT pode estar desactualizado logo após criação da loja — fallback à DB
