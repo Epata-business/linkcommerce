@@ -112,9 +112,10 @@ function fmtKz(n: number) {
 
 interface Props {
   locale: string;
+  isAngola?: boolean;
 }
 
-export function PricingSection({ locale }: Props) {
+export function PricingSection({ locale, isAngola = false }: Props) {
   const [anual, setAnual] = useState(false);
   const [filtro, setFiltro] = useState<"all" | "starter" | "scale">("all");
 
@@ -221,14 +222,27 @@ export function PricingSection({ locale }: Props) {
                 <p className="text-xs font-bold tracking-widest uppercase text-white/40 mb-1">{plan.name}</p>
 
                 <div className="my-4">
-                  <div className="flex items-end gap-2">
-                    <span className="text-3xl font-black text-white">{fmtKz(priceKz)}</span>
-                  </div>
-                  <p className="text-xs text-white/35 mt-1 flex items-center gap-1.5">
-                    {anual ? (isEn ? "billed annually" : "cobrado anualmente") : (isEn ? "per month" : "por mês")}
-                    <span className="opacity-50">·</span>
-                    <span className="font-mono">≈ €{plan.priceEur}</span>
-                  </p>
+                  {isAngola ? (
+                    <>
+                      <div className="flex items-end gap-2">
+                        <span className="text-3xl font-black text-white">{fmtKz(priceKz)}</span>
+                      </div>
+                      <p className="text-xs text-white/35 mt-1 flex items-center gap-1.5">
+                        {anual ? (isEn ? "billed annually" : "cobrado anualmente") : (isEn ? "per month" : "por mês")}
+                        <span className="opacity-50">·</span>
+                        <span className="font-mono">{isEn ? "bank transfer" : "transferência bancária"}</span>
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-end gap-2">
+                        <span className="text-3xl font-black text-white">€{plan.priceEur}</span>
+                      </div>
+                      <p className="text-xs text-white/35 mt-1">
+                        {anual ? (isEn ? "billed annually" : "cobrado anualmente") : (isEn ? "per month" : "por mês")}
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 <ul className="space-y-2.5 mb-6 flex-1">
@@ -259,9 +273,9 @@ export function PricingSection({ locale }: Props) {
 
       <div className="mt-8 flex flex-col items-center gap-3">
         <p className="text-center text-xs text-white/25">
-          {isEn
-            ? "Prices shown in Kz (≈ equivalent) · Charged in EUR via Stripe · Cancel anytime"
-            : "Preços em Kz (equivalência aprox.) · Cobrado em EUR via Stripe · Cancele quando quiser"}
+          {isAngola
+            ? (isEn ? "Prices in AOA · Payment via bank transfer · Cancel anytime" : "Preços em AOA · Pagamento via transferência bancária · Cancele quando quiser")
+            : (isEn ? "Prices in EUR · Charged via Stripe · Cancel anytime" : "Preços em EUR · Cobrado via Stripe · Cancele quando quiser")}
         </p>
         {/* Nota de transferência bancária */}
         <a

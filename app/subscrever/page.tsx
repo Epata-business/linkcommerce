@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BillingCards } from "@/app/(dashboard)/dashboard/configuracoes/planos/billing-cards";
@@ -12,6 +13,10 @@ export default async function SubscreverPage({
 }) {
   const session = await auth();
   if (!session?.user) redirect("/entrar");
+
+  const hdrs = await headers();
+  const country = hdrs.get("x-vercel-ip-country") ?? "XX";
+  const isAngola = country === "AO";
 
   // JWT pode estar desactualizado logo após criação da loja — fallback à DB
   let lojaId = (session.user as { lojaId?: string }).lojaId ?? null;
@@ -78,7 +83,7 @@ export default async function SubscreverPage({
             statusSubscricao={loja?.subscricao?.status ?? null}
             proximaCobranca={loja?.subscricao?.proximaCobranca?.toISOString() ?? null}
             inicioSubscricao={loja?.subscricao?.createdAt?.toISOString() ?? null}
-            moedaLoja={loja?.moeda ?? "EUR"}
+            moedaLoja={isAngola ? "AOA" : (loja?.moeda ?? "EUR")}
             dadosBancarios={{
               titular: process.env.BANCO_TITULAR ?? "",
               nba: process.env.BANCO_NBA ?? "",

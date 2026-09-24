@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import Link from "next/link";
 import { getLocale, getLocaleCurrency, localeCurrencySymbol, t } from "@/lib/i18n";
 import { LiveDashboard } from "@/components/landing/live-dashboard";
@@ -120,11 +121,16 @@ const FLOW = [
 // Revalida a landing page a cada hora — mantém as métricas actualizadas sem queries excessivas
 export const revalidate = 3600;
 
-export default function HomePage() {
+export default async function HomePage() {
   const locale = getLocale();
   const c = COPY[locale] ?? COPY.pt;
   const sym = localeCurrencySymbol(locale); // €, $, Kz
   const cur = getLocaleCurrency(locale);    // EUR, USD, AOA
+
+  // Geo-detecção via Vercel (fallback: Angola se locale AOA)
+  const hdrs = await headers();
+  const country = hdrs.get("x-vercel-ip-country") ?? (cur === "AOA" ? "AO" : "XX");
+  const isAngola = country === "AO";
 
   const flowItems = [
     { link:"/comecar", text: locale==="en"?"Online Store":locale==="fr"?"Boutique en ligne":locale==="es"?"Tienda online":"Loja Online",        image:"https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=200&fit=crop" },
@@ -410,7 +416,7 @@ export default function HomePage() {
 
       {/* ── PLANOS ── */}
       <section id="precos" className="py-24 px-6">
-        <PricingSection locale={locale} />
+        <PricingSection locale={locale} isAngola={isAngola} />
       </section>
 
       {/* ── CTA FINAL ── */}

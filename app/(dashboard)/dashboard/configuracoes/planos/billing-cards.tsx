@@ -172,7 +172,9 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
           const badge = PLANO_BADGE[plano.slug];
           const isFree = plano.precoMensal === 0 || plano.slug === "free";
           const precoKz = PRECO_AOA[plano.slug] ?? 0;
-          const precoExibir = `${precoKz.toLocaleString("pt-AO")} Kz`;
+          const precoExibir = isAOA
+            ? `${precoKz.toLocaleString("pt-AO")} Kz`
+            : `€${plano.precoMensal}`;
 
           return (
             <div key={plano.id}
@@ -192,11 +194,14 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
               <h2 className="text-lg font-bold text-slate-900 mt-1">{plano.nome}</h2>
               <div className="mt-3 mb-4">
                 <p className="text-2xl font-black text-slate-900">
-                  {isFree ? "0 Kz" : precoExibir}
+                  {isFree ? (isAOA ? "0 Kz" : "€0") : precoExibir}
                   <span className="text-sm font-normal text-slate-400">/mês</span>
                 </p>
-                {!isFree && (
-                  <p className="text-xs text-slate-400 mt-0.5">≈ €{plano.precoMensal}</p>
+                {!isFree && isAOA && (
+                  <p className="text-xs text-slate-400 mt-0.5">≈ €{plano.precoMensal} · transferência bancária</p>
+                )}
+                {!isFree && !isAOA && (
+                  <p className="text-xs text-slate-400 mt-0.5">cobrado via Stripe</p>
                 )}
               </div>
 
