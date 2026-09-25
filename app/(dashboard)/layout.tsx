@@ -66,12 +66,18 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   // Subdomínio, nome e moeda da loja do utilizador actual
   const lojaAtualId = lojaId ?? (role === "ADMIN_PLATAFORMA" && adminOverride ? adminOverride : null);
-  const lojaAtual = lojaAtualId
-    ? await prisma.loja.findUnique({
-        where: { id: lojaAtualId },
-        select: { subdominio: true, nome: true, moeda: true },
-      })
-    : null;
+  const [lojaAtual, subscricaoAtual] = lojaAtualId
+    ? await Promise.all([
+        prisma.loja.findUnique({
+          where: { id: lojaAtualId },
+          select: { subdominio: true, nome: true, moeda: true },
+        }),
+        prisma.subscricao.findUnique({
+          where: { lojaId: lojaAtualId },
+          select: { status: true, proximaCobranca: true, plano: { select: { nome: true } } },
+        }),
+      ])
+    : [null, null];
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -117,6 +123,22 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <div className="border-t border-slate-800 px-2 py-3">
             <DashboardLocaleSwitcher currentLang={currentLang} currentMoeda={lojaAtual?.moeda ?? "EUR"} />
           </div>
+
+          {/* Badge do plano */}
+          {subscricaoAtual?.plano && (
+            <div className="mx-3 mb-3 rounded-xl px-3 py-2.5" style={{ background: "rgba(21,61,252,0.15)", border: "1px solid rgba(21,61,252,0.3)" }}>
+              <div className="flex items-center justify-between mb-0.5">
+                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Plano activo</span>
+                <span className="text-[10px] font-bold text-green-400">● ATIVO</span>
+              </div>
+              <p className="text-sm font-bold text-white">{subscricaoAtual.plano.nome}</p>
+              {subscricaoAtual.proximaCobranca && (
+                <p className="text-[10px] text-slate-500 mt-0.5">
+                  Renova {new Date(subscricaoAtual.proximaCobranca).toLocaleDateString("pt-PT", { day: "numeric", month: "short" })}
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="border-t border-slate-800 px-4 py-4">
             <p className="truncate text-xs text-slate-400">{session.user.email}</p>

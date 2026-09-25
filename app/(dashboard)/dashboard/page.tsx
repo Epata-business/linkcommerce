@@ -3,6 +3,7 @@ import { getLojaId } from "@/lib/get-loja-id";
 import { formatarPreco } from "@/lib/moeda";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
+import { OnboardingChecklist } from "@/components/dashboard/onboarding-checklist";
 
 const STATUS_CONFIG: Record<string, { label: string; dot: string; bg: string; text: string }> = {
   PENDING:    { label: "Pendente",         dot: "bg-yellow-400", bg: "bg-yellow-50",  text: "text-yellow-700" },
@@ -23,6 +24,7 @@ export default async function DashboardPage() {
 
   const [
     loja,
+    subscricao,
     totalProdutos,
     totalPedidos,
     totalClientes,
@@ -34,6 +36,7 @@ export default async function DashboardPage() {
     topProdutos,
   ] = await Promise.all([
     prisma.loja.findUnique({ where: { id: lojaId }, select: { moeda: true, corPrimaria: true, nome: true, publicada: true } }),
+    prisma.subscricao.findUnique({ where: { lojaId }, select: { plano: { select: { nome: true, limiteProdutos: true } } } }),
     prisma.produto.count({ where: { lojaId, ativo: true } }),
     prisma.pedido.count({ where: { lojaId } }),
     prisma.pedido.groupBy({ by: ["clienteEmail"], where: { lojaId }, _count: true }).then(r => r.length),
@@ -65,6 +68,9 @@ export default async function DashboardPage() {
 
   const moeda = loja?.moeda ?? "EUR";
   const cor = loja?.corPrimaria ?? "#153DFC";
+  const limiteProdutos = subscricao?.plano?.limiteProdutos ?? null;
+  const nomePlano = subscricao?.plano?.nome ?? null;
+  const isNovaLoja = totalProdutos === 0 && totalPedidos === 0;
   const receitaAtual = Number(receitaMes._sum.total ?? 0);
   const receitaAnterior = Number(receitaMesAnterior._sum.total ?? 0);
   const variacaoReceita = receitaAnterior > 0 ? ((receitaAtual - receitaAnterior) / receitaAnterior) * 100 : null;
@@ -124,10 +130,10 @@ export default async function DashboardPage() {
             },
             {
               label: "Produtos ativos",
-              value: totalProdutos.toString(),
+              value: limiteProdutos ? `${totalProdutos}/${limiteProdutos}` : totalProdutos.toString(),
               icon: "🏷️",
-              sub: `${totalClientes} clientes únicos`,
-              positivo: null,
+              sub: limiteProdutos && totalProdutos >= limiteProdutos ? "Limite atingido" : `${totalClientes} clientes únicos`,
+              positivo: limiteProdutos && totalProdutos >= limiteProdutos ? false : null,
               href: "/dashboard/produtos",
             },
           ].map((s) => (
@@ -144,6 +150,9 @@ export default async function DashboardPage() {
             </Link>
           ))}
         </div>
+
+        {/* Checklist de onboarding para lojas novas */}
+        {isNovaLoja && <OnboardingChecklist nomePlano={nomePlano} />}
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Últimos pedidos */}
