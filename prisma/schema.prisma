@@ -178,6 +178,7 @@ model Loja {
   metodosEnvio     MetodoEnvio[]
   zonasEntrega     ZonaEntrega[]
   notificacoes     Notificacao[]
+  qrCodes          QrCode[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -486,6 +487,32 @@ model EventoPlataforma {
 
   @@index([tipo, dia])
   @@map("eventos_plataforma")
+}
+
+model QrCode {
+  id        String    @id @default(cuid())
+  lojaId    String
+  loja      Loja      @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  slug      String    @unique
+  nome      String    // "Montra Porto", "Flyer Agosto 2026"
+  destino   String    // URL de destino — pode ser alterado sem reimprimir o QR
+  ativo     Boolean   @default(true)
+  scans     QrScan[]
+  criadoEm  DateTime  @default(now())
+
+  @@index([lojaId])
+  @@map("qrcodes")
+}
+
+model QrScan {
+  id        String   @id @default(cuid())
+  qrCodeId  String
+  qrCode    QrCode   @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
+  // Apenas a data, sem hora — nunca IP, user-agent, sessão ou qualquer dado pessoal
+  dia       DateTime @db.Date
+
+  @@index([qrCodeId, dia])
+  @@map("qr_scans")
 }
 
 model Notificacao {
