@@ -4,6 +4,10 @@ import { formatarPreco } from "@/lib/moeda";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { OnboardingChecklist } from "@/components/dashboard/onboarding-checklist";
+import { PeriodoSelector } from "@/components/dashboard/periodo-selector";
+import { CentroAtencao } from "@/components/dashboard/centro-atencao";
+import { calcularIntervalo, formatarVariacao } from "@/lib/periodo";
+import { Suspense } from "react";
 
 const STATUS_CONFIG: Record<string, { label: string; dot: string; bg: string; text: string }> = {
   PENDING:    { label: "Pendente",         dot: "bg-yellow-400", bg: "bg-yellow-50",  text: "text-yellow-700" },
@@ -13,14 +17,18 @@ const STATUS_CONFIG: Record<string, { label: string; dot: string; bg: string; te
   CANCELLED:  { label: "Cancelado",        dot: "bg-red-400",    bg: "bg-red-50",     text: "text-red-700"    },
 };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { periodo?: string };
+}) {
   const [session, lojaId] = await Promise.all([auth(), getLojaId()]);
   const nomeUtilizador = session?.user?.name ?? session?.user?.email ?? "Lojista";
 
+  const periodo = searchParams.periodo ?? "30d";
+  const { inicio, fim, inicioAnterior, fimAnterior, label: labelPeriodo } = calcularIntervalo(periodo);
+
   const agora = new Date();
-  const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
-  const inicioMesAnterior = new Date(agora.getFullYear(), agora.getMonth() - 1, 1);
-  const fimMesAnterior = new Date(agora.getFullYear(), agora.getMonth(), 0, 23, 59, 59);
 
   const [
     loja,
@@ -28,9 +36,10 @@ export default async function DashboardPage() {
     totalProdutos,
     totalPedidos,
     totalClientes,
-    receitaMes,
-    receitaMesAnterior,
-    pedidosMes,
+    receitaPeriodo,
+    receitaAnterior,
+    pedidosPeriodo,
+    pedidosAnterior,
     pedidosPendentes,
     ultimosPedidos,
     topProdutos,
@@ -40,10 +49,26 @@ export default async function DashboardPage() {
     prisma.produto.count({ where: { lojaId, ativo: true } }),
     prisma.pedido.count({ where: { lojaId } }),
     prisma.pedido.groupBy({ by: ["clienteEmail"], where: { lojaId }, _count: true }).then(r => r.length),
-    prisma.pedido.aggregate({ where: { lojaId, createdAt: { gte: inicioMes }, status: { not: "CANCELLED" } }, _sum: { total: true } }),
-    prisma.pedido.aggregate({ where: { lojaId, createdAt: { gte: inicioMesAnterior, lte: fimMesAnterior }, status: { not: "CANCELLED" } }, _sum: { total: true } }),
-    prisma.pedido.count({ where: { lojaId, createdAt: { gte: inicioMes } } }),
+
+    // Receita no período seleccionado
+    prisma.pedido.aggregate({
+      where: { lojaId, createdAt: { gte: inicio, lte: fim }, status: { not: "CANCELLED" } },
+      _sum: { total: true },
+    }),
+    // Receita no período de comparação
+    prisma.pedido.aggregate({
+      where: { lojaId, createdAt: { gte: inicioAnterior, lte: fimAnterior }, status: { not: "CANCELLED" } },
+      _sum: { total: true },
+    }),
+
+    // Pedidos no período seleccionado
+    prisma.pedido.count({ where: { lojaId, createdAt: { gte: inicio, lte: fim } } }),
+    // Pedidos no período de comparação
+    prisma.pedido.count({ where: { lojaId, createdAt: { gte: inicioAnterior, lte: fimAnterior } } }),
+
+    // Sempre os pendentes actuais (independente do período)
     prisma.pedido.count({ where: { lojaId, status: "PENDING" } }),
+
     prisma.pedido.findMany({
       where: { lojaId },
       orderBy: { createdAt: "desc" },
@@ -52,12 +77,13 @@ export default async function DashboardPage() {
     }),
     prisma.itemPedido.groupBy({
       by: ["produtoId"],
-      where: { pedido: { lojaId, status: { not: "CANCELLED" } } },
+      where: { pedido: { lojaId, createdAt: { gte: inicio, lte: fim }, status: { not: "CANCELLED" } } },
       _sum: { quantidade: true },
       orderBy: { _sum: { quantidade: "desc" } },
       take: 3,
     }).then(async (items) => {
       const ids = items.map(i => i.produtoId).filter(Boolean) as string[];
+      if (ids.length === 0) return [];
       const produtos = await prisma.produto.findMany({ where: { id: { in: ids } }, select: { id: true, titulo: true } });
       return items.map(i => ({
         titulo: produtos.find(p => p.id === i.produtoId)?.titulo ?? "Produto",
@@ -71,53 +97,72 @@ export default async function DashboardPage() {
   const limiteProdutos = subscricao?.plano?.limiteProdutos ?? null;
   const nomePlano = subscricao?.plano?.nome ?? null;
   const isNovaLoja = totalProdutos === 0 && totalPedidos === 0;
-  const receitaAtual = Number(receitaMes._sum.total ?? 0);
-  const receitaAnterior = Number(receitaMesAnterior._sum.total ?? 0);
-  const variacaoReceita = receitaAnterior > 0 ? ((receitaAtual - receitaAnterior) / receitaAnterior) * 100 : null;
+
+  const receitaAtual = Number(receitaPeriodo._sum.total ?? 0);
+  const receitaAnt = Number(receitaAnterior._sum.total ?? 0);
+  const { texto: subReceita, positivo: posReceita } = formatarVariacao(receitaAtual, receitaAnt);
+  const { texto: subPedidos, positivo: posPedidos } = formatarVariacao(pedidosPeriodo, pedidosAnterior);
 
   const horaAtual = agora.getHours();
   const saudacao = horaAtual < 12 ? "Bom dia" : horaAtual < 18 ? "Boa tarde" : "Boa noite";
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
+      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
 
         {/* Header */}
-        <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-start justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-2xl font-black text-slate-900">{saudacao}, {nomeUtilizador.split(" ")[0]} 👋</h1>
             <p className="text-slate-400 text-sm mt-0.5">
               {agora.toLocaleDateString("pt-PT", { weekday: "long", day: "numeric", month: "long" })}
             </p>
           </div>
-          {!loja?.publicada && (
-            <Link href="/dashboard/configuracoes"
-              className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-4 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-100 transition-colors">
-              <span className="w-2 h-2 rounded-full bg-amber-400" />
-              Loja não publicada — Publicar agora →
-            </Link>
-          )}
+          <div className="flex items-center gap-3 flex-wrap">
+            {!loja?.publicada && (
+              <Link href="/dashboard/configuracoes"
+                className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-4 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-100 transition-colors">
+                <span className="w-2 h-2 rounded-full bg-amber-400" />
+                Loja não publicada
+              </Link>
+            )}
+            {/* Suspense necessário para useSearchParams no filho */}
+            <Suspense fallback={
+              <div className="h-9 w-36 rounded-xl bg-slate-100 animate-pulse" />
+            }>
+              <PeriodoSelector periodoAtual={periodo} />
+            </Suspense>
+          </div>
         </div>
+
+        {/* Centro de Atenção */}
+        <Suspense fallback={null}>
+          <CentroAtencao
+            lojaId={lojaId}
+            inicio={inicio}
+            fim={fim}
+            inicioAnterior={inicioAnterior}
+            fimAnterior={fimAnterior}
+          />
+        </Suspense>
 
         {/* Stats principais */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             {
-              label: "Receita este mês",
+              label: `Receita — ${labelPeriodo}`,
               value: formatarPreco(receitaAtual, moeda),
               icon: "💰",
-              sub: variacaoReceita !== null
-                ? `${variacaoReceita >= 0 ? "+" : ""}${variacaoReceita.toFixed(0)}% vs mês anterior`
-                : "Primeiro mês",
-              positivo: variacaoReceita === null ? null : variacaoReceita >= 0,
+              sub: subReceita,
+              positivo: posReceita,
               href: "/dashboard/pedidos",
             },
             {
-              label: "Pedidos este mês",
-              value: pedidosMes.toString(),
+              label: `Pedidos — ${labelPeriodo}`,
+              value: pedidosPeriodo.toString(),
               icon: "📦",
-              sub: `${totalPedidos} no total`,
-              positivo: null,
+              sub: subPedidos,
+              positivo: posPedidos,
               href: "/dashboard/pedidos",
             },
             {
@@ -169,11 +214,6 @@ export default async function DashboardPage() {
                 <div className="text-4xl mb-3">📭</div>
                 <p className="font-semibold text-slate-600 text-sm">Ainda sem pedidos</p>
                 <p className="text-xs text-slate-400 mt-1">Partilhe o link da sua loja para começar a receber</p>
-                <Link href={`/loja/${loja?.nome?.toLowerCase().replace(/\s+/g, "-")}`}
-                  className="mt-3 text-xs font-bold rounded-lg px-3 py-1.5 text-white transition-colors"
-                  style={{ background: cor }}>
-                  Ver loja →
-                </Link>
               </div>
             ) : (
               <div className="divide-y divide-slate-50">
@@ -212,10 +252,11 @@ export default async function DashboardPage() {
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
               <div className="px-5 py-4 border-b border-slate-100">
                 <h2 className="font-bold text-slate-800">Mais vendidos</h2>
+                <p className="text-[10px] text-slate-400 mt-0.5">{labelPeriodo}</p>
               </div>
               {topProdutos.length === 0 ? (
                 <div className="px-5 py-8 text-center">
-                  <p className="text-sm text-slate-400">Sem vendas ainda</p>
+                  <p className="text-sm text-slate-400">Sem vendas neste período</p>
                 </div>
               ) : (
                 <div className="divide-y divide-slate-50">
