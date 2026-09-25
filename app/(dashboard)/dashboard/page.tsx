@@ -43,6 +43,10 @@ export default async function DashboardPage({
     pedidosPendentes,
     ultimosPedidos,
     topProdutos,
+    novosClientesResult,
+    novosClientesAntResult,
+    visitasPeriodo,
+    recompraResult,
   ] = await Promise.all([
     prisma.loja.findUnique({ where: { id: lojaId }, select: { moeda: true, corPrimaria: true, nome: true, publicada: true } }),
     prisma.subscricao.findUnique({ where: { lojaId }, select: { plano: { select: { nome: true, limiteProdutos: true } } } }),
@@ -90,6 +94,43 @@ export default async function DashboardPage({
         quantidade: i._sum.quantidade ?? 0,
       }));
     }),
+
+    // Novos clientes no período (primeiro pedido dentro do intervalo)
+    prisma.$queryRaw<[{ count: bigint }]>`
+      SELECT COUNT(*)::bigint AS count FROM (
+        SELECT "clienteEmail" FROM pedidos
+        WHERE "lojaId" = ${lojaId} AND status != 'CANCELLED'
+        GROUP BY "clienteEmail"
+        HAVING MIN("createdAt") >= ${inicio} AND MIN("createdAt") <= ${fim}
+      ) sub
+    `,
+    // Novos clientes no período de comparação
+    prisma.$queryRaw<[{ count: bigint }]>`
+      SELECT COUNT(*)::bigint AS count FROM (
+        SELECT "clienteEmail" FROM pedidos
+        WHERE "lojaId" = ${lojaId} AND status != 'CANCELLED'
+        GROUP BY "clienteEmail"
+        HAVING MIN("createdAt") >= ${inicioAnterior} AND MIN("createdAt") <= ${fimAnterior}
+      ) sub
+    `,
+
+    // Visitas à loja no período (para taxa de conversão)
+    prisma.eventoPlataforma.count({
+      where: { lojaId, tipo: "store_view", dia: { gte: inicio, lte: fim } },
+    }),
+
+    // Taxa de recompra: total clientes e clientes com 2+ pedidos
+    prisma.$queryRaw<[{ total: bigint; repetentes: bigint }]>`
+      SELECT
+        COUNT(DISTINCT "clienteEmail")::bigint AS total,
+        COUNT(DISTINCT CASE WHEN pedido_count > 1 THEN "clienteEmail" END)::bigint AS repetentes
+      FROM (
+        SELECT "clienteEmail", COUNT(*) AS pedido_count
+        FROM pedidos
+        WHERE "lojaId" = ${lojaId} AND status != 'CANCELLED'
+        GROUP BY "clienteEmail"
+      ) sub
+    `,
   ]);
 
   const moeda = loja?.moeda ?? "EUR";
@@ -102,6 +143,24 @@ export default async function DashboardPage({
   const receitaAnt = Number(receitaAnterior._sum.total ?? 0);
   const { texto: subReceita, positivo: posReceita } = formatarVariacao(receitaAtual, receitaAnt);
   const { texto: subPedidos, positivo: posPedidos } = formatarVariacao(pedidosPeriodo, pedidosAnterior);
+
+  // Ticket médio
+  const ticketMedio = pedidosPeriodo > 0 ? receitaAtual / pedidosPeriodo : 0;
+  const ticketMedioAnt = pedidosAnterior > 0 ? receitaAnt / pedidosAnterior : 0;
+  const { texto: subTicket, positivo: posTicket } = formatarVariacao(ticketMedio, ticketMedioAnt);
+
+  // Novos clientes
+  const novosClientes = Number(novosClientesResult[0]?.count ?? 0);
+  const novosClientesAnt = Number(novosClientesAntResult[0]?.count ?? 0);
+  const { texto: subNovosClientes, positivo: posNovosClientes } = formatarVariacao(novosClientes, novosClientesAnt);
+
+  // Taxa de conversão (visitas → pedidos)
+  const taxaConversao = visitasPeriodo > 0 ? (pedidosPeriodo / visitasPeriodo) * 100 : null;
+
+  // Taxa de recompra
+  const totalClientesRecompra = Number(recompraResult[0]?.total ?? 0);
+  const clientesRepetentes = Number(recompraResult[0]?.repetentes ?? 0);
+  const taxaRecompra = totalClientesRecompra > 0 ? (clientesRepetentes / totalClientesRecompra) * 100 : null;
 
   const horaAtual = agora.getHours();
   const saudacao = horaAtual < 12 ? "Bom dia" : horaAtual < 18 ? "Boa tarde" : "Boa noite";
@@ -193,6 +252,56 @@ export default async function DashboardPage({
                 </p>
               )}
             </Link>
+          ))}
+        </div>
+
+        {/* KPIs de performance */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            {
+              label: `Ticket médio — ${labelPeriodo}`,
+              value: ticketMedio > 0 ? formatarPreco(ticketMedio, moeda) : "—",
+              icon: "🎯",
+              sub: ticketMedio > 0 ? subTicket : "Sem pedidos no período",
+              positivo: ticketMedio > 0 ? posTicket : null,
+            },
+            {
+              label: `Novos clientes — ${labelPeriodo}`,
+              value: novosClientes.toString(),
+              icon: "🙋",
+              sub: novosClientes > 0 ? subNovosClientes : "Nenhum cliente novo",
+              positivo: novosClientes > 0 ? posNovosClientes : null,
+            },
+            {
+              label: `Taxa de conversão — ${labelPeriodo}`,
+              value: taxaConversao !== null ? `${taxaConversao.toFixed(1)}%` : "—",
+              icon: "📈",
+              sub: taxaConversao !== null
+                ? `${visitasPeriodo} visitas · ${pedidosPeriodo} pedidos`
+                : "Sem dados de visitas",
+              positivo: null,
+            },
+            {
+              label: "Taxa de recompra",
+              value: taxaRecompra !== null ? `${taxaRecompra.toFixed(1)}%` : "—",
+              icon: "🔁",
+              sub: taxaRecompra !== null
+                ? `${clientesRepetentes} de ${totalClientesRecompra} clientes voltaram`
+                : "Sem dados suficientes",
+              positivo: taxaRecompra !== null ? (taxaRecompra >= 20 ? true : null) : null,
+            },
+          ].map((s) => (
+            <div key={s.label}
+              className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+              <div className="text-2xl mb-3">{s.icon}</div>
+              <p className="text-2xl font-black text-slate-900">{s.value}</p>
+              <p className="text-xs text-slate-400 mt-0.5">{s.label}</p>
+              {s.sub && (
+                <p className={`text-xs font-medium mt-2 ${s.positivo === true ? "text-green-600" : s.positivo === false ? "text-red-500" : "text-slate-400"}`}>
+                  {s.sub}
+                </p>
+              )}
+            </div>
           ))}
         </div>
 
