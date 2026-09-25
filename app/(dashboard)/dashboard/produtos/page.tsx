@@ -59,9 +59,18 @@ export default async function ProdutosPage() {
                 <td className="p-3 text-muted-foreground">{produto.sku ?? "—"}</td>
                 <td className="p-3 font-medium">{formatarPreco(Number(produto.preco), moeda)}</td>
                 <td className="p-3">
-                  <span className={produto.stock <= 0 ? "text-red-600 font-medium" : ""}>
-                    {produto.stock}
-                  </span>
+                  {(() => {
+                    const disponivel = produto.stock - produto.stockReservado;
+                    const cor = disponivel <= 0 ? "text-red-600 font-bold" : disponivel <= produto.stockMinimo && produto.stockMinimo > 0 ? "text-amber-600 font-medium" : "text-slate-700";
+                    return (
+                      <span className={cor} title={`Físico: ${produto.stock} | Reservado: ${produto.stockReservado}`}>
+                        {disponivel}
+                        {produto.stockReservado > 0 && (
+                          <span className="ml-1 text-[10px] text-slate-400">({produto.stockReservado} reserv.)</span>
+                        )}
+                      </span>
+                    );
+                  })()}
                 </td>
                 <td className="p-3">{produto.variantes.length}</td>
                 <td className="p-3 text-right">

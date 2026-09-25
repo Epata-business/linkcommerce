@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { enviarEmailConfirmacaoPedido } from "@/lib/email";
+import { confirmarVenda } from "@/lib/inventario";
 import { randomUUID } from "crypto";
 
 export async function POST(req: NextRequest) {
@@ -42,31 +43,19 @@ export async function POST(req: NextRequest) {
   });
   if (!loja) return NextResponse.json({ recebido: true });
 
-  // Actualizar pedido para PROCESSING e decrementar stock
+  // Confirmar venda: converte reserva em decremento real de stock
+  const itensReserva = pedidoExiste.itens.map((i) => ({
+    produtoId: i.produtoId,
+    varianteId: i.varianteId ?? null,
+    quantidade: i.quantidade,
+  }));
+
   const pedido = await prisma.$transaction(async (tx) => {
     const p = await tx.pedido.update({
       where: { id: pedidoId },
-      data: {
-        status: "PROCESSING",
-        sincronizadoEm: new Date(),
-      },
+      data: { status: "PROCESSING", sincronizadoEm: new Date() },
     });
-
-    // Decrementar stock
-    for (const item of pedidoExiste.itens) {
-      if (item.varianteId) {
-        await tx.variante.updateMany({
-          where: { id: item.varianteId, stock: { gt: 0 } },
-          data: { stock: { decrement: item.quantidade } },
-        });
-      } else {
-        await tx.produto.updateMany({
-          where: { id: item.produtoId, stock: { gt: 0 } },
-          data: { stock: { decrement: item.quantidade } },
-        });
-      }
-    }
-
+    await confirmarVenda(tx, lojaId, pedidoId, itensReserva);
     return p;
   });
 

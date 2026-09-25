@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 import { enviarEmailConfirmacaoPedido } from "@/lib/email";
+import { reservarStock } from "@/lib/inventario";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 
@@ -51,30 +52,49 @@ export async function POST(req: NextRequest) {
   const total = itens.reduce((s, i) => s + i.precoUnitario * i.quantidade, 0);
   const origin = req.nextUrl.origin;
 
+  const itensReserva = itens.map((i) => ({
+    produtoId: i.produtoId,
+    varianteId: i.varianteId ?? null,
+    quantidade: i.quantidade,
+  }));
+
   // Modo sem Stripe: criar pedido directo (útil em dev sem chaves Stripe)
   if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === "sk_test_placeholder") {
-    const pedido = await prisma.pedido.create({
-      data: {
-        lojaId: loja.id,
-        clienteEmail,
-        clienteNome,
-        morada: { ...morada, metodoPagamento, clienteTelefone: clienteTelefone ?? null },
-        subtotal: total,
-        desconto: 0,
-        total,
-        status: "PENDING",
-        channel: "ONLINE",
-        clientUuid,
-        itens: {
-          create: itens.map((i) => ({
-            produtoId: i.produtoId,
-            varianteId: i.varianteId ?? null,
-            quantidade: i.quantidade,
-            precoUnitario: i.precoUnitario,
-          })),
-        },
-      },
-    });
+    let pedido;
+    try {
+      pedido = await prisma.$transaction(async (tx) => {
+        const p = await tx.pedido.create({
+          data: {
+            lojaId: loja.id,
+            clienteEmail,
+            clienteNome,
+            morada: { ...morada, metodoPagamento, clienteTelefone: clienteTelefone ?? null },
+            subtotal: total,
+            desconto: 0,
+            total,
+            status: "PENDING",
+            channel: "ONLINE",
+            clientUuid,
+            itens: {
+              create: itens.map((i) => ({
+                produtoId: i.produtoId,
+                varianteId: i.varianteId ?? null,
+                quantidade: i.quantidade,
+                precoUnitario: i.precoUnitario,
+              })),
+            },
+          },
+        });
+        await reservarStock(tx, loja.id, p.id, itensReserva);
+        return p;
+      }, { isolationLevel: "Serializable" });
+    } catch (err) {
+      const msg = String(err);
+      if (msg.includes("STOCK_INSUFICIENTE")) {
+        return NextResponse.json({ erro: "Um ou mais produtos não têm stock disponível." }, { status: 409 });
+      }
+      throw err;
+    }
 
     return NextResponse.json({
       modo: "directo",
@@ -96,31 +116,44 @@ export async function POST(req: NextRequest) {
 
   // Multicaixa Express não tem integração Stripe — criar pedido pendente directamente
   if (metodoPagamento === "multicaixa") {
-    const pedido = await prisma.pedido.create({
-      data: {
-        lojaId: loja.id,
-        clienteEmail,
-        clienteNome,
-        morada: { ...morada, metodoPagamento, clienteTelefone: clienteTelefone ?? null },
-        subtotal: total,
-        desconto: 0,
-        total,
-        status: "PENDING",
-        channel: "ONLINE",
-        clientUuid,
-        comprovanteUrl: comprovanteUrl ?? null,
-        zonaEntregaId: zonaEntregaId ?? null,
-        itens: {
-          create: itens.map((i) => ({
-            produtoId: i.produtoId,
-            varianteId: i.varianteId ?? null,
-            quantidade: i.quantidade,
-            precoUnitario: i.precoUnitario,
-          })),
-        },
-      },
-      include: { itens: true },
-    });
+    let pedido;
+    try {
+      pedido = await prisma.$transaction(async (tx) => {
+        const p = await tx.pedido.create({
+          data: {
+            lojaId: loja.id,
+            clienteEmail,
+            clienteNome,
+            morada: { ...morada, metodoPagamento, clienteTelefone: clienteTelefone ?? null },
+            subtotal: total,
+            desconto: 0,
+            total,
+            status: "PENDING",
+            channel: "ONLINE",
+            clientUuid,
+            comprovanteUrl: comprovanteUrl ?? null,
+            zonaEntregaId: zonaEntregaId ?? null,
+            itens: {
+              create: itens.map((i) => ({
+                produtoId: i.produtoId,
+                varianteId: i.varianteId ?? null,
+                quantidade: i.quantidade,
+                precoUnitario: i.precoUnitario,
+              })),
+            },
+          },
+          include: { itens: true },
+        });
+        await reservarStock(tx, loja.id, p.id, itensReserva);
+        return p;
+      }, { isolationLevel: "Serializable" });
+    } catch (err) {
+      const msg = String(err);
+      if (msg.includes("STOCK_INSUFICIENTE")) {
+        return NextResponse.json({ erro: "Um ou mais produtos não têm stock disponível." }, { status: 409 });
+      }
+      throw err;
+    }
 
     const emailLojista = loja.utilizadores[0]?.email ?? undefined;
     void enviarEmailConfirmacaoPedido({
@@ -148,29 +181,42 @@ export async function POST(req: NextRequest) {
 
   const paymentMethods = metodoStripeMap[metodoPagamento] ?? ["card"];
 
-  // Guardar pedido na DB ANTES do Stripe — dados ficam sempre salvos
-  const pedido = await prisma.pedido.create({
-    data: {
-      lojaId: loja.id,
-      clienteEmail,
-      clienteNome,
-      morada: { ...morada, metodoPagamento, clienteTelefone: clienteTelefone ?? null },
-      subtotal: total,
-      desconto: 0,
-      total,
-      status: "PENDING",
-      channel: "ONLINE",
-      clientUuid,
-      itens: {
-        create: itens.map((i) => ({
-          produtoId: i.produtoId,
-          varianteId: i.varianteId ?? null,
-          quantidade: i.quantidade,
-          precoUnitario: i.precoUnitario,
-        })),
-      },
-    },
-  });
+  // Guardar pedido na DB + reservar stock em transacção atómica
+  let pedido;
+  try {
+    pedido = await prisma.$transaction(async (tx) => {
+      const p = await tx.pedido.create({
+        data: {
+          lojaId: loja.id,
+          clienteEmail,
+          clienteNome,
+          morada: { ...morada, metodoPagamento, clienteTelefone: clienteTelefone ?? null },
+          subtotal: total,
+          desconto: 0,
+          total,
+          status: "PENDING",
+          channel: "ONLINE",
+          clientUuid,
+          itens: {
+            create: itens.map((i) => ({
+              produtoId: i.produtoId,
+              varianteId: i.varianteId ?? null,
+              quantidade: i.quantidade,
+              precoUnitario: i.precoUnitario,
+            })),
+          },
+        },
+      });
+      await reservarStock(tx, loja.id, p.id, itensReserva);
+      return p;
+    }, { isolationLevel: "Serializable" });
+  } catch (err) {
+    const msg = String(err);
+    if (msg.includes("STOCK_INSUFICIENTE")) {
+      return NextResponse.json({ erro: "Um ou mais produtos não têm stock disponível." }, { status: 409 });
+    }
+    throw err;
+  }
 
   // Criar sessão Stripe com o pedidoId no metadata
   const session = await stripe.checkout.sessions.create({

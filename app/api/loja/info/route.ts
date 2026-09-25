@@ -10,9 +10,10 @@ export async function GET() {
   });
   if (!loja) return NextResponse.json({ erro: "Loja não encontrada" }, { status: 404 });
 
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "linkcommerce.cc";
   const url = loja.dominioProprio
     ? `https://${loja.dominioProprio}`
-    : `https://${loja.subdominio}.linkcommerce.cc`;
+    : `https://${loja.subdominio}.${rootDomain}`;
 
   return NextResponse.json({ subdominio: loja.subdominio, nome: loja.nome, url });
 }
