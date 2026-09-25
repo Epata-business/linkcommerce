@@ -51,21 +51,18 @@ export default function QRCodePage() {
 
   async function download() {
     if (!lojaUrl) return;
-    const url = `https://api.qrserver.com/v1/create-qr-code/?size=${tamanhoSel}x${tamanhoSel}&data=${encodeURIComponent(lojaUrl)}&color=${cor}&bgcolor=ffffff&qzone=3&format=png`;
-    try {
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = `qrcode-${subdominio || "loja"}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(blobUrl);
-    } catch {
-      window.open(url, "_blank");
-    }
+    const apiUrl = `/api/qrcode?data=${encodeURIComponent(lojaUrl)}&size=${tamanhoSel}&color=${cor}`;
+    const res = await fetch(apiUrl);
+    if (!res.ok) return;
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = `qrcode-${subdominio || "loja"}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
   }
 
   return (
