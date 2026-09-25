@@ -177,6 +177,7 @@ model Loja {
   metodosPagamento MetodoPagamentoLoja[]
   metodosEnvio     MetodoEnvio[]
   zonasEntrega     ZonaEntrega[]
+  notificacoes     Notificacao[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -485,6 +486,23 @@ model EventoPlataforma {
 
   @@index([tipo, dia])
   @@map("eventos_plataforma")
+}
+
+model Notificacao {
+  id        String   @id @default(cuid())
+  lojaId    String
+  loja      Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  tipo      String   // "novo_pedido" | "pagamento_confirmado" | "pagamento_falhado" | "stock_baixo" | "stock_esgotado"
+  titulo    String
+  mensagem  String
+  lida      Boolean  @default(false)
+  link      String?
+  pedidoId  String?
+  metadata  Json?
+  criadaEm  DateTime @default(now())
+
+  @@index([lojaId, lida, criadaEm])
+  @@map("notificacoes")
 }
 
 model Cupao {

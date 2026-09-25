@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { libertarReserva } from "@/lib/inventario";
+import { criarNotificacao } from "@/lib/notificacoes";
 
 // TTL da reserva: pedidos PENDING sem actividade após este tempo são expirados
 const TTL_HORAS = 2;
@@ -67,6 +68,40 @@ export async function GET(req: NextRequest) {
       console.error(`[cron/libertar-reservas] Erro no pedido ${pedido.id}:`, err);
       erros.push(pedido.id);
     }
+  }
+
+  // Verificar stock baixo e esgotado após libertar reservas
+  try {
+    const produtosCriticos = await prisma.$queryRaw<
+      { lojaId: string; id: string; titulo: string; stock: number; stockMinimo: number | null; esgotado: boolean }[]
+    >`
+      SELECT "lojaId", id, titulo,
+        (stock - "stockReservado") AS stock,
+        "stockMinimo",
+        (stock - "stockReservado") <= 0 AS esgotado
+      FROM produtos
+      WHERE ativo = true
+        AND "stockMinimo" IS NOT NULL
+        AND (stock - "stockReservado") <= "stockMinimo"
+      ORDER BY "lojaId", (stock - "stockReservado") ASC
+    `;
+
+    for (const p of produtosCriticos) {
+      const tipo = p.esgotado ? "stock_esgotado" : "stock_baixo";
+      const titulo = p.esgotado ? "Produto esgotado" : "Stock baixo";
+      const mensagem = p.esgotado
+        ? `"${p.titulo}" está esgotado.`
+        : `"${p.titulo}" tem apenas ${p.stock} unidade${p.stock !== 1 ? "s" : ""} (mínimo: ${p.stockMinimo}).`;
+      void criarNotificacao({
+        lojaId: p.lojaId,
+        tipo,
+        titulo,
+        mensagem,
+        link: `/dashboard/produtos`,
+      });
+    }
+  } catch {
+    // não critico
   }
 
   console.log(`[cron/libertar-reservas] Libertados: ${libertados}, Erros: ${erros.length}`);

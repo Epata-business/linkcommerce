@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 import { enviarEmailConfirmacaoPedido } from "@/lib/email";
 import { reservarStock } from "@/lib/inventario";
+import { criarNotificacao } from "@/lib/notificacoes";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 
@@ -130,6 +131,14 @@ export async function POST(req: NextRequest) {
       }
       throw err;
     }
+    void criarNotificacao({
+      lojaId: loja.id,
+      tipo: "novo_pedido",
+      titulo: "Novo pedido",
+      mensagem: `Pedido #${pedido.id.slice(-8).toUpperCase()} de ${clienteNome} — ${total.toFixed(2)} ${moedaLoja}.`,
+      link: `/dashboard/pedidos/${pedido.id}`,
+      pedidoId: pedido.id,
+    });
     return NextResponse.json({
       modo: "directo",
       pedidoId: pedido.id,
@@ -190,6 +199,14 @@ export async function POST(req: NextRequest) {
       throw err;
     }
 
+    void criarNotificacao({
+      lojaId: loja.id,
+      tipo: "novo_pedido",
+      titulo: "Novo pedido — Multicaixa",
+      mensagem: `Pedido #${pedido.id.slice(-8).toUpperCase()} de ${clienteNome} aguarda comprovativo Multicaixa.`,
+      link: `/dashboard/pedidos/${pedido.id}`,
+      pedidoId: pedido.id,
+    });
     const emailLojista = loja.utilizadores[0]?.email ?? undefined;
     void enviarEmailConfirmacaoPedido({
       nomeLoja: loja.nome,

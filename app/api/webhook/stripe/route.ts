@@ -3,6 +3,7 @@ import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { enviarEmailConfirmacaoPedido } from "@/lib/email";
 import { confirmarVenda } from "@/lib/inventario";
+import { criarNotificacao } from "@/lib/notificacoes";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -104,6 +105,15 @@ export async function POST(req: NextRequest) {
 
     // Confirmar venda: converte reserva em decremento real de stock
     await confirmarVenda(tx, lojaId, pedidoId, itensReserva);
+  });
+
+  void criarNotificacao({
+    lojaId,
+    tipo: "pagamento_confirmado",
+    titulo: "Pagamento confirmado",
+    mensagem: `Pedido #${pedidoId.slice(-8).toUpperCase()} de ${clienteNome} foi pago via Stripe.`,
+    link: `/dashboard/pedidos/${pedidoId}`,
+    pedidoId,
   });
 
   const itensEmail = pedidoExiste.itens.map((i) => ({

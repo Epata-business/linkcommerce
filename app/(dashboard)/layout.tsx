@@ -7,6 +7,7 @@ import { StorePreviewButton } from "@/components/dashboard/store-preview-button"
 import { DashboardLocaleSwitcher } from "@/components/dashboard/locale-switcher";
 import { MobileSidebar } from "@/components/dashboard/mobile-sidebar";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
+import { NotificacoesBell } from "@/components/dashboard/notificacoes-bell";
 
 const navLinks = [
   { href: "/dashboard", label: "Início" },
@@ -16,6 +17,7 @@ const navLinks = [
   { href: "/dashboard/marketing", label: "Marketing" },
   { href: "/dashboard/envios", label: "Envios" },
   { href: "/dashboard/qrcode", label: "QR Code" },
+  { href: "/dashboard/notificacoes", label: "Notificações" },
   { href: "/dashboard/configuracoes", label: "Configurações" },
 ];
 
@@ -66,7 +68,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   // Subdomínio, nome e moeda da loja do utilizador actual
   const lojaAtualId = lojaId ?? (role === "ADMIN_PLATAFORMA" && adminOverride ? adminOverride : null);
-  const [lojaAtual, subscricaoAtual] = lojaAtualId
+  const [lojaAtual, subscricaoAtual, notificacoesData] = lojaAtualId
     ? await Promise.all([
         prisma.loja.findUnique({
           where: { id: lojaAtualId },
@@ -76,8 +78,19 @@ export default async function DashboardLayout({ children }: { children: React.Re
           where: { lojaId: lojaAtualId },
           select: { status: true, proximaCobranca: true, plano: { select: { nome: true } } },
         }),
+        Promise.all([
+          prisma.notificacao.count({ where: { lojaId: lojaAtualId, lida: false } }),
+          prisma.notificacao.findMany({
+            where: { lojaId: lojaAtualId },
+            orderBy: { criadaEm: "desc" },
+            take: 8,
+          }),
+        ]),
       ])
-    : [null, null];
+    : [null, null, null];
+
+  const naoLidas = (notificacoesData as [number, unknown[]] | null)?.[0] ?? 0;
+  const recentesNotif = ((notificacoesData as [number, unknown[]] | null)?.[1] ?? []) as Parameters<typeof NotificacoesBell>[0]["recentes"];
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -113,6 +126,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <span className="text-lg font-bold tracking-tight">LinkCommerce</span>
           </div>
           <DashboardNav links={navLinks} />
+
+          {/* Bell de notificações */}
+          <div className="px-3 pb-2">
+            <NotificacoesBell naoLidas={naoLidas} recentes={recentesNotif} />
+          </div>
 
           {lojaAtual && (
             <div className="px-2 pb-3">
