@@ -34,12 +34,33 @@ const CheckoutSchema = z.object({
   zonaEntregaId: z.string().optional(),
 });
 
+// Mapeia o método do checkout para o enum MetodoPagamento do schema
+const METODO_MAP = {
+  cartao:     "CARTAO",
+  mbway:      "MBWAY",
+  multibanco: "MULTIBANCO",
+  multicaixa: "MULTICAIXA",
+  paypal:     "PAYPAL",
+} as const;
+
+type StripePaymentMethod = "card" | "paypal" | "mb_way" | "multibanco";
+
+const METODO_STRIPE_MAP: Record<string, StripePaymentMethod[]> = {
+  cartao:     ["card"],
+  mbway:      ["mb_way"],
+  multibanco: ["multibanco"],
+  paypal:     ["paypal"],
+};
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const parsed = CheckoutSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ erro: "Dados inválidos" }, { status: 400 });
 
-  const { subdominio, itens, clienteEmail, clienteNome, clienteTelefone, morada, metodoPagamento, comprovanteUrl, zonaEntregaId } = parsed.data;
+  const {
+    subdominio, itens, clienteEmail, clienteNome, clienteTelefone,
+    morada, metodoPagamento, comprovanteUrl, zonaEntregaId,
+  } = parsed.data;
 
   const loja = await prisma.loja.findUnique({
     where: { subdominio, publicada: true },
@@ -47,10 +68,12 @@ export async function POST(req: NextRequest) {
   });
   if (!loja) return NextResponse.json({ erro: "Loja não encontrada" }, { status: 404 });
 
-  const moeda = (loja.moeda ?? "EUR").toLowerCase();
+  const moedaLoja = loja.moeda ?? "AOA";
+  const moedaStripe = moedaLoja.toLowerCase();
   const clientUuid = randomUUID();
   const total = itens.reduce((s, i) => s + i.precoUnitario * i.quantidade, 0);
   const origin = req.nextUrl.origin;
+  const metodoPagamentoEnum = METODO_MAP[metodoPagamento] ?? "DESCONHECIDO";
 
   const itensReserva = itens.map((i) => ({
     produtoId: i.produtoId,
@@ -58,7 +81,9 @@ export async function POST(req: NextRequest) {
     quantidade: i.quantidade,
   }));
 
-  // Modo sem Stripe: criar pedido directo (útil em dev sem chaves Stripe)
+  // --------------------------------------------------------------------------
+  // Modo sem Stripe (dev / sem chaves configuradas) — criar pedido directo
+  // --------------------------------------------------------------------------
   if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === "sk_test_placeholder") {
     let pedido;
     try {
@@ -68,7 +93,7 @@ export async function POST(req: NextRequest) {
             lojaId: loja.id,
             clienteEmail,
             clienteNome,
-            morada: { ...morada, metodoPagamento, clienteTelefone: clienteTelefone ?? null },
+            morada: { ...morada, clienteTelefone: clienteTelefone ?? null },
             subtotal: total,
             desconto: 0,
             total,
@@ -85,17 +110,26 @@ export async function POST(req: NextRequest) {
             },
           },
         });
+        await tx.pagamento.create({
+          data: {
+            lojaId: loja.id,
+            pedidoId: p.id,
+            metodo: "DESCONHECIDO",
+            status: "CONFIRMADO", // dev mode: assume confirmado
+            valor: total,
+            moeda: moedaLoja,
+            provedor: "manual",
+          },
+        });
         await reservarStock(tx, loja.id, p.id, itensReserva);
         return p;
       }, { isolationLevel: "Serializable" });
     } catch (err) {
-      const msg = String(err);
-      if (msg.includes("STOCK_INSUFICIENTE")) {
+      if (String(err).includes("STOCK_INSUFICIENTE")) {
         return NextResponse.json({ erro: "Um ou mais produtos não têm stock disponível." }, { status: 409 });
       }
       throw err;
     }
-
     return NextResponse.json({
       modo: "directo",
       pedidoId: pedido.id,
@@ -103,18 +137,9 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Mapear método escolhido para tipo(s) Stripe
-  // Multicaixa não tem suporte Stripe — tratado como directo abaixo
-  type StripePaymentMethod = "card" | "paypal" | "mb_way" | "multibanco";
-
-  const metodoStripeMap: Record<string, StripePaymentMethod[]> = {
-    cartao:     ["card"],
-    mbway:      ["mb_way"],
-    multibanco: ["multibanco"],
-    paypal:     ["paypal"],
-  };
-
-  // Multicaixa Express não tem integração Stripe — criar pedido pendente directamente
+  // --------------------------------------------------------------------------
+  // Multicaixa Express — sem Stripe, pagamento manual confirmado pelo lojista
+  // --------------------------------------------------------------------------
   if (metodoPagamento === "multicaixa") {
     let pedido;
     try {
@@ -124,14 +149,13 @@ export async function POST(req: NextRequest) {
             lojaId: loja.id,
             clienteEmail,
             clienteNome,
-            morada: { ...morada, metodoPagamento, clienteTelefone: clienteTelefone ?? null },
+            morada: { ...morada, clienteTelefone: clienteTelefone ?? null },
             subtotal: total,
             desconto: 0,
             total,
             status: "PENDING",
             channel: "ONLINE",
             clientUuid,
-            comprovanteUrl: comprovanteUrl ?? null,
             zonaEntregaId: zonaEntregaId ?? null,
             itens: {
               create: itens.map((i) => ({
@@ -144,12 +168,23 @@ export async function POST(req: NextRequest) {
           },
           include: { itens: true },
         });
+        await tx.pagamento.create({
+          data: {
+            lojaId: loja.id,
+            pedidoId: p.id,
+            metodo: "MULTICAIXA",
+            status: "PENDENTE",
+            valor: total,
+            moeda: moedaLoja,
+            provedor: "multicaixa",
+            comprovanteUrl: comprovanteUrl ?? null,
+          },
+        });
         await reservarStock(tx, loja.id, p.id, itensReserva);
         return p;
       }, { isolationLevel: "Serializable" });
     } catch (err) {
-      const msg = String(err);
-      if (msg.includes("STOCK_INSUFICIENTE")) {
+      if (String(err).includes("STOCK_INSUFICIENTE")) {
         return NextResponse.json({ erro: "Um ou mais produtos não têm stock disponível." }, { status: 409 });
       }
       throw err;
@@ -163,7 +198,7 @@ export async function POST(req: NextRequest) {
       pedidoId: pedido.id,
       itens: itens.map((i) => ({ titulo: i.titulo, quantidade: i.quantidade, precoUnitario: i.precoUnitario })),
       total,
-      moeda: loja.moeda ?? "AOA",
+      moeda: moedaLoja,
       emailLojista,
     });
 
@@ -174,14 +209,18 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // AOA não é suportado pelo Stripe — forçar multicaixa
-  if (loja.moeda === "AOA") {
+  // --------------------------------------------------------------------------
+  // AOA não é suportado pelo Stripe
+  // --------------------------------------------------------------------------
+  if (moedaLoja === "AOA") {
     return NextResponse.json({ erro: "Lojas AOA só aceitam pagamento Multicaixa" }, { status: 400 });
   }
 
-  const paymentMethods = metodoStripeMap[metodoPagamento] ?? ["card"];
+  // --------------------------------------------------------------------------
+  // Stripe — criar pedido + pagamento PENDENTE, depois redirigir para Stripe
+  // --------------------------------------------------------------------------
+  const paymentMethods = METODO_STRIPE_MAP[metodoPagamento] ?? ["card"];
 
-  // Guardar pedido na DB + reservar stock em transacção atómica
   let pedido;
   try {
     pedido = await prisma.$transaction(async (tx) => {
@@ -190,7 +229,7 @@ export async function POST(req: NextRequest) {
           lojaId: loja.id,
           clienteEmail,
           clienteNome,
-          morada: { ...morada, metodoPagamento, clienteTelefone: clienteTelefone ?? null },
+          morada: { ...morada, clienteTelefone: clienteTelefone ?? null },
           subtotal: total,
           desconto: 0,
           total,
@@ -207,26 +246,37 @@ export async function POST(req: NextRequest) {
           },
         },
       });
+      // Cria pagamento PENDENTE — referência Stripe será adicionada abaixo
+      await tx.pagamento.create({
+        data: {
+          lojaId: loja.id,
+          pedidoId: p.id,
+          metodo: metodoPagamentoEnum,
+          status: "PENDENTE",
+          valor: total,
+          moeda: moedaLoja,
+          provedor: "stripe",
+        },
+      });
       await reservarStock(tx, loja.id, p.id, itensReserva);
       return p;
     }, { isolationLevel: "Serializable" });
   } catch (err) {
-    const msg = String(err);
-    if (msg.includes("STOCK_INSUFICIENTE")) {
+    if (String(err).includes("STOCK_INSUFICIENTE")) {
       return NextResponse.json({ erro: "Um ou mais produtos não têm stock disponível." }, { status: 409 });
     }
     throw err;
   }
 
-  // Criar sessão Stripe com o pedidoId no metadata
+  // Criar sessão Stripe
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
-    currency: moeda,
+    currency: moedaStripe,
     customer_email: clienteEmail,
     phone_number_collection: { enabled: metodoPagamento === "mbway" },
     line_items: itens.map((i) => ({
       price_data: {
-        currency: moeda,
+        currency: moedaStripe,
         unit_amount: Math.round(i.precoUnitario * 100),
         product_data: {
           name: i.titulo,
@@ -245,6 +295,12 @@ export async function POST(req: NextRequest) {
       clienteNome,
       clientUuid,
     },
+  });
+
+  // Guardar Stripe session ID no Pagamento (referência para o webhook)
+  await prisma.pagamento.updateMany({
+    where: { pedidoId: pedido.id, provedor: "stripe", status: "PENDENTE" },
+    data: { referencia: session.id },
   });
 
   return NextResponse.json({ redirectUrl: session.url });

@@ -13,6 +13,21 @@ const STATUS_CONFIG: Record<string, { label: string; dot: string; bg: string; te
 
 const CANAL_LABEL: Record<string, string> = { ONLINE: "Online", POS: "POS" };
 
+const PAGAMENTO_STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
+  PENDENTE:    { label: "Aguarda pagamento", bg: "bg-yellow-50",  text: "text-yellow-700" },
+  CONFIRMADO:  { label: "Pago",              bg: "bg-green-50",   text: "text-green-700"  },
+  FALHADO:     { label: "Pagamento falhado", bg: "bg-red-50",     text: "text-red-700"    },
+  EXPIRADO:    { label: "Expirado",          bg: "bg-slate-100",  text: "text-slate-500"  },
+  REEMBOLSADO: { label: "Reembolsado",       bg: "bg-purple-50",  text: "text-purple-700" },
+  CANCELADO:   { label: "Cancelado",         bg: "bg-slate-100",  text: "text-slate-500"  },
+};
+
+const METODO_LABEL: Record<string, string> = {
+  CARTAO: "Cartão", MBWAY: "MB Way", MULTIBANCO: "Multibanco",
+  PAYPAL: "PayPal", MULTICAIXA: "Multicaixa", NA_ENTREGA: "Na entrega",
+  TRANSFERENCIA: "Transferência", DESCONHECIDO: "—",
+};
+
 export default async function PedidosPage({
   searchParams,
 }: {
@@ -34,6 +49,7 @@ export default async function PedidosPage({
           include: { produto: { select: { titulo: true, imagemUrl: true } } },
           take: 3,
         },
+        pagamentos: { orderBy: { criadoEm: "desc" }, take: 1 },
       },
     }),
   ]);
@@ -153,10 +169,26 @@ export default async function PedidosPage({
                     <p className="text-xs text-slate-400 truncate">{pedido.clienteEmail}</p>
 
                     {/* Prévia dos itens */}
-                    <p className="mt-2 text-xs text-slate-500">
+                    <p className="mt-1.5 text-xs text-slate-500">
                       {pedido.itens.slice(0, 2).map(i => i.produto?.titulo ?? "Produto").join(" · ")}
                       {pedido.itens.length > 2 && ` +${pedido.itens.length - 2}`}
                     </p>
+
+                    {/* Estado do pagamento */}
+                    {pedido.pagamentos[0] && (() => {
+                      const pag = pedido.pagamentos[0];
+                      const pagCfg = PAGAMENTO_STATUS_CONFIG[pag.status] ?? PAGAMENTO_STATUS_CONFIG.PENDENTE;
+                      return (
+                        <div className="mt-2 flex items-center gap-2 flex-wrap">
+                          <span className={`text-[10px] font-bold rounded-full px-2 py-0.5 ${pagCfg.bg} ${pagCfg.text}`}>
+                            {pagCfg.label}
+                          </span>
+                          <span className="text-[10px] text-slate-400">
+                            {METODO_LABEL[pag.metodo] ?? pag.metodo}
+                          </span>
+                        </div>
+                      );
+                    })()}
 
                     {tracking && (
                       <p className="mt-1 text-xs text-purple-600 font-medium">📦 Tracking: {tracking}</p>

@@ -171,6 +171,7 @@ model Loja {
   utilizadores     User[]
   produtos         Produto[]
   pedidos          Pedido[]
+  pagamentos       Pagamento[]
   clientes         Cliente[]
   cupoes           Cupao[]
   metodosPagamento MetodoPagamentoLoja[]
@@ -307,6 +308,59 @@ model Cliente {
 }
 
 // -----------------------------------------------------------------------------
+// PAGAMENTOS — entidade separada do Pedido (ponto 11 do PROMPT MESTRE)
+// Um pedido pode ter múltiplos pagamentos (tentativa falhada + nova tentativa,
+// reembolso parcial, etc.). A idempotência é garantida pelo campo eventoId.
+// -----------------------------------------------------------------------------
+
+enum MetodoPagamento {
+  CARTAO        // Stripe card
+  MBWAY         // Stripe MB Way
+  MULTIBANCO    // Stripe Multibanco
+  PAYPAL        // Stripe PayPal
+  MULTICAIXA    // Multicaixa Express (directo, sem Stripe)
+  NA_ENTREGA    // Pagamento na entrega
+  TRANSFERENCIA // Transferência bancária
+  DESCONHECIDO  // fallback / POS / dev mode
+}
+
+enum StatusPagamento {
+  PENDENTE    // iniciado, aguarda confirmação do provider
+  CONFIRMADO  // confirmado via webhook ou manualmente
+  FALHADO     // falhou no provider
+  EXPIRADO    // abandonado / expirou sem pagamento
+  REEMBOLSADO // reembolsado (total ou parcial)
+  CANCELADO   // cancelado antes de tentativa de pagamento
+}
+
+model Pagamento {
+  id             String          @id @default(cuid())
+  lojaId         String
+  loja           Loja            @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  pedidoId       String
+  pedido         Pedido          @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  metodo         MetodoPagamento @default(DESCONHECIDO)
+  status         StatusPagamento @default(PENDENTE)
+  valor          Decimal         @db.Decimal(10, 2)
+  moeda          String          @default("AOA")
+  // referencia: Stripe session/payment intent ID, referência Multicaixa, etc.
+  referencia     String?
+  // provedor: "stripe" | "multicaixa" | "manual"
+  provedor       String?
+  // comprovanteUrl: URL do comprovativo enviado pelo cliente (Multicaixa/transferência)
+  comprovanteUrl String?
+  // eventoId: ID único do evento do provider → garantia de idempotência
+  eventoId       String?         @unique
+  metadata       Json?
+  criadoEm      DateTime        @default(now())
+  atualizadoEm  DateTime        @updatedAt
+
+  @@index([lojaId])
+  @@index([pedidoId])
+  @@map("pagamentos")
+}
+
+// -----------------------------------------------------------------------------
 // PEDIDOS (unificado online + POS, incl. POS offline sincronizado)
 // -----------------------------------------------------------------------------
 
@@ -378,11 +432,11 @@ model Pedido {
 
   cupaoId       String?
   cupao         Cupao?       @relation(fields: [cupaoId], references: [id])
-  comprovanteUrl String?    // URL do comprovativo de pagamento (Multicaixa/transferência)
   zonaEntregaId  String?
   zonaEntrega    ZonaEntrega? @relation(fields: [zonaEntregaId], references: [id])
 
   itens         ItemPedido[]
+  pagamentos    Pagamento[]
 
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
