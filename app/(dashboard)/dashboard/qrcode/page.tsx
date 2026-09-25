@@ -49,13 +49,23 @@ export default function QRCodePage() {
     setTimeout(() => setCopiado(false), 2000);
   }
 
-  function download() {
+  async function download() {
     if (!lojaUrl) return;
     const url = `https://api.qrserver.com/v1/create-qr-code/?size=${tamanhoSel}x${tamanhoSel}&data=${encodeURIComponent(lojaUrl)}&color=${cor}&bgcolor=ffffff&qzone=3&format=png`;
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `qrcode-${subdominio}.png`;
-    a.click();
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `qrcode-${subdominio || "loja"}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(url, "_blank");
+    }
   }
 
   return (
@@ -179,7 +189,7 @@ export default function QRCodePage() {
                     className="w-full flex items-center justify-between rounded-xl border px-4 py-3 text-left transition-all"
                     style={{
                       borderColor: tamanhoSel === t.size ? `#${cor}` : "#e2e8f0",
-                      background: tamanhoSel === t.size ? `rgba(21,61,252,0.04)` : "white",
+                      background: tamanhoSel === t.size ? `#${cor}12` : "white",
                     }}
                   >
                     <div>
