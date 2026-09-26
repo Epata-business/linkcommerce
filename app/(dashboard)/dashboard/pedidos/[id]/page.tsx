@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getLojaId } from "@/lib/get-loja-id";
 import { formatarPreco } from "@/lib/moeda";
 import { PedidoActions } from "./pedido-actions";
+import { ConfirmarPagamentoBtn } from "./confirmar-pagamento-btn";
 
 const STATUS_CONFIG: Record<string, { label: string; dot: string; bg: string; text: string }> = {
   PENDING:    { label: "Pendente",         dot: "bg-yellow-400", bg: "bg-yellow-50",  text: "text-yellow-700" },
@@ -35,6 +36,7 @@ export default async function PedidoDetailPage({ params }: { params: { id: strin
             variante: { select: { nomeOpcao: true } },
           },
         },
+        pagamentos: { orderBy: { criadoEm: "desc" } },
       },
     }),
   ]);
@@ -47,6 +49,11 @@ export default async function PedidoDetailPage({ params }: { params: { id: strin
   const moradaJson = (pedido.morada as Record<string, unknown>) ?? {};
   const tracking = moradaJson.tracking as string | undefined;
   const metodoPagamento = moradaJson.metodoPagamento as string | undefined;
+
+  // Pagamento Multicaixa pendente de confirmação
+  const pagamentoPendenteMulticaixa = pedido.pagamentos?.find(
+    p => p.metodo === "MULTICAIXA" && p.status === "PENDENTE"
+  ) ?? null;
 
   const estadosPossiveis = [
     { value: "PENDING",    label: "Pendente" },
@@ -170,6 +177,16 @@ export default async function PedidoDetailPage({ params }: { params: { id: strin
               )}
             </div>
           </div>
+
+          {/* Banner de confirmação Multicaixa */}
+          {pedido.status === "PENDING" && pagamentoPendenteMulticaixa && (
+            <ConfirmarPagamentoBtn
+              pedidoId={pedido.id}
+              pagamentoId={pagamentoPendenteMulticaixa.id}
+              valor={formatarPreco(Number(pagamentoPendenteMulticaixa.valor), moeda)}
+              comprovanteUrl={pagamentoPendenteMulticaixa.comprovanteUrl}
+            />
+          )}
 
           {/* Acções — actualizar status e tracking */}
           <PedidoActions
