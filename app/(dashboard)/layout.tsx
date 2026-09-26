@@ -17,7 +17,8 @@ const navLinks = [
   { href: "/dashboard/marketing", label: "Marketing" },
   { href: "/dashboard/envios", label: "Envios" },
   { href: "/dashboard/qrcode", label: "QR Code" },
-  { href: "/dashboard/notificacoes", label: "Notificações" },
+  { href: "/dashboard/exportar",      label: "Exportar" },
+  { href: "/dashboard/notificacoes",  label: "Notificações" },
   { href: "/dashboard/configuracoes", label: "Configurações" },
 ];
 

@@ -24,30 +24,38 @@ export async function GET(req: NextRequest) {
     orderBy: { createdAt: "desc" },
     include: {
       itens: { include: { produto: { select: { titulo: true } } } },
+      pagamentos: { orderBy: { criadoEm: "desc" }, take: 1 },
     },
   });
 
   const loja = await prisma.loja.findUnique({ where: { id: lojaId }, select: { moeda: true } });
   const moeda = loja?.moeda ?? "EUR";
 
+  const METODO_LABEL: Record<string, string> = {
+    CARTAO: "Cartão", MBWAY: "MB Way", MULTIBANCO: "Multibanco",
+    PAYPAL: "PayPal", MULTICAIXA: "Multicaixa", NA_ENTREGA: "Na entrega",
+    TRANSFERENCIA: "Transferência", DESCONHECIDO: "—",
+  };
+
   const linhas: string[] = [
-    ["Nº Pedido", "Data", "Cliente", "Email", "Produtos", "Total", "Moeda", "Estado", "Canal", "Método Pagamento"].join(";"),
+    ["Nº Pedido", "Data", "Cliente", "Email", "Produtos", "Total", "Moeda", "Estado", "Canal", "Método Pagamento", "Estado Pagamento"].join(";"),
   ];
 
   for (const p of pedidos) {
-    const moradaJson = (p.morada ?? {}) as Record<string, string>;
     const produtos = p.itens.map(i => `${i.produto?.titulo ?? "?"}×${i.quantidade}`).join(" | ");
+    const pag = p.pagamentos[0];
     linhas.push([
       `#${p.id.slice(-8).toUpperCase()}`,
       new Date(p.createdAt).toLocaleDateString("pt-AO"),
-      p.clienteNome,
+      p.clienteNome ?? "",
       p.clienteEmail,
       `"${produtos}"`,
       Number(p.total).toFixed(2),
       moeda,
       p.status,
       p.channel ?? "ONLINE",
-      moradaJson.metodoPagamento ?? "—",
+      pag ? (METODO_LABEL[pag.metodo] ?? pag.metodo) : "—",
+      pag?.status ?? "—",
     ].join(";"));
   }
 
