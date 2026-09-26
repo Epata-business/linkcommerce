@@ -28,6 +28,7 @@ interface Props {
 export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAnterior }: Props) {
   const agora = new Date();
   const limite24h = new Date(agora.getTime() - 24 * 60 * 60 * 1000);
+  const limite48h = new Date(agora.getTime() - 48 * 60 * 60 * 1000);
 
   const [
     produtosStockBaixo,
@@ -35,31 +36,20 @@ export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAn
     pedidosPendentesAntigos,
     receitaPeriodo,
     receitaAnterior,
+    avaliacoesPendentes,
+    multicaixaPendente24h,
+    pedidosProcessingSemEnvio,
   ] = await Promise.all([
     // Produtos com stock disponível abaixo ou igual ao mínimo (mas ainda > 0)
-    prisma.produto.count({
-      where: {
-        lojaId,
-        ativo: true,
-        stockMinimo: { gt: 0 },
-        AND: [
-          { stock: { gt: 0 } },
-        ],
-      },
-    }).then(async () => {
-      // Prisma não suporta stock - stockReservado directamente num where,
-      // por isso fazemos a query raw agregada no mesmo pedido
-      const result = await prisma.$queryRaw<{ count: bigint }[]>`
-        SELECT COUNT(*)::bigint as count
-        FROM "produtos"
-        WHERE "lojaId" = ${lojaId}
-          AND ativo = true
-          AND "stockMinimo" > 0
-          AND (stock - "stockReservado") > 0
-          AND (stock - "stockReservado") <= "stockMinimo"
-      `;
-      return Number(result[0]?.count ?? 0);
-    }),
+    prisma.$queryRaw<{ count: bigint }[]>`
+      SELECT COUNT(*)::bigint as count
+      FROM "produtos"
+      WHERE "lojaId" = ${lojaId}
+        AND ativo = true
+        AND "stockMinimo" > 0
+        AND (stock - "stockReservado") > 0
+        AND (stock - "stockReservado") <= "stockMinimo"
+    `.then(r => Number(r[0]?.count ?? 0)),
 
     // Produtos com stock disponível ≤ 0 e activos
     prisma.$queryRaw<{ count: bigint }[]>`
@@ -72,11 +62,7 @@ export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAn
 
     // Pedidos PENDING há mais de 24h
     prisma.pedido.count({
-      where: {
-        lojaId,
-        status: "PENDING",
-        createdAt: { lt: limite24h },
-      },
+      where: { lojaId, status: "PENDING", createdAt: { lt: limite24h } },
     }),
 
     // Receita no período seleccionado
@@ -90,11 +76,34 @@ export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAn
       where: { lojaId, createdAt: { gte: inicioAnterior, lte: fimAnterior }, status: { not: "CANCELLED" } },
       _sum: { total: true },
     }),
+
+    // Avaliações pendentes de moderação
+    prisma.avaliacao.count({ where: { lojaId, aprovada: false } }),
+
+    // Pedidos Multicaixa com pagamento PENDENTE há mais de 24h (sem comprovativo confirmado)
+    prisma.pagamento.count({
+      where: {
+        lojaId,
+        metodo: "MULTICAIXA",
+        status: "PENDENTE",
+        criadoEm: { lt: limite24h },
+      },
+    }),
+
+    // Pedidos em PROCESSING há mais de 3 dias sem código de rastreio
+    prisma.pedido.count({
+      where: {
+        lojaId,
+        status: "PROCESSING",
+        codigoRastreio: null,
+        updatedAt: { lt: new Date(agora.getTime() - 3 * 24 * 60 * 60 * 1000) },
+      },
+    }),
   ]);
 
   const alertas: Alerta[] = [];
 
-  // --- Alertas state-based ---
+  // ── 🔴 Crítico ──────────────────────────────────────────────────────────────
 
   if (produtosEsgotados > 0) {
     alertas.push({
@@ -118,6 +127,19 @@ export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAn
     });
   }
 
+  if (multicaixaPendente24h > 0) {
+    alertas.push({
+      prioridade: "critico",
+      icone: "💳",
+      titulo: `${multicaixaPendente24h} pagamento${multicaixaPendente24h > 1 ? "s" : ""} Multicaixa sem confirmação há mais de 24h`,
+      descricao: "O stock está reservado. Confirme o comprovativo ou cancele o pedido.",
+      href: "/dashboard/pedidos?status=pending",
+      cta: "Verificar →",
+    });
+  }
+
+  // ── 🟠 Atenção ──────────────────────────────────────────────────────────────
+
   if (produtosStockBaixo > 0) {
     alertas.push({
       prioridade: "atencao",
@@ -129,8 +151,18 @@ export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAn
     });
   }
 
-  // --- Alertas time-based ---
+  if (pedidosProcessingSemEnvio > 0) {
+    alertas.push({
+      prioridade: "atencao",
+      icone: "🚚",
+      titulo: `${pedidosProcessingSemEnvio} pedido${pedidosProcessingSemEnvio > 1 ? "s" : ""} em processamento sem código de rastreio`,
+      descricao: "Em processamento há mais de 3 dias sem expedição registada.",
+      href: "/dashboard/envios",
+      cta: "Expedir →",
+    });
+  }
 
+  // Queda de receita ≥ 20%
   const recAtual = Number(receitaPeriodo._sum.total ?? 0);
   const recAnterior = Number(receitaAnterior._sum.total ?? 0);
   const { texto: textoVariacao, positivo } = formatarVariacao(recAtual, recAnterior);
@@ -147,6 +179,19 @@ export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAn
         cta: "Ver relatórios →",
       });
     }
+  }
+
+  // ── 🔵 Informação ────────────────────────────────────────────────────────────
+
+  if (avaliacoesPendentes > 0) {
+    alertas.push({
+      prioridade: "info",
+      icone: "⭐",
+      titulo: `${avaliacoesPendentes} avaliação${avaliacoesPendentes > 1 ? "ões" : ""} à espera de moderação`,
+      descricao: "Reveja e publique as avaliações dos seus clientes.",
+      href: "/dashboard/avaliacoes?filtro=pendentes",
+      cta: "Moderar →",
+    });
   }
 
   if (alertas.length === 0) return null;
@@ -169,7 +214,7 @@ export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAn
           const cfg = PRIORIDADE_CONFIG[a.prioridade];
           return (
             <div key={i} className={`flex items-start gap-3 px-5 py-3.5 ${cfg.bg}`}>
-              <span className={`mt-0.5 w-2 h-2 rounded-full flex-shrink-0 ${cfg.dot}`} />
+              <span className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${cfg.dot}`} />
               <div className="flex-1 min-w-0">
                 <p className={`text-sm font-semibold ${cfg.text}`}>{a.icone} {a.titulo}</p>
                 <p className="text-xs text-slate-500 mt-0.5">{a.descricao}</p>

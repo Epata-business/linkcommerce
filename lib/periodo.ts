@@ -4,7 +4,7 @@
  * Todos os cálculos em UTC para consistência server-side.
  */
 
-export type PeriodoKey = "hoje" | "ontem" | "7d" | "30d" | "mes" | "mes_anterior";
+export type PeriodoKey = "hoje" | "ontem" | "7d" | "30d" | "mes" | "mes_anterior" | "custom";
 
 export interface Intervalo {
   inicio: Date;
@@ -22,15 +22,32 @@ export const PERIODOS: { key: PeriodoKey; label: string }[] = [
   { key: "30d",          label: "Últimos 30 dias" },
   { key: "mes",          label: "Este mês" },
   { key: "mes_anterior", label: "Mês anterior" },
+  { key: "custom",       label: "Personalizado…" },
 ];
 
-export function calcularIntervalo(periodo: string | undefined): Intervalo {
+export function calcularIntervalo(
+  periodo: string | undefined,
+  customInicio?: string,
+  customFim?: string,
+): Intervalo {
   const agora = new Date();
-  // Início do dia de hoje (UTC meia-noite)
   const hojeInicio = new Date(agora);
   hojeInicio.setHours(0, 0, 0, 0);
   const hojeFim = new Date(agora);
   hojeFim.setHours(23, 59, 59, 999);
+
+  // Intervalo personalizado
+  if (periodo === "custom" && customInicio && customFim) {
+    const inicio = new Date(customInicio + "T00:00:00");
+    const fim = new Date(customFim + "T23:59:59.999");
+    if (!isNaN(inicio.getTime()) && !isNaN(fim.getTime()) && inicio <= fim) {
+      const dias = Math.round((fim.getTime() - inicio.getTime()) / 86_400_000) + 1;
+      const anteriorFim = new Date(inicio.getTime() - 1);
+      const inicioAnterior = new Date(anteriorFim.getTime() - dias * 86_400_000 + 1);
+      const label = `${inicio.toLocaleDateString("pt-PT", { day: "numeric", month: "short" })} – ${fim.toLocaleDateString("pt-PT", { day: "numeric", month: "short" })}`;
+      return { inicio, fim, inicioAnterior, fimAnterior: anteriorFim, label, dias };
+    }
+  }
 
   switch (periodo as PeriodoKey) {
     case "hoje": {

@@ -20,13 +20,13 @@ const STATUS_CONFIG: Record<string, { label: string; dot: string; bg: string; te
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: { periodo?: string };
+  searchParams: { periodo?: string; inicio?: string; fim?: string };
 }) {
   const [session, lojaId] = await Promise.all([auth(), getLojaId()]);
   const nomeUtilizador = session?.user?.name ?? session?.user?.email ?? "Lojista";
 
   const periodo = searchParams.periodo ?? "30d";
-  const { inicio, fim, inicioAnterior, fimAnterior, label: labelPeriodo } = calcularIntervalo(periodo);
+  const { inicio, fim, inicioAnterior, fimAnterior, label: labelPeriodo } = calcularIntervalo(periodo, searchParams.inicio, searchParams.fim);
 
   const agora = new Date();
 

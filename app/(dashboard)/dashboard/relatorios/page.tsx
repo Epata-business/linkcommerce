@@ -15,7 +15,7 @@ type DiaRow = { dia: Date; receita: string; pedidos: bigint };
 export default async function RelatoriosPage({
   searchParams,
 }: {
-  searchParams: { periodo?: string };
+  searchParams: { periodo?: string; inicio?: string; fim?: string };
 }) {
   const session = await auth();
   const role = (session?.user as { role?: string })?.role;
@@ -23,7 +23,7 @@ export default async function RelatoriosPage({
 
   const lojaId = await getLojaId();
   const periodo = searchParams.periodo ?? "30d";
-  const { inicio, fim, inicioAnterior, fimAnterior, label: labelPeriodo } = calcularIntervalo(periodo);
+  const { inicio, fim, inicioAnterior, fimAnterior, label: labelPeriodo } = calcularIntervalo(periodo, searchParams.inicio, searchParams.fim);
 
   const [
     loja,
