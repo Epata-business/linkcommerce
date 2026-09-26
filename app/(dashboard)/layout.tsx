@@ -8,6 +8,7 @@ import { DashboardLocaleSwitcher } from "@/components/dashboard/locale-switcher"
 import { MobileSidebar } from "@/components/dashboard/mobile-sidebar";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 import { NotificacoesBell } from "@/components/dashboard/notificacoes-bell";
+import { PesquisaGlobal } from "@/components/dashboard/pesquisa-global";
 import { NAV_POR_ROLE, type Recurso } from "@/lib/rbac";
 
 const ALL_NAV_LINKS: { href: string; label: string; recurso: Recurso }[] = [
@@ -135,6 +136,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <span className="text-lg font-bold tracking-tight">LinkCommerce</span>
           </div>
           <DashboardNav links={navLinks} />
+
+          {/* Pesquisa global */}
+          <div className="px-3 pb-1">
+            <PesquisaGlobal />
+          </div>
 
           {/* Bell de notificações */}
           <div className="px-3 pb-2">
