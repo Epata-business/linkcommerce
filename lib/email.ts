@@ -298,3 +298,68 @@ export async function enviarEmailSubscricaoAOA(data: {
 
   await resend.emails.send({ from: FROM, to: data.emailLojista, subject: assunto, html: corpo }).catch(() => {});
 }
+
+export async function enviarEmailCarrinhoAbandonado(data: {
+  nomeLoja: string;
+  clienteEmail: string;
+  clienteNome: string;
+  itens: { titulo: string; precoUnitario: number; quantidade: number; imagemUrl?: string | null }[];
+  total: number;
+  moeda: string;
+  urlLoja: string;
+}) {
+  const linhas = data.itens.map(i => `
+    <tr>
+      <td style="padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:14px">${i.titulo}</td>
+      <td style="padding:10px 0;border-bottom:1px solid #f1f5f9;text-align:center;font-size:14px">${i.quantidade}</td>
+      <td style="padding:10px 0;border-bottom:1px solid #f1f5f9;text-align:right;font-size:14px">${formatarPreco(i.precoUnitario * i.quantidade, data.moeda)}</td>
+    </tr>`).join("");
+
+  const html = `<!DOCTYPE html>
+<html lang="pt">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#1e293b">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:40px 20px">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+        <tr><td style="background:linear-gradient(135deg,#153DFC,#8381FB);padding:32px;text-align:center">
+          <h1 style="margin:0;color:#fff;font-size:22px;font-weight:800">${data.nomeLoja}</h1>
+          <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:14px">Esqueceu-se de algo? 🛒</p>
+        </td></tr>
+        <tr><td style="padding:32px">
+          <p style="margin:0 0 8px;font-size:16px">Olá, <strong>${data.clienteNome}</strong>!</p>
+          <p style="margin:0 0 24px;color:#64748b;font-size:14px">Deixou alguns artigos no carrinho. Complete a sua compra enquanto ainda há stock disponível.</p>
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
+            <tr>
+              <th style="text-align:left;font-size:12px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;padding-bottom:8px;border-bottom:2px solid #e2e8f0">Produto</th>
+              <th style="text-align:center;font-size:12px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;padding-bottom:8px;border-bottom:2px solid #e2e8f0">Qtd.</th>
+              <th style="text-align:right;font-size:12px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;padding-bottom:8px;border-bottom:2px solid #e2e8f0">Total</th>
+            </tr>
+            ${linhas}
+            <tr>
+              <td colspan="2" style="padding-top:16px;font-weight:700">Total</td>
+              <td style="padding-top:16px;font-weight:800;color:#153DFC;text-align:right;font-size:18px">${formatarPreco(data.total, data.moeda)}</td>
+            </tr>
+          </table>
+          <div style="text-align:center;margin-top:8px">
+            <a href="${data.urlLoja}" style="display:inline-block;background:linear-gradient(135deg,#153DFC,#8381FB);color:#fff;text-decoration:none;padding:14px 32px;border-radius:12px;font-weight:800;font-size:15px">
+              Voltar à loja →
+            </a>
+          </div>
+          <p style="margin:24px 0 0;color:#94a3b8;font-size:12px;text-align:center">
+            Se não foi você, pode ignorar este email.
+          </p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  await resend.emails.send({
+    from: FROM,
+    to: data.clienteEmail,
+    subject: `🛒 Deixou artigos no carrinho — ${data.nomeLoja}`,
+    html,
+  }).catch(() => {});
+}

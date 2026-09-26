@@ -4,6 +4,10 @@
     {
       "path": "/api/cron/expirar-reservas",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/recuperar-carrinhos",
+      "schedule": "0 * * * *"
     }
   ]
 }

@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
   const pedidoId = meta.pedidoId;
   const lojaId = meta.lojaId;
   const clienteNome = meta.clienteNome ?? "Cliente";
+  const carrinhoId = meta.carrinhoId ?? null;
 
   if (!pedidoId || !lojaId) return NextResponse.json({ recebido: true });
 
@@ -107,6 +108,14 @@ export async function POST(req: NextRequest) {
     // Confirmar venda: converte reserva em decremento real de stock
     await confirmarVenda(tx, lojaId, pedidoId, itensReserva);
   });
+
+  // Marcar carrinho como convertido
+  if (carrinhoId) {
+    void prisma.carrinhoAbandonado.update({
+      where: { id: carrinhoId },
+      data: { status: "CONVERTIDO" },
+    }).catch(() => {});
+  }
 
   void criarNotificacao({
     lojaId,

@@ -103,6 +103,25 @@ export async function POST(req: NextRequest) {
     quantidade: i.quantidade,
   }));
 
+  // Registar carrinho abandonado — marcado CONVERTIDO quando pedido for criado com sucesso
+  const carrinhoItens = itens.map((i) => ({
+    produtoId: i.produtoId,
+    titulo: i.titulo,
+    precoUnitario: i.precoUnitario,
+    quantidade: i.quantidade,
+    imagemUrl: i.imagemUrl ?? null,
+  }));
+  const carrinhoAbandonado = await prisma.carrinhoAbandonado.create({
+    data: {
+      lojaId: loja.id,
+      clienteEmail,
+      clienteNome,
+      itens: carrinhoItens,
+      total,
+      moeda: moedaLoja,
+    },
+  });
+
   // --------------------------------------------------------------------------
   // Modo sem Stripe (dev / sem chaves configuradas) — criar pedido directo
   // --------------------------------------------------------------------------
@@ -164,6 +183,7 @@ export async function POST(req: NextRequest) {
     });
     if (loja.telefoneWA) void notificarNovoPedidoLojista({ telefoneWA: loja.telefoneWA, nomeLoja: loja.nome, clienteNome, pedidoId: pedido.id, total, moeda: moedaLoja, loja });
     void criarFatura({ lojaId: loja.id, pedidoId: pedido.id, subtotal: subtotalCalc, desconto: descontoValor, total, moeda: moedaLoja, taxaIva: moedaLoja === "AOA" ? 14 : 23, clienteNome, clienteEmail, lojaNome: loja.nome, lojaNif: loja.nif, lojaMorada: loja.moradaFiscal });
+    void prisma.carrinhoAbandonado.update({ where: { id: carrinhoAbandonado.id }, data: { status: "CONVERTIDO" } });
     return NextResponse.json({
       modo: "directo",
       pedidoId: pedido.id,
@@ -247,6 +267,7 @@ export async function POST(req: NextRequest) {
       emailLojista,
     });
 
+    void prisma.carrinhoAbandonado.update({ where: { id: carrinhoAbandonado.id }, data: { status: "CONVERTIDO" } });
     return NextResponse.json({
       modo: "multicaixa",
       pedidoId: pedido.id,
@@ -341,6 +362,7 @@ export async function POST(req: NextRequest) {
       subdominio,
       clienteNome,
       clientUuid,
+      carrinhoId: carrinhoAbandonado.id,
     },
   });
 

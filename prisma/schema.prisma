@@ -192,6 +192,8 @@ model Loja {
   faturas          Fatura[]
   avaliacoes       Avaliacao[]
 
+  carrinhos     CarrinhoAbandonado[]
+
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -682,4 +684,34 @@ model Avaliacao {
   @@unique([pedidoId, produtoId]) // um cliente avalia cada produto uma vez por pedido
   @@index([lojaId, produtoId, aprovada])
   @@map("avaliacoes")
+}
+
+// -----------------------------------------------------------------------------
+// CARRINHOS ABANDONADOS
+// -----------------------------------------------------------------------------
+
+enum StatusCarrinho {
+  ABANDONADO   // checkout iniciado mas pedido não criado
+  CONVERTIDO   // pedido criado com sucesso
+  EMAIL_ENVIADO // email de recuperação enviado
+  RECUPERADO   // cliente voltou e completou a compra após email
+}
+
+model CarrinhoAbandonado {
+  id            String         @id @default(cuid())
+  lojaId        String
+  loja          Loja           @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  clienteEmail  String
+  clienteNome   String?
+  itens         Json           // array de { produtoId, titulo, precoUnitario, quantidade, imagemUrl }
+  total         Decimal        @db.Decimal(10, 2)
+  moeda         String         @default("AOA")
+  status        StatusCarrinho @default(ABANDONADO)
+  emailEnviadoEm DateTime?
+  recuperadoEm  DateTime?
+  criadoEm      DateTime       @default(now())
+
+  @@index([lojaId, status, criadoEm])
+  @@index([lojaId, clienteEmail])
+  @@map("carrinhos_abandonados")
 }
