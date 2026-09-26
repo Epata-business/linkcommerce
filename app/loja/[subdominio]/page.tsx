@@ -12,7 +12,8 @@ interface PageProps { params: { subdominio: string } }
 async function getLojaComProdutos(subdominio: string) {
   return prisma.loja.findUnique({
     where: { subdominio },
-    include: {
+    select: {
+      id: true, nome: true, moeda: true, corPrimaria: true, logotipoUrl: true,
       produtos: {
         where: { ativo: true },
         orderBy: { createdAt: "desc" },
@@ -27,22 +28,26 @@ async function getLojaComProdutos(subdominio: string) {
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const loja = await prisma.loja.findUnique({ where: { subdominio: params.subdominio } });
+  const loja = await prisma.loja.findUnique({
+    where: { subdominio: params.subdominio },
+    select: { nome: true, logotipoUrl: true, seoTitulo: true, seoDescricao: true },
+  });
   if (!loja) return {};
   const url = `https://${params.subdominio}.linkcommerce.cc`;
-  const desc = `Compre online na ${loja.nome}. Entrega rápida e pagamento seguro.`;
+  const title = loja.seoTitulo ?? loja.nome;
+  const desc = loja.seoDescricao ?? `Compre online na ${loja.nome}. Entrega rápida e pagamento seguro.`;
   return {
-    title: loja.nome,
+    title,
     description: desc,
     openGraph: {
-      title: loja.nome,
+      title,
       description: desc,
       url,
       siteName: loja.nome,
       type: "website",
       images: loja.logotipoUrl ? [{ url: loja.logotipoUrl, width: 400, height: 400 }] : [],
     },
-    twitter: { card: "summary", title: loja.nome, description: desc },
+    twitter: { card: "summary", title, description: desc },
     metadataBase: new URL(url),
   };
 }
@@ -69,8 +74,20 @@ export default async function StorefrontPage({ params }: PageProps) {
   const moeda = loja.moeda ?? "EUR";
   const cor = loja.corPrimaria || "#153DFC";
 
+  const jsonLdOrg = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: loja.nome,
+    url: `https://${params.subdominio}.linkcommerce.cc`,
+    ...(loja.logotipoUrl && { logo: loja.logotipoUrl }),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrg) }}
+      />
       {/* Tracker de visita real — client-side, filtra bots no servidor */}
       <StoreTracker lojaId={loja.id} />
 

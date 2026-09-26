@@ -21,24 +21,25 @@ export async function generateMetadata({ params }: Props) {
   const [produto, loja] = await Promise.all([
     prisma.produto.findFirst({
       where: { id: params.id, loja: { subdominio: params.subdominio }, ativo: true },
-      select: { titulo: true, descricao: true, imagemUrl: true, preco: true },
+      select: { titulo: true, descricao: true, imagemUrl: true, preco: true, seoTitulo: true, seoDescricao: true },
     }),
     prisma.loja.findUnique({ where: { subdominio: params.subdominio }, select: { nome: true } }),
   ]);
   if (!produto) return {};
-  const desc = produto.descricao ?? `Compre ${produto.titulo} na loja ${loja?.nome ?? ""}.`;
+  const title = produto.seoTitulo ?? `${produto.titulo} — ${loja?.nome ?? ""}`;
+  const desc = produto.seoDescricao ?? produto.descricao ?? `Compre ${produto.titulo} na loja ${loja?.nome ?? ""}.`;
   const url = `https://${params.subdominio}.linkcommerce.cc/produto/${params.id}`;
   return {
-    title: `${produto.titulo} — ${loja?.nome ?? ""}`,
+    title,
     description: desc,
     openGraph: {
-      title: produto.titulo,
+      title: produto.seoTitulo ?? produto.titulo,
       description: desc,
       url,
       type: "website",
       images: produto.imagemUrl ? [{ url: produto.imagemUrl, width: 800, height: 800, alt: produto.titulo }] : [],
     },
-    twitter: { card: "summary_large_image", title: produto.titulo, description: desc },
+    twitter: { card: "summary_large_image", title: produto.seoTitulo ?? produto.titulo, description: desc },
     metadataBase: new URL(`https://${params.subdominio}.linkcommerce.cc`),
   };
 }
@@ -95,8 +96,40 @@ export default async function ProdutoPage({ params }: Props) {
     select: { id: true, titulo: true, preco: true, imagemUrl: true, stock: true },
   });
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: produto.titulo,
+    description: produto.descricao ?? undefined,
+    image: produto.imagemUrl ?? undefined,
+    sku: produto.sku ?? undefined,
+    offers: {
+      "@type": "Offer",
+      url: `https://${params.subdominio}.linkcommerce.cc/produto/${params.id}`,
+      priceCurrency: moeda,
+      price: preco.toFixed(2),
+      availability: produto.stock > 0
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      seller: { "@type": "Organization", name: loja.nome },
+    },
+    ...(totalAvaliacoes > 0 && {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: mediaEstrelas.toFixed(1),
+        reviewCount: totalAvaliacoes,
+        bestRating: "5",
+        worstRating: "1",
+      },
+    }),
+  };
+
   return (
     <div className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Breadcrumb */}
       <div className="max-w-6xl mx-auto px-4 pt-6 pb-2">
         <nav className="flex items-center gap-2 text-xs text-slate-400">

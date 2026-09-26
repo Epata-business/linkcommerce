@@ -43,6 +43,20 @@ export default async function ConfiguracoesPage({
     redirect("/dashboard/configuracoes?saved=1");
   }
 
+  async function guardarSeo(formData: FormData) {
+    "use server";
+    const lojaIdServer = await getLojaId();
+    await prisma.loja.update({
+      where: { id: lojaIdServer },
+      data: {
+        seoTitulo: (formData.get("seoTitulo") as string) || null,
+        seoDescricao: (formData.get("seoDescricao") as string) || null,
+      },
+    });
+    revalidatePath("/dashboard/configuracoes");
+    redirect("/dashboard/configuracoes?saved=1");
+  }
+
   async function guardarWhatsAppAPI(formData: FormData) {
     "use server";
     const lojaIdServer = await getLojaId();
@@ -215,6 +229,50 @@ export default async function ConfiguracoesPage({
               <span className="text-xs text-green-600 font-semibold">● Configurado</span>
             )}
           </div>
+        </form>
+      </div>
+      {/* SEO */}
+      <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex items-start gap-3 mb-4">
+          <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center flex-shrink-0">
+            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-slate-800">SEO — Motores de pesquisa</h2>
+            <p className="text-xs text-slate-400 mt-0.5">Personaliza o título e descrição que aparecem no Google e redes sociais.</p>
+          </div>
+        </div>
+        <form action={guardarSeo} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Título da loja <span className="text-slate-400 font-normal">(SEO override)</span>
+            </label>
+            <input
+              name="seoTitulo"
+              defaultValue={loja.seoTitulo ?? ""}
+              placeholder={loja.nome}
+              maxLength={70}
+              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+            />
+            <p className="mt-1 text-xs text-slate-400">Máx. 70 caracteres. Deixar vazio usa o nome da loja.</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Meta description <span className="text-slate-400 font-normal">(SEO override)</span>
+            </label>
+            <textarea
+              name="seoDescricao"
+              defaultValue={loja.seoDescricao ?? ""}
+              placeholder={`Compre online na ${loja.nome}. Entrega rápida e pagamento seguro.`}
+              maxLength={160}
+              rows={3}
+              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 resize-none"
+            />
+            <p className="mt-1 text-xs text-slate-400">Máx. 160 caracteres. Aparece nos resultados de pesquisa e partilhas.</p>
+          </div>
+          <Button type="submit" variant="outline" className="text-sm">Guardar SEO</Button>
         </form>
       </div>
     </div>

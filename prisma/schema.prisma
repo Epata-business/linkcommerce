@@ -169,6 +169,8 @@ model Loja {
   telefoneWA    String?  // Número WhatsApp da loja (ex: +244900000000)
   waPhoneId     String?  // Meta WhatsApp Business Phone Number ID
   waToken       String?  // Meta WhatsApp Business API token (encrypted at rest — guardar com cuidado)
+  seoTitulo     String?  // Override do <title> na homepage da loja
+  seoDescricao  String?  @db.Text // Override da meta description na homepage
 
   planoId       String?
   plano         Plano?   @relation(fields: [planoId], references: [id])
@@ -269,6 +271,8 @@ model Produto {
   stockMinimo      Int      @default(0)
   permitirOverselling Boolean @default(false)
   ativo            Boolean  @default(true)
+  seoTitulo        String?  // Override do <title> na página do produto
+  seoDescricao     String?  @db.Text // Override da meta description do produto
 
   variantes        Variante[]
   itensPedido      ItemPedido[]
