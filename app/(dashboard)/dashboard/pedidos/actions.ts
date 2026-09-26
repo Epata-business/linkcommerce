@@ -26,7 +26,12 @@ async function getLojaIdDoUtilizadorAtual() {
 
 const StatusSchema = z.enum(["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"]);
 
-export async function atualizarStatusPedido(pedidoId: string, status: string, tracking?: string) {
+export async function atualizarStatusPedido(
+  pedidoId: string,
+  status: string,
+  tracking?: string,
+  transportadora?: string,
+) {
   const { lojaId, userId, userEmail } = await getSessionInfo();
   const statusParsed = StatusSchema.parse(status);
 
@@ -35,15 +40,12 @@ export async function atualizarStatusPedido(pedidoId: string, status: string, tr
     select: {
       status: true,
       morada: true,
+      codigoRastreio: true,
+      transportadora: true,
       itens: { select: { produtoId: true, varianteId: true, quantidade: true } },
     },
   });
   if (!pedidoAtual) throw new Error("Pedido não encontrado.");
-
-  const moradaAtual = (pedidoAtual.morada as Record<string, unknown>) ?? {};
-  const moradaAtualizada = tracking !== undefined
-    ? { ...moradaAtual, tracking }
-    : moradaAtual;
 
   const statusAnterior = pedidoAtual.status;
   const itensReserva = pedidoAtual.itens.map((i) => ({
@@ -57,18 +59,17 @@ export async function atualizarStatusPedido(pedidoId: string, status: string, tr
       where: { id: pedidoId, lojaId },
       data: {
         status: statusParsed,
-        morada: moradaAtualizada as Record<string, string>,
         ...(statusParsed === "SHIPPED" ? { sincronizadoEm: new Date() } : {}),
+        ...(tracking !== undefined ? { codigoRastreio: tracking } : {}),
+        ...(transportadora !== undefined ? { transportadora } : {}),
       },
     });
 
-    // Ao cancelar um pedido PENDING → libertar a reserva de stock
     if (statusParsed === "CANCELLED" && statusAnterior === "PENDING") {
       await libertarReserva(tx, lojaId, pedidoId, itensReserva, "CANCELAMENTO", "Cancelado manualmente pelo lojista");
     }
   });
 
-  // Notificar cliente por email e WhatsApp quando pedido é enviado
   if (statusParsed === "SHIPPED") {
     const pedidoCompleto = await prisma.pedido.findUnique({
       where: { id: pedidoId },
@@ -83,7 +84,6 @@ export async function atualizarStatusPedido(pedidoId: string, status: string, tr
         tracking: tracking || undefined,
       }).catch(() => {});
 
-      // WhatsApp ao cliente se tiver telefone na morada
       const morada = pedidoCompleto.morada as Record<string, unknown> | null;
       const telefoneCliente = morada?.clienteTelefone as string | undefined;
       if (telefoneCliente) {
@@ -106,10 +106,11 @@ export async function atualizarStatusPedido(pedidoId: string, status: string, tr
     acao: "ATUALIZAR",
     entidade: "Pedido",
     entidadeId: pedidoId,
-    valoresAntigos: { status: statusAnterior },
-    valoresNovos: { status: statusParsed, ...(tracking !== undefined ? { tracking } : {}) },
+    valoresAntigos: { status: statusAnterior, codigoRastreio: pedidoAtual.codigoRastreio, transportadora: pedidoAtual.transportadora },
+    valoresNovos: { status: statusParsed, ...(tracking !== undefined ? { codigoRastreio: tracking } : {}), ...(transportadora !== undefined ? { transportadora } : {}) },
   });
 
   revalidatePath("/dashboard/pedidos");
   revalidatePath(`/dashboard/pedidos/${pedidoId}`);
+  revalidatePath("/dashboard/envios");
 }

@@ -445,6 +445,9 @@ model Pedido {
   zonaEntregaId  String?
   zonaEntrega    ZonaEntrega? @relation(fields: [zonaEntregaId], references: [id])
 
+  codigoRastreio String?
+  transportadora String?
+
   itens         ItemPedido[]
   pagamentos    Pagamento[]
   fatura        Fatura?
