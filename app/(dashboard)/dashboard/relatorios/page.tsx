@@ -42,6 +42,9 @@ export default async function RelatoriosPage({
     topClientes,
     clientesNovos,
     ticketMedioPeriodo,
+    stockAggregate,
+    stockBaixo,
+    stockEsgotado,
   ] = await Promise.all([
     prisma.loja.findUnique({
       where: { id: lojaId },
@@ -197,6 +200,11 @@ export default async function RelatoriosPage({
       _avg: { total: true },
       _count: true,
     }),
+
+    // P23 — stock health
+    prisma.produto.aggregate({ where: { lojaId }, _count: true, _sum: { stock: true } }),
+    prisma.produto.count({ where: { lojaId, stock: { lte: 5, gt: 0 } } }),
+    prisma.produto.count({ where: { lojaId, stock: 0 } }),
   ]);
 
   const moeda = loja?.moeda ?? "EUR";
@@ -299,6 +307,43 @@ export default async function RelatoriosPage({
               )}
             </div>
           ))}
+        </div>
+
+        {/* Stock health */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 mb-8">
+          <h2 className="font-bold text-slate-800 mb-4">Saúde do Inventário</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="text-center">
+              <p className="text-2xl font-black text-slate-900">{stockAggregate._count}</p>
+              <p className="text-xs text-slate-400 mt-1">Produtos</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-black text-slate-900">{Number(stockAggregate._sum.stock ?? 0).toLocaleString("pt-PT")}</p>
+              <p className="text-xs text-slate-400 mt-1">Unidades em stock</p>
+            </div>
+            <div className="text-center">
+              <p className={`text-2xl font-black ${stockBaixo > 0 ? "text-amber-600" : "text-slate-900"}`}>{stockBaixo}</p>
+              <p className="text-xs text-slate-400 mt-1">Stock baixo (≤ 5)</p>
+            </div>
+            <div className="text-center">
+              <p className={`text-2xl font-black ${stockEsgotado > 0 ? "text-red-600" : "text-slate-900"}`}>{stockEsgotado}</p>
+              <p className="text-xs text-slate-400 mt-1">Esgotados</p>
+            </div>
+          </div>
+          {(stockBaixo > 0 || stockEsgotado > 0) && (
+            <div className="mt-4 pt-4 border-t border-slate-100 flex gap-3 flex-wrap">
+              {stockEsgotado > 0 && (
+                <a href="/dashboard/inventario?filtro=esgotado" className="text-xs font-semibold text-red-600 hover:underline">
+                  Ver {stockEsgotado} produto{stockEsgotado !== 1 ? "s" : ""} esgotado{stockEsgotado !== 1 ? "s" : ""} →
+                </a>
+              )}
+              {stockBaixo > 0 && (
+                <a href="/dashboard/inventario?filtro=baixo" className="text-xs font-semibold text-amber-600 hover:underline">
+                  Ver {stockBaixo} com stock baixo →
+                </a>
+              )}
+            </div>
+          )}
         </div>
 
         <RelatoriosClient
