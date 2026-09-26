@@ -45,7 +45,8 @@ export async function middleware(req: NextRequest) {
   });
   const role = token?.role as string | undefined;
 
-  if (url.pathname.startsWith("/dashboard") && !["LOJISTA", "ADMIN_PLATAFORMA"].includes(role ?? "")) {
+  const rolesDashboard = ["LOJISTA", "GESTOR", "OPERADOR", "MARKETING", "FINANCEIRO", "ADMIN_PLATAFORMA"];
+  if (url.pathname.startsWith("/dashboard") && !rolesDashboard.includes(role ?? "")) {
     return NextResponse.redirect(new URL("/entrar", req.url));
   }
 

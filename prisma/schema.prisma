@@ -81,8 +81,12 @@ model Subscricao {
 
 enum RoleUtilizador {
   ADMIN_PLATAFORMA // equipa interna LinkCommerce, gere todos os tenants
-  LOJISTA          // dono/gestor de uma Loja
+  LOJISTA          // dono da loja (Owner) — acesso total
+  GESTOR           // gestor da loja — tudo exceto billing/equipa
+  OPERADOR         // operador — pedidos, produtos, clientes
   OPERADOR_POS     // acesso restrito apenas à rota /pos
+  MARKETING        // marketing — QR codes, cupões, analytics
+  FINANCEIRO       // finanças — relatórios, exportar, pagamentos
 }
 
 model User {

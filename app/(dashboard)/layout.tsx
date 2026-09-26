@@ -8,28 +8,35 @@ import { DashboardLocaleSwitcher } from "@/components/dashboard/locale-switcher"
 import { MobileSidebar } from "@/components/dashboard/mobile-sidebar";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 import { NotificacoesBell } from "@/components/dashboard/notificacoes-bell";
+import { NAV_POR_ROLE, type Recurso } from "@/lib/rbac";
 
-const navLinks = [
-  { href: "/dashboard", label: "Início" },
-  { href: "/dashboard/produtos", label: "Produtos" },
-  { href: "/dashboard/pedidos", label: "Pedidos" },
-  { href: "/dashboard/clientes", label: "Clientes" },
-  { href: "/dashboard/marketing", label: "Marketing" },
-  { href: "/dashboard/envios", label: "Envios" },
-  { href: "/dashboard/qrcode", label: "QR Code" },
-  { href: "/dashboard/exportar",      label: "Exportar" },
-  { href: "/dashboard/notificacoes",  label: "Notificações" },
-  { href: "/dashboard/configuracoes", label: "Configurações" },
+const ALL_NAV_LINKS: { href: string; label: string; recurso: Recurso }[] = [
+  { href: "/dashboard",               label: "Início",         recurso: "dashboard"      },
+  { href: "/dashboard/produtos",      label: "Produtos",       recurso: "produtos"       },
+  { href: "/dashboard/pedidos",       label: "Pedidos",        recurso: "pedidos"        },
+  { href: "/dashboard/clientes",      label: "Clientes",       recurso: "clientes"       },
+  { href: "/dashboard/marketing",     label: "Marketing",      recurso: "marketing"      },
+  { href: "/dashboard/envios",        label: "Envios",         recurso: "envios"         },
+  { href: "/dashboard/qrcode",        label: "QR Code",        recurso: "qrcode"         },
+  { href: "/dashboard/relatorios",    label: "Analytics",      recurso: "relatorios"     },
+  { href: "/dashboard/exportar",      label: "Exportar",       recurso: "exportar"       },
+  { href: "/dashboard/equipa",        label: "Equipa",         recurso: "equipa"         },
+  { href: "/dashboard/notificacoes",  label: "Notificações",   recurso: "notificacoes"   },
+  { href: "/dashboard/configuracoes", label: "Configurações",  recurso: "configuracoes"  },
 ];
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (!session?.user) redirect("/entrar");
 
-  const role = (session.user as { role?: string }).role;
+  const role = (session.user as { role?: string }).role ?? "LOJISTA";
   const jar = cookies();
   const adminOverride = jar.get("admin_loja_override")?.value;
   const currentLang = jar.get("LC")?.value ?? "pt";
+
+  // Filtrar links de nav com base no role
+  const recursosPermitidos = NAV_POR_ROLE[role] ?? NAV_POR_ROLE["OPERADOR"];
+  const navLinks = ALL_NAV_LINKS.filter(l => recursosPermitidos.includes(l.recurso));
 
   // Admin sem override → vai para o painel admin
   if (role === "ADMIN_PLATAFORMA" && !adminOverride) redirect("/admin");
@@ -49,8 +56,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect("/onboarding");
   }
 
-  // Lojista sem subscrição activa → forçar escolha/pagamento de plano
-  if (role !== "ADMIN_PLATAFORMA" && lojaId && !adminOverride) {
+  // Verificar subscrição activa (apenas o LOJISTA é redirecionado — outros membros dependem do dono)
+  if (role === "LOJISTA" && lojaId && !adminOverride) {
     const subscricao = await prisma.subscricao.findUnique({
       where: { lojaId },
       select: { status: true },
