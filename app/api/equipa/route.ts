@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getLojaId } from "@/lib/get-loja-id";
 import { auth } from "@/lib/auth";
 import { ROLES_ATRIBUIVEIS, podeGerir } from "@/lib/rbac";
+import { registarAudit } from "@/lib/audit";
 
 // GET — listar membros da equipa
 export async function GET() {
@@ -44,6 +45,16 @@ export async function POST(req: NextRequest) {
   await prisma.user.update({
     where: { id: utilizador.id },
     data: { lojaId, role: novoRole },
+  });
+
+  void registarAudit({
+    lojaId,
+    userId: (session?.user as { id?: string } | undefined)?.id,
+    userEmail: session?.user?.email ?? undefined,
+    acao: "ADICIONAR",
+    entidade: "Utilizador",
+    entidadeId: utilizador.id,
+    valoresNovos: { email, role: novoRole },
   });
 
   return NextResponse.json({ ok: true });

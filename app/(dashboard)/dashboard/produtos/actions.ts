@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
+import { registarAudit } from "@/lib/audit";
 
 // -----------------------------------------------------------------------------
 // app/(dashboard)/dashboard/produtos/actions.ts
@@ -22,16 +23,23 @@ const produtoSchema = z.object({
   imagemUrl: z.string().url().optional().or(z.literal("")),
 });
 
-async function getLojaIdDoUtilizadorAtual() {
+async function getSessionInfo() {
   const session = await auth();
-  if (!session?.user?.lojaId) {
-    throw new Error("Utilizador não tem loja associada.");
-  }
-  return session.user.lojaId as string;
+  if (!session?.user?.lojaId) throw new Error("Utilizador não tem loja associada.");
+  return {
+    lojaId: session.user.lojaId as string,
+    userId: (session.user as { id?: string }).id,
+    userEmail: session.user.email ?? undefined,
+  };
+}
+
+async function getLojaIdDoUtilizadorAtual() {
+  const { lojaId } = await getSessionInfo();
+  return lojaId;
 }
 
 export async function criarProduto(formData: FormData) {
-  const lojaId = await getLojaIdDoUtilizadorAtual();
+  const { lojaId, userId, userEmail } = await getSessionInfo();
 
   const dados = produtoSchema.parse({
     titulo: formData.get("titulo"),
@@ -42,15 +50,17 @@ export async function criarProduto(formData: FormData) {
     imagemUrl: formData.get("imagemUrl"),
   });
 
-  await prisma.produto.create({
+  const produto = await prisma.produto.create({
     data: { ...dados, lojaId },
   });
+
+  void registarAudit({ lojaId, userId, userEmail, acao: "CRIAR", entidade: "Produto", entidadeId: produto.id, valoresNovos: dados as Record<string, unknown> });
 
   revalidatePath("/dashboard/produtos");
 }
 
 export async function atualizarProduto(produtoId: string, formData: FormData) {
-  const lojaId = await getLojaIdDoUtilizadorAtual();
+  const { lojaId, userId, userEmail } = await getSessionInfo();
 
   const dados = produtoSchema.parse({
     titulo: formData.get("titulo"),
@@ -60,6 +70,8 @@ export async function atualizarProduto(produtoId: string, formData: FormData) {
     stock: formData.get("stock"),
     imagemUrl: formData.get("imagemUrl"),
   });
+
+  const anterior = await prisma.produto.findFirst({ where: { id: produtoId, lojaId }, select: { titulo: true, preco: true, stock: true, ativo: true } });
 
   // garante que o produto pertence à loja do utilizador autenticado
   await prisma.produto.updateMany({
@@ -67,12 +79,16 @@ export async function atualizarProduto(produtoId: string, formData: FormData) {
     data: dados,
   });
 
+  void registarAudit({ lojaId, userId, userEmail, acao: "ATUALIZAR", entidade: "Produto", entidadeId: produtoId, valoresAntigos: anterior as Record<string, unknown> ?? undefined, valoresNovos: dados as Record<string, unknown> });
+
   revalidatePath("/dashboard/produtos");
 }
 
 export async function removerProduto(produtoId: string) {
-  const lojaId = await getLojaIdDoUtilizadorAtual();
+  const { lojaId, userId, userEmail } = await getSessionInfo();
+  const anterior = await prisma.produto.findFirst({ where: { id: produtoId, lojaId }, select: { titulo: true, preco: true } });
   await prisma.produto.deleteMany({ where: { id: produtoId, lojaId } });
+  void registarAudit({ lojaId, userId, userEmail, acao: "REMOVER", entidade: "Produto", entidadeId: produtoId, valoresAntigos: anterior as Record<string, unknown> ?? undefined });
   revalidatePath("/dashboard/produtos");
 }
 

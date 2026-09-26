@@ -21,6 +21,7 @@ const ALL_NAV_LINKS: { href: string; label: string; recurso: Recurso }[] = [
   { href: "/dashboard/relatorios",    label: "Analytics",      recurso: "relatorios"     },
   { href: "/dashboard/exportar",      label: "Exportar",       recurso: "exportar"       },
   { href: "/dashboard/equipa",        label: "Equipa",         recurso: "equipa"         },
+  { href: "/dashboard/auditlog",      label: "Audit Log",      recurso: "auditlog"       },
   { href: "/dashboard/notificacoes",  label: "Notificações",   recurso: "notificacoes"   },
   { href: "/dashboard/configuracoes", label: "Configurações",  recurso: "configuracoes"  },
 ];

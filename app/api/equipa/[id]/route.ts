@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getLojaId } from "@/lib/get-loja-id";
 import { auth } from "@/lib/auth";
 import { ROLES_ATRIBUIVEIS, podeGerir } from "@/lib/rbac";
+import { registarAudit } from "@/lib/audit";
 
 // PATCH — alterar role de um membro
 export async function PATCH(
@@ -32,6 +33,18 @@ export async function PATCH(
   }
 
   await prisma.user.update({ where: { id: params.id }, data: { role: novoRole } });
+
+  void registarAudit({
+    lojaId,
+    userId: (session?.user as { id?: string } | undefined)?.id,
+    userEmail: session?.user?.email ?? undefined,
+    acao: "ATUALIZAR",
+    entidade: "Utilizador",
+    entidadeId: params.id,
+    valoresAntigos: { role: membro.role },
+    valoresNovos: { role: novoRole },
+  });
+
   return NextResponse.json({ ok: true });
 }
 
@@ -57,5 +70,16 @@ export async function DELETE(
 
   // Dissocia da loja (NÃO apaga o utilizador — constraint de segurança)
   await prisma.user.update({ where: { id: params.id }, data: { lojaId: null } });
+
+  void registarAudit({
+    lojaId,
+    userId: (session?.user as { id?: string } | undefined)?.id,
+    userEmail: session?.user?.email ?? undefined,
+    acao: "REMOVER",
+    entidade: "Utilizador",
+    entidadeId: params.id,
+    valoresAntigos: { email: membro.email, role: membro.role },
+  });
+
   return NextResponse.json({ ok: true });
 }

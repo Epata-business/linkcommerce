@@ -19,13 +19,14 @@ export type Recurso =
   | "exportar"
   | "notificacoes"
   | "configuracoes"
-  | "equipa";
+  | "equipa"
+  | "auditlog";
 
 // * = acesso total ao recurso
 const PERMISSOES: Record<RoleUtilizador, Recurso[] | ["*"]> = {
   ADMIN_PLATAFORMA: ["*"],
   LOJISTA:          ["*"],
-  GESTOR:           ["dashboard", "pedidos", "produtos", "clientes", "marketing", "qrcode", "envios", "relatorios", "exportar", "notificacoes", "configuracoes"],
+  GESTOR:           ["dashboard", "pedidos", "produtos", "clientes", "marketing", "qrcode", "envios", "relatorios", "exportar", "notificacoes", "configuracoes", "auditlog"],
   OPERADOR:         ["pedidos", "produtos", "clientes", "notificacoes"],
   OPERADOR_POS:     [],
   MARKETING:        ["marketing", "qrcode", "relatorios", "notificacoes"],
@@ -62,10 +63,10 @@ export const ROLES_ATRIBUIVEIS: RoleUtilizador[] = [
 
 // Nav links visíveis por role
 export const NAV_POR_ROLE: Record<string, Recurso[]> = {
-  LOJISTA:          ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "equipa", "notificacoes", "configuracoes"],
-  GESTOR:           ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "notificacoes", "configuracoes"],
+  LOJISTA:          ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "equipa", "notificacoes", "configuracoes", "auditlog"],
+  GESTOR:           ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "notificacoes", "configuracoes", "auditlog"],
   OPERADOR:         ["pedidos", "produtos", "clientes", "notificacoes"],
   MARKETING:        ["marketing", "qrcode", "relatorios", "notificacoes"],
   FINANCEIRO:       ["relatorios", "exportar", "pedidos", "notificacoes"],
-  ADMIN_PLATAFORMA: ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "equipa", "notificacoes", "configuracoes"],
+  ADMIN_PLATAFORMA: ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "equipa", "notificacoes", "configuracoes", "auditlog"],
 };

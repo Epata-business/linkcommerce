@@ -183,6 +183,7 @@ model Loja {
   zonasEntrega     ZonaEntrega[]
   notificacoes     Notificacao[]
   qrCodes          QrCode[]
+  auditLogs        AuditLog[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -534,6 +535,23 @@ model Notificacao {
 
   @@index([lojaId, lida, criadaEm])
   @@map("notificacoes")
+}
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  lojaId         String
+  loja           Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  userId         String?
+  userEmail      String?
+  acao           String   // ex: "CRIAR", "ATUALIZAR", "CANCELAR", "REMOVER"
+  entidade       String   // ex: "Pedido", "Produto", "Utilizador"
+  entidadeId     String?
+  valoresAntigos Json?
+  valoresNovos   Json?
+  criadoEm       DateTime @default(now())
+
+  @@index([lojaId, criadoEm(sort: Desc)])
+  @@map("audit_logs")
 }
 
 model Cupao {

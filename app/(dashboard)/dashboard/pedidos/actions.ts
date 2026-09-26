@@ -6,17 +6,27 @@ import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { enviarEmailPedidoEnviado } from "@/lib/email";
 import { libertarReserva } from "@/lib/inventario";
+import { registarAudit } from "@/lib/audit";
 
-async function getLojaIdDoUtilizadorAtual() {
+async function getSessionInfo() {
   const session = await auth();
   if (!session?.user?.lojaId) throw new Error("Sem loja associada.");
-  return session.user.lojaId as string;
+  return {
+    lojaId: session.user.lojaId as string,
+    userId: (session.user as { id?: string }).id,
+    userEmail: session.user.email ?? undefined,
+  };
+}
+
+async function getLojaIdDoUtilizadorAtual() {
+  const { lojaId } = await getSessionInfo();
+  return lojaId;
 }
 
 const StatusSchema = z.enum(["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"]);
 
 export async function atualizarStatusPedido(pedidoId: string, status: string, tracking?: string) {
-  const lojaId = await getLojaIdDoUtilizadorAtual();
+  const { lojaId, userId, userEmail } = await getSessionInfo();
   const statusParsed = StatusSchema.parse(status);
 
   const pedidoAtual = await prisma.pedido.findFirst({
@@ -73,6 +83,17 @@ export async function atualizarStatusPedido(pedidoId: string, status: string, tr
       }).catch(() => {});
     }
   }
+
+  void registarAudit({
+    lojaId,
+    userId,
+    userEmail,
+    acao: "ATUALIZAR",
+    entidade: "Pedido",
+    entidadeId: pedidoId,
+    valoresAntigos: { status: statusAnterior },
+    valoresNovos: { status: statusParsed, ...(tracking !== undefined ? { tracking } : {}) },
+  });
 
   revalidatePath("/dashboard/pedidos");
   revalidatePath(`/dashboard/pedidos/${pedidoId}`);
