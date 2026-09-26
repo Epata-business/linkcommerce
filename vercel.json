@@ -2,8 +2,8 @@
   "framework": "nextjs",
   "crons": [
     {
-      "path": "/api/cron/libertar-reservas",
-      "schedule": "0 3 * * *"
+      "path": "/api/cron/expirar-reservas",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

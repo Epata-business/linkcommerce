@@ -184,6 +184,7 @@ model Loja {
   metodosEnvio     MetodoEnvio[]
   zonasEntrega     ZonaEntrega[]
   notificacoes     Notificacao[]
+  stockReservas    StockReserva[]
   qrCodes          QrCode[]
   auditLogs        AuditLog[]
   faturas          Fatura[]
@@ -273,6 +274,7 @@ model Produto {
   itensPedido      ItemPedido[]
   movimentosStock  MovimentoStock[]
   avaliacoes       Avaliacao[]
+  stockReservas    StockReserva[]
 
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -294,6 +296,7 @@ model Variante {
 
   itensPedido     ItemPedido[]
   movimentosStock MovimentoStock[]
+  stockReservas   StockReserva[]
 
   @@map("variantes")
 }
@@ -409,12 +412,48 @@ model MovimentoStock {
   tipo        TipoMovimentoStock
   quantidade  Int                 // positivo = entrada, negativo = saída
   pedidoId    String?             // referência ao pedido quando aplicável
+  reservaId   String?             // referência à StockReserva associada
   nota        String?             // descrição legível do movimento
   criadoEm   DateTime            @default(now())
 
   @@index([lojaId, produtoId])
   @@index([pedidoId])
   @@map("movimentos_stock")
+}
+
+// -----------------------------------------------------------------------------
+// RESERVAS DE STOCK — objectos de primeira classe com expiração e estado
+// Resolve: dupla reserva (idempotência por pedidoId), expiração automática,
+// libertação correcta e auditoria por reserva individual.
+// -----------------------------------------------------------------------------
+
+enum StatusReserva {
+  ACTIVA      // reserva vigente, conta para stockReservado
+  CONVERTIDA  // pedido confirmado → venda registada
+  LIBERADA    // cancelado manualmente
+  EXPIRADA    // TTL atingido → cron libertou o stock
+}
+
+model StockReserva {
+  id          String        @id @default(cuid())
+  lojaId      String
+  loja        Loja          @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  pedidoId    String?
+  produtoId   String
+  produto     Produto       @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  varianteId  String?
+  variante    Variante?     @relation(fields: [varianteId], references: [id])
+  quantidade  Int
+  status      StatusReserva @default(ACTIVA)
+  expiresAt   DateTime
+  criadaEm   DateTime      @default(now())
+  resolvidaEm DateTime?
+  metadata    Json?
+
+  @@index([lojaId, status, expiresAt])
+  @@index([pedidoId])
+  @@index([lojaId, produtoId, status])
+  @@map("stock_reservas")
 }
 
 enum CanalPedido {

@@ -3,6 +3,9 @@
  * Operações atómicas de stock — reserva, venda, cancelamento, expiração.
  * Usa SELECT FOR UPDATE para evitar race conditions (dois clientes, 1 unidade).
  * Todas as operações correm dentro de uma transacção Prisma.
+ *
+ * P18: adicionada tabela StockReserva para idempotência por pedidoId,
+ * expiração automática via cron e libertação correcta baseada em registos reais.
  */
 
 import { Prisma } from "@prisma/client";
@@ -13,27 +16,43 @@ export interface ItemReserva {
   quantidade: number;
 }
 
-interface TxClient {
-  $queryRaw: typeof Prisma.raw extends never ? never : (...args: never[]) => never;
-  produto: { update: Function; findUnique: Function };
-  variante: { update: Function; findUnique: Function };
-  movimentoStock: { createMany: Function };
+// TTL por canal de pagamento
+const TTL_STRIPE_MS    = 30 * 60 * 1000;       // 30 min
+const TTL_MULTICAIXA_MS = 48 * 60 * 60 * 1000; // 48 h
+const TTL_POS_MS       = 5 * 60 * 1000;         // 5 min (POS confirma imediatamente)
+
+export function ttlParaCanal(canal: "stripe" | "multicaixa" | "pos" | "directo"): Date {
+  const ms =
+    canal === "multicaixa" ? TTL_MULTICAIXA_MS :
+    canal === "pos"        ? TTL_POS_MS        :
+    TTL_STRIPE_MS;
+  return new Date(Date.now() + ms);
 }
 
 /**
  * Reserva stock para os itens de um pedido.
- * Lança erro se algum item não tiver stock suficiente.
- * Deve ser chamada dentro de prisma.$transaction.
+ * - Idempotente: se já existe StockReserva ACTIVA para este pedidoId, retorna sem erro.
+ * - Lança erro se algum item não tiver stock suficiente.
+ * - Deve ser chamada dentro de prisma.$transaction.
  */
 export async function reservarStock(
   tx: Prisma.TransactionClient,
   lojaId: string,
   pedidoId: string,
   itens: ItemReserva[],
+  canal: "stripe" | "multicaixa" | "pos" | "directo" = "stripe",
 ) {
+  // Idempotência: verificar se já existe reserva activa para este pedido
+  const reservaExistente = await tx.stockReserva.findFirst({
+    where: { pedidoId, lojaId, status: "ACTIVA" },
+    select: { id: true },
+  });
+  if (reservaExistente) return; // já reservado — idempotente
+
+  const expiresAt = ttlParaCanal(canal);
+
   for (const item of itens) {
     if (item.varianteId) {
-      // Bloqueia a linha da variante (SELECT FOR UPDATE)
       const rows = await tx.$queryRaw<{ id: string; stock: number; stockReservado: number }[]>`
         SELECT id, stock, "stockReservado"
         FROM variantes
@@ -53,8 +72,7 @@ export async function reservarStock(
         data: { stockReservado: { increment: item.quantidade } },
       });
     } else {
-      // Bloqueia a linha do produto (SELECT FOR UPDATE)
-      const rows = await tx.$queryRaw<{ id: string; stock: number; stockReservado: number; "permitirOverselling": boolean }[]>`
+      const rows = await tx.$queryRaw<{ id: string; stock: number; stockReservado: number; permitirOverselling: boolean }[]>`
         SELECT id, stock, "stockReservado", "permitirOverselling"
         FROM produtos
         WHERE id = ${item.produtoId} AND "lojaId" = ${lojaId}
@@ -75,25 +93,39 @@ export async function reservarStock(
         data: { stockReservado: { increment: item.quantidade } },
       });
     }
-  }
 
-  // Regista movimentos de reserva em batch
-  await tx.movimentoStock.createMany({
-    data: itens.map((item) => ({
-      lojaId,
-      produtoId: item.produtoId,
-      varianteId: item.varianteId ?? null,
-      tipo: "RESERVA" as const,
-      quantidade: item.quantidade,
-      pedidoId,
-      nota: "Reserva automática no checkout",
-    })),
-  });
+    // Criar registo de reserva individual
+    const reserva = await tx.stockReserva.create({
+      data: {
+        lojaId,
+        pedidoId,
+        produtoId: item.produtoId,
+        varianteId: item.varianteId ?? null,
+        quantidade: item.quantidade,
+        status: "ACTIVA",
+        expiresAt,
+      },
+    });
+
+    await tx.movimentoStock.create({
+      data: {
+        lojaId,
+        produtoId: item.produtoId,
+        varianteId: item.varianteId ?? null,
+        tipo: "RESERVA",
+        quantidade: item.quantidade,
+        pedidoId,
+        reservaId: reserva.id,
+        nota: "Reserva automática no checkout",
+      },
+    });
+  }
 }
 
 /**
- * Converte reserva em venda: decrementa stock físico e liberta stockReservado.
+ * Converte reservas activas em vendas: decrementa stock físico e liberta stockReservado.
  * Chamada quando o pagamento é confirmado.
+ * Idempotente: ignora itens cujas reservas já foram convertidas.
  */
 export async function confirmarVenda(
   tx: Prisma.TransactionClient,
@@ -101,76 +133,103 @@ export async function confirmarVenda(
   pedidoId: string,
   itens: ItemReserva[],
 ) {
-  for (const item of itens) {
-    if (item.varianteId) {
+  // Carregar reservas activas deste pedido (fonte de verdade)
+  const reservas = await tx.stockReserva.findMany({
+    where: { pedidoId, lojaId, status: "ACTIVA" },
+  });
+
+  if (reservas.length === 0) return; // já convertidas ou sem reserva (POS)
+
+  for (const reserva of reservas) {
+    if (reserva.varianteId) {
       await tx.variante.update({
-        where: { id: item.varianteId },
+        where: { id: reserva.varianteId },
         data: {
-          stock: { decrement: item.quantidade },
-          stockReservado: { decrement: item.quantidade },
+          stock: { decrement: reserva.quantidade },
+          stockReservado: { decrement: reserva.quantidade },
         },
       });
     } else {
       await tx.produto.update({
-        where: { id: item.produtoId },
+        where: { id: reserva.produtoId },
         data: {
-          stock: { decrement: item.quantidade },
-          stockReservado: { decrement: item.quantidade },
+          stock: { decrement: reserva.quantidade },
+          stockReservado: { decrement: reserva.quantidade },
         },
       });
     }
-  }
 
-  await tx.movimentoStock.createMany({
-    data: itens.map((item) => ({
-      lojaId,
-      produtoId: item.produtoId,
-      varianteId: item.varianteId ?? null,
-      tipo: "VENDA" as const,
-      quantidade: -item.quantidade,
-      pedidoId,
-      nota: "Venda confirmada por pagamento",
-    })),
-  });
+    await tx.stockReserva.update({
+      where: { id: reserva.id },
+      data: { status: "CONVERTIDA", resolvidaEm: new Date() },
+    });
+
+    await tx.movimentoStock.create({
+      data: {
+        lojaId,
+        produtoId: reserva.produtoId,
+        varianteId: reserva.varianteId ?? null,
+        tipo: "VENDA",
+        quantidade: -reserva.quantidade,
+        pedidoId,
+        reservaId: reserva.id,
+        nota: "Venda confirmada por pagamento",
+      },
+    });
+  }
 }
 
 /**
- * Liberta a reserva sem decrementar stock físico.
- * Chamada em: cancelamento manual, expiração, pagamento falhado.
+ * Liberta reservas activas sem decrementar stock físico.
+ * Chamada em: cancelamento manual, pagamento falhado.
+ * Carrega os itens da StockReserva — não depende de parâmetros externos.
  */
 export async function libertarReserva(
   tx: Prisma.TransactionClient,
   lojaId: string,
   pedidoId: string,
-  itens: ItemReserva[],
+  _itens: ItemReserva[], // mantido para compatibilidade de API — ignorado; usamos reservas reais
   tipo: "CANCELAMENTO" | "RESERVA_EXPIRADA" = "CANCELAMENTO",
   nota?: string,
 ) {
-  for (const item of itens) {
-    if (item.varianteId) {
+  const reservas = await tx.stockReserva.findMany({
+    where: { pedidoId, lojaId, status: "ACTIVA" },
+  });
+
+  if (reservas.length === 0) return;
+
+  for (const reserva of reservas) {
+    if (reserva.varianteId) {
       await tx.variante.update({
-        where: { id: item.varianteId },
-        data: { stockReservado: { decrement: item.quantidade } },
+        where: { id: reserva.varianteId },
+        data: { stockReservado: { decrement: reserva.quantidade } },
       });
     } else {
       await tx.produto.update({
-        where: { id: item.produtoId },
-        data: { stockReservado: { decrement: item.quantidade } },
+        where: { id: reserva.produtoId },
+        data: { stockReservado: { decrement: reserva.quantidade } },
       });
     }
-  }
 
-  await tx.movimentoStock.createMany({
-    data: itens.map((item) => ({
-      lojaId,
-      produtoId: item.produtoId,
-      varianteId: item.varianteId ?? null,
-      tipo,
-      quantidade: item.quantidade,
-      pedidoId,
-      nota: nota ?? (tipo === "RESERVA_EXPIRADA" ? "Reserva expirada automaticamente" : "Reserva libertada por cancelamento"),
-    })),
-  });
+    const novoStatus = tipo === "RESERVA_EXPIRADA" ? "EXPIRADA" : "LIBERADA";
+    await tx.stockReserva.update({
+      where: { id: reserva.id },
+      data: { status: novoStatus, resolvidaEm: new Date() },
+    });
+
+    await tx.movimentoStock.create({
+      data: {
+        lojaId,
+        produtoId: reserva.produtoId,
+        varianteId: reserva.varianteId ?? null,
+        tipo,
+        quantidade: reserva.quantidade,
+        pedidoId,
+        reservaId: reserva.id,
+        nota: nota ?? (tipo === "RESERVA_EXPIRADA" ? "Reserva expirada automaticamente" : "Reserva libertada por cancelamento"),
+      },
+    });
+  }
 }
 
 /**
