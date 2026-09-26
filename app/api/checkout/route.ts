@@ -4,6 +4,7 @@ import { stripe } from "@/lib/stripe";
 import { enviarEmailConfirmacaoPedido } from "@/lib/email";
 import { reservarStock } from "@/lib/inventario";
 import { criarNotificacao } from "@/lib/notificacoes";
+import { notificarNovoPedidoLojista } from "@/lib/whatsapp";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 
@@ -67,6 +68,7 @@ export async function POST(req: NextRequest) {
   const loja = await prisma.loja.findUnique({
     where: { subdominio, publicada: true },
     include: { utilizadores: { where: { role: "LOJISTA" }, select: { email: true }, take: 1 } },
+    // waToken and waPhoneId come via the default loja fields
   });
   if (!loja) return NextResponse.json({ erro: "Loja não encontrada" }, { status: 404 });
 
@@ -159,6 +161,7 @@ export async function POST(req: NextRequest) {
       link: `/dashboard/pedidos/${pedido.id}`,
       pedidoId: pedido.id,
     });
+    if (loja.telefoneWA) void notificarNovoPedidoLojista({ telefoneWA: loja.telefoneWA, nomeLoja: loja.nome, clienteNome, pedidoId: pedido.id, total, moeda: moedaLoja, loja });
     return NextResponse.json({
       modo: "directo",
       pedidoId: pedido.id,
@@ -229,6 +232,7 @@ export async function POST(req: NextRequest) {
       link: `/dashboard/pedidos/${pedido.id}`,
       pedidoId: pedido.id,
     });
+    if (loja.telefoneWA) void notificarNovoPedidoLojista({ telefoneWA: loja.telefoneWA, nomeLoja: loja.nome, clienteNome, pedidoId: pedido.id, total, moeda: moedaLoja, loja });
     const emailLojista = loja.utilizadores[0]?.email ?? undefined;
     void enviarEmailConfirmacaoPedido({
       nomeLoja: loja.nome,

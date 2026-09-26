@@ -7,6 +7,7 @@ import { z } from "zod";
 import { enviarEmailPedidoEnviado } from "@/lib/email";
 import { libertarReserva } from "@/lib/inventario";
 import { registarAudit } from "@/lib/audit";
+import { notificarPedidoEnviadoCliente } from "@/lib/whatsapp";
 
 async function getSessionInfo() {
   const session = await auth();
@@ -67,11 +68,11 @@ export async function atualizarStatusPedido(pedidoId: string, status: string, tr
     }
   });
 
-  // Notificar cliente por email quando pedido é enviado
+  // Notificar cliente por email e WhatsApp quando pedido é enviado
   if (statusParsed === "SHIPPED") {
     const pedidoCompleto = await prisma.pedido.findUnique({
       where: { id: pedidoId },
-      include: { loja: { select: { nome: true } } },
+      include: { loja: { select: { nome: true, waToken: true, waPhoneId: true } } },
     });
     if (pedidoCompleto) {
       await enviarEmailPedidoEnviado({
@@ -81,6 +82,20 @@ export async function atualizarStatusPedido(pedidoId: string, status: string, tr
         pedidoId: pedidoCompleto.id,
         tracking: tracking || undefined,
       }).catch(() => {});
+
+      // WhatsApp ao cliente se tiver telefone na morada
+      const morada = pedidoCompleto.morada as Record<string, unknown> | null;
+      const telefoneCliente = morada?.clienteTelefone as string | undefined;
+      if (telefoneCliente) {
+        void notificarPedidoEnviadoCliente({
+          telefoneCliente,
+          nomeLoja: pedidoCompleto.loja.nome,
+          clienteNome: pedidoCompleto.clienteNome ?? "Cliente",
+          pedidoId: pedidoCompleto.id,
+          tracking: tracking || undefined,
+          loja: pedidoCompleto.loja,
+        });
+      }
     }
   }
 

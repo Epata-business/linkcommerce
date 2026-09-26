@@ -43,6 +43,20 @@ export default async function ConfiguracoesPage({
     redirect("/dashboard/configuracoes?saved=1");
   }
 
+  async function guardarWhatsAppAPI(formData: FormData) {
+    "use server";
+    const lojaIdServer = await getLojaId();
+    await prisma.loja.update({
+      where: { id: lojaIdServer },
+      data: {
+        waPhoneId: (formData.get("waPhoneId") as string) || null,
+        waToken: (formData.get("waToken") as string) || null,
+      },
+    });
+    revalidatePath("/dashboard/configuracoes");
+    redirect("/dashboard/configuracoes?saved=1");
+  }
+
   return (
     <div className="p-6 max-w-2xl">
       <BackButton href="/dashboard" label="← Dashboard" />
@@ -134,7 +148,7 @@ export default async function ConfiguracoesPage({
           {/* WhatsApp */}
           <div className="border-t border-slate-100 pt-4 mt-2">
             <h3 className="text-sm font-semibold text-slate-700 mb-1">WhatsApp da loja</h3>
-            <p className="text-xs text-slate-400 mb-3">O botão flutuante de WhatsApp aparece na tua loja para os clientes contactarem directamente.</p>
+            <p className="text-xs text-slate-400 mb-3">Número de contacto exibido na loja. Os clientes podem clicar para iniciar conversa.</p>
             <input name="telefoneWA" defaultValue={loja.telefoneWA ?? ""} placeholder="+244 900 000 000"
               className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
           </div>
@@ -163,6 +177,44 @@ export default async function ConfiguracoesPage({
             </p>
           </div>
           <Button type="submit">Guardar alterações</Button>
+        </form>
+      </div>
+
+      {/* WhatsApp Business API */}
+      <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-3 mb-1">
+          <div className="w-8 h-8 rounded-xl bg-green-500 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.525 5.847L.057 23.18c-.097.32.004.668.254.894.18.161.414.245.652.245.08 0 .16-.009.24-.028l5.47-1.43A11.942 11.942 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.802 9.802 0 01-5.002-1.373l-.358-.215-3.718.972.992-3.62-.234-.373A9.79 9.79 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-slate-800">WhatsApp Business API</h2>
+            <p className="text-xs text-slate-400">Envio automático de notificações aos clientes e à loja.</p>
+          </div>
+        </div>
+
+        <div className="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-100 text-xs text-amber-700 mb-4">
+          <strong>Opcional.</strong> Requer conta Meta Business com WhatsApp Business API aprovada.
+          Sem esta configuração, as notificações são enviadas apenas por email.
+        </div>
+
+        <form action={guardarWhatsAppAPI} className="space-y-3">
+          <div>
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Phone Number ID</label>
+            <input name="waPhoneId" defaultValue={loja.waPhoneId ?? ""} placeholder="123456789012345"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-mono focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Token de acesso</label>
+            <input name="waToken" type="password" defaultValue={loja.waToken ? "••••••••••••" : ""} placeholder="EAAxxxxxxx…"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-mono focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+            <p className="mt-1 text-xs text-slate-400">Obtém em Meta for Developers → WhatsApp → API Setup.</p>
+          </div>
+          <div className="flex items-center gap-2 pt-1">
+            <Button type="submit" variant="outline" className="text-sm">Guardar credenciais WA</Button>
+            {loja.waPhoneId && loja.waToken && (
+              <span className="text-xs text-green-600 font-semibold">● Configurado</span>
+            )}
+          </div>
         </form>
       </div>
     </div>

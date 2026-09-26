@@ -167,6 +167,8 @@ model Loja {
   nif           String?  // Número de Identificação Fiscal da loja
   moradaFiscal  String?  // Morada completa da loja para faturas
   telefoneWA    String?  // Número WhatsApp da loja (ex: +244900000000)
+  waPhoneId     String?  // Meta WhatsApp Business Phone Number ID
+  waToken       String?  // Meta WhatsApp Business API token (encrypted at rest — guardar com cuidado)
 
   planoId       String?
   plano         Plano?   @relation(fields: [planoId], references: [id])
