@@ -186,6 +186,7 @@ model Loja {
   notificacoes     Notificacao[]
   qrCodes          QrCode[]
   auditLogs        AuditLog[]
+  faturas          Fatura[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -446,6 +447,7 @@ model Pedido {
 
   itens         ItemPedido[]
   pagamentos    Pagamento[]
+  fatura        Fatura?
 
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
@@ -537,6 +539,47 @@ model Notificacao {
 
   @@index([lojaId, lida, criadaEm])
   @@map("notificacoes")
+}
+
+enum EstadoFatura {
+  RASCUNHO
+  EMITIDA
+  PAGA
+  ANULADA
+}
+
+model Fatura {
+  id            String       @id @default(cuid())
+  lojaId        String
+  loja          Loja         @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  pedidoId      String?      @unique
+  pedido        Pedido?      @relation(fields: [pedidoId], references: [id])
+  numero        String       // ex: LC-2025-0001 — único por loja
+  estado        EstadoFatura @default(EMITIDA)
+  dataEmissao   DateTime     @default(now())
+  dataVencimento DateTime?
+  subtotal      Decimal      @db.Decimal(10, 2)
+  desconto      Decimal      @default(0) @db.Decimal(10, 2)
+  iva           Decimal      @default(0) @db.Decimal(10, 2)  // taxa IVA em %
+  total         Decimal      @db.Decimal(10, 2)
+  moeda         String       @default("EUR")
+  // Dados do cliente no momento da emissão (snapshot imutável)
+  clienteNome   String?
+  clienteEmail  String?
+  clienteNif    String?
+  clienteMorada Json?
+  // Dados da loja no momento da emissão (snapshot imutável)
+  lojaNome      String?
+  lojaNif       String?
+  lojaMorada    String?
+  observacoes   String?      @db.Text
+  emitidaEm     DateTime?
+  anuladaEm     DateTime?
+  emitidaPor    String?      // userId
+
+  @@unique([lojaId, numero])
+  @@index([lojaId, dataEmissao(sort: Desc)])
+  @@map("faturas")
 }
 
 model AuditLog {

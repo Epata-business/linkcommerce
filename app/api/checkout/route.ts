@@ -5,6 +5,7 @@ import { enviarEmailConfirmacaoPedido } from "@/lib/email";
 import { reservarStock } from "@/lib/inventario";
 import { criarNotificacao } from "@/lib/notificacoes";
 import { notificarNovoPedidoLojista } from "@/lib/whatsapp";
+import { criarFatura } from "@/lib/faturas";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 
@@ -162,6 +163,7 @@ export async function POST(req: NextRequest) {
       pedidoId: pedido.id,
     });
     if (loja.telefoneWA) void notificarNovoPedidoLojista({ telefoneWA: loja.telefoneWA, nomeLoja: loja.nome, clienteNome, pedidoId: pedido.id, total, moeda: moedaLoja, loja });
+    void criarFatura({ lojaId: loja.id, pedidoId: pedido.id, subtotal: subtotalCalc, desconto: descontoValor, total, moeda: moedaLoja, taxaIva: moedaLoja === "AOA" ? 14 : 23, clienteNome, clienteEmail, lojaNome: loja.nome, lojaNif: loja.nif, lojaMorada: loja.moradaFiscal });
     return NextResponse.json({
       modo: "directo",
       pedidoId: pedido.id,

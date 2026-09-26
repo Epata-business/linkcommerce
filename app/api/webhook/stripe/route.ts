@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { enviarEmailConfirmacaoPedido } from "@/lib/email";
 import { confirmarVenda } from "@/lib/inventario";
 import { criarNotificacao } from "@/lib/notificacoes";
+import { criarFatura } from "@/lib/faturas";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -132,6 +133,21 @@ export async function POST(req: NextRequest) {
     total: Number(pedidoExiste.total),
     moeda: loja.moeda ?? "EUR",
     emailLojista: loja.utilizadores[0]?.email ?? undefined,
+  });
+
+  void criarFatura({
+    lojaId,
+    pedidoId,
+    subtotal: Number(pedidoExiste.subtotal),
+    desconto: Number(pedidoExiste.desconto ?? 0),
+    total: Number(pedidoExiste.total),
+    moeda: loja.moeda ?? "EUR",
+    taxaIva: (loja.moeda ?? "EUR") === "AOA" ? 14 : 23,
+    clienteNome,
+    clienteEmail: pedidoExiste.clienteEmail,
+    lojaNome: loja.nome,
+    lojaNif: loja.nif,
+    lojaMorada: loja.moradaFiscal,
   });
 
   return NextResponse.json({ recebido: true });

@@ -13,6 +13,7 @@ export async function GET(req: NextRequest, { params }: { params: { pedidoId: st
   const pedido = await prisma.pedido.findFirst({
     where: { OR: [{ id: params.pedidoId }, { clientUuid: params.pedidoId }] },
     include: {
+      fatura: true,
       itens: {
         include: { produto: { select: { titulo: true } }, variante: { select: { nomeOpcao: true } } },
       },
@@ -27,15 +28,27 @@ export async function GET(req: NextRequest, { params }: { params: { pedidoId: st
 
   if (!pedido) return NextResponse.json({ erro: "Pedido não encontrado" }, { status: 404 });
 
-  const moeda = pedido.loja?.moeda ?? "AOA";
+  const fatura = pedido.fatura;
+  const moeda = fatura?.moeda ?? pedido.loja?.moeda ?? "AOA";
   const cor = pedido.loja?.corPrimaria ?? "#153DFC";
   const moradaJson = (pedido.morada ?? {}) as Record<string, string>;
-  const numFatura = pedido.id.slice(-8).toUpperCase();
-  const subtotal = Number(pedido.subtotal ?? pedido.total);
-  const desconto = Number(pedido.desconto ?? 0);
-  const total = Number(pedido.total);
-  const iva = total * 0.14; // IVA Angola 14%
+  // Usar número de fatura real se existir, senão fallback ao ID curto
+  const numFatura = fatura?.numero ?? pedido.id.slice(-8).toUpperCase();
+  const subtotal = Number(fatura?.subtotal ?? pedido.subtotal ?? pedido.total);
+  const desconto = Number(fatura?.desconto ?? pedido.desconto ?? 0);
+  const total = Number(fatura?.total ?? pedido.total);
+  // IVA calculado na fatura; se não existir, calcula na hora
+  const iva = fatura ? Number(fatura.iva) : total * 0.14;
   const totalSemIva = total - iva;
+
+  // Dados do cliente/loja do snapshot da fatura (imutável), ou do pedido actual
+  const clienteNomeFinal = fatura?.clienteNome ?? pedido.clienteNome ?? "";
+  const clienteEmailFinal = fatura?.clienteEmail ?? pedido.clienteEmail ?? "";
+  const clienteMoradaFatura = fatura?.clienteMorada as Record<string, string> | null;
+  const moradaCliente = clienteMoradaFatura ?? moradaJson;
+  const lojaNomeFinal = fatura?.lojaNome ?? pedido.loja?.nome ?? "";
+  const lojaNifFinal = fatura?.lojaNif ?? pedido.loja?.nif ?? null;
+  const lojaMoradaFinal = fatura?.lojaMorada ?? pedido.loja?.moradaFiscal ?? null;
 
   const linhasProdutos = pedido.itens.map((item) => {
     const titulo = item.produto?.titulo ?? "Produto";
@@ -106,11 +119,11 @@ export async function GET(req: NextRequest, { params }: { params: { pedidoId: st
     <!-- Cabeçalho -->
     <div class="header">
       <div class="logo-area">
-        <h1>${pedido.loja?.nome ?? "Loja"}</h1>
+        <h1>${lojaNomeFinal}</h1>
         <p>${pedido.loja?.subdominio}.linkcommerce.cc</p>
-        ${pedido.loja?.nif ? `<p style="margin-top:6px;font-size:12px;opacity:.9">NIF: <strong>${pedido.loja.nif}</strong></p>` : ""}
-        ${moradaJson.telefone ? `<p style="font-size:12px;opacity:.8">Tel: ${moradaJson.telefone}</p>` : ""}
-        ${pedido.loja?.moradaFiscal ? `<p style="font-size:12px;opacity:.8;max-width:220px;line-height:1.4">${pedido.loja.moradaFiscal}</p>` : ""}
+        ${lojaNifFinal ? `<p style="margin-top:6px;font-size:12px;opacity:.9">NIF: <strong>${lojaNifFinal}</strong></p>` : ""}
+        ${moradaCliente.telefone ? `<p style="font-size:12px;opacity:.8">Tel: ${moradaCliente.telefone}</p>` : ""}
+        ${lojaMoradaFinal ? `<p style="font-size:12px;opacity:.8;max-width:220px;line-height:1.4">${lojaMoradaFinal}</p>` : ""}
       </div>
       <div class="fatura-ref">
         <div class="label">Fatura</div>
@@ -128,25 +141,26 @@ export async function GET(req: NextRequest, { params }: { params: { pedidoId: st
         <div class="info-box">
           <h3>Facturado a</h3>
           <p>
-            <strong>${pedido.clienteNome}</strong><br>
-            ${pedido.clienteEmail}<br>
-            ${moradaJson.telefone ? `${moradaJson.telefone}<br>` : ""}
-            ${moradaJson.bi ? `<span style="color:#64748b;font-size:12px">BI: <strong>${moradaJson.bi}</strong></span><br>` : ""}
-            ${moradaJson.nif ? `<span style="color:#64748b;font-size:12px">NIF: <strong>${moradaJson.nif}</strong></span><br>` : ""}
-            ${moradaJson.rua ? `${moradaJson.rua},<br>` : ""}
-            ${moradaJson.cidade ? `${moradaJson.cidade}` : ""}
-            ${moradaJson.codigoPostal ? ` — ${moradaJson.codigoPostal}` : ""}
-            ${moradaJson.pais ? `<br>${moradaJson.pais}` : ""}
+            <strong>${clienteNomeFinal}</strong><br>
+            ${clienteEmailFinal}<br>
+            ${moradaCliente.telefone ? `${moradaCliente.telefone}<br>` : ""}
+            ${moradaCliente.bi ? `<span style="color:#64748b;font-size:12px">BI: <strong>${moradaCliente.bi}</strong></span><br>` : ""}
+            ${moradaCliente.nif ? `<span style="color:#64748b;font-size:12px">NIF: <strong>${moradaCliente.nif}</strong></span><br>` : ""}
+            ${moradaCliente.rua ? `${moradaCliente.rua},<br>` : ""}
+            ${moradaCliente.cidade ? `${moradaCliente.cidade}` : ""}
+            ${moradaCliente.codigoPostal ? ` — ${moradaCliente.codigoPostal}` : ""}
+            ${moradaCliente.pais ? `<br>${moradaCliente.pais}` : ""}
           </p>
         </div>
 
         <!-- Detalhes do pedido -->
         <div class="info-box">
-          <h3>Detalhes do Pedido</h3>
+          <h3>Detalhes da Fatura</h3>
           <p>
-            <strong>Nº Pedido:</strong> #${numFatura}<br>
-            <strong>Data:</strong> ${formatarData(pedido.createdAt)}<br>
-            <strong>Método:</strong> ${moradaJson.metodoPagamento ?? "—"}<br>
+            <strong>Nº Fatura:</strong> ${numFatura}<br>
+            <strong>Nº Pedido:</strong> #${pedido.id.slice(-8).toUpperCase()}<br>
+            <strong>Data Emissão:</strong> ${formatarData(fatura?.emitidaEm ?? pedido.createdAt)}<br>
+            <strong>Método:</strong> ${moradaCliente.metodoPagamento ?? "—"}<br>
             <strong>Estado:</strong> <span style="color:#16a34a">Pago</span>
           </p>
         </div>

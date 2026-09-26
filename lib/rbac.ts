@@ -20,17 +20,18 @@ export type Recurso =
   | "notificacoes"
   | "configuracoes"
   | "equipa"
-  | "auditlog";
+  | "auditlog"
+  | "faturas";
 
 // * = acesso total ao recurso
 const PERMISSOES: Record<RoleUtilizador, Recurso[] | ["*"]> = {
   ADMIN_PLATAFORMA: ["*"],
   LOJISTA:          ["*"],
-  GESTOR:           ["dashboard", "pedidos", "produtos", "clientes", "marketing", "qrcode", "envios", "relatorios", "exportar", "notificacoes", "configuracoes", "auditlog"],
+  GESTOR:           ["dashboard", "pedidos", "produtos", "clientes", "marketing", "qrcode", "envios", "relatorios", "exportar", "notificacoes", "configuracoes", "auditlog", "faturas"],
   OPERADOR:         ["pedidos", "produtos", "clientes", "notificacoes"],
   OPERADOR_POS:     [],
   MARKETING:        ["marketing", "qrcode", "relatorios", "notificacoes"],
-  FINANCEIRO:       ["relatorios", "exportar", "pedidos", "notificacoes"],
+  FINANCEIRO:       ["relatorios", "exportar", "pedidos", "notificacoes", "faturas"],
 };
 
 export function temPermissao(role: string | undefined, recurso: Recurso): boolean {
@@ -63,10 +64,10 @@ export const ROLES_ATRIBUIVEIS: RoleUtilizador[] = [
 
 // Nav links visíveis por role
 export const NAV_POR_ROLE: Record<string, Recurso[]> = {
-  LOJISTA:          ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "equipa", "notificacoes", "configuracoes", "auditlog"],
-  GESTOR:           ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "notificacoes", "configuracoes", "auditlog"],
+  LOJISTA:          ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "equipa", "notificacoes", "configuracoes", "auditlog", "faturas"],
+  GESTOR:           ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "notificacoes", "configuracoes", "auditlog", "faturas"],
   OPERADOR:         ["pedidos", "produtos", "clientes", "notificacoes"],
   MARKETING:        ["marketing", "qrcode", "relatorios", "notificacoes"],
-  FINANCEIRO:       ["relatorios", "exportar", "pedidos", "notificacoes"],
-  ADMIN_PLATAFORMA: ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "equipa", "notificacoes", "configuracoes", "auditlog"],
+  FINANCEIRO:       ["relatorios", "exportar", "pedidos", "notificacoes", "faturas"],
+  ADMIN_PLATAFORMA: ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "equipa", "notificacoes", "configuracoes", "auditlog", "faturas"],
 };
