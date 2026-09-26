@@ -4,8 +4,11 @@ import { formatarPreco } from "@/lib/moeda";
 import { BackButton } from "@/components/ui/back-button";
 import { RelatoriosClient } from "./relatorios-client";
 import { PeriodoSelector } from "@/components/dashboard/periodo-selector";
-import { calcularIntervalo } from "@/lib/periodo";
+import { calcularIntervalo, formatarVariacao } from "@/lib/periodo";
 import { Suspense } from "react";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { temPermissao } from "@/lib/rbac";
 
 type DiaRow = { dia: Date; receita: string; pedidos: bigint };
 
@@ -14,17 +17,37 @@ export default async function RelatoriosPage({
 }: {
   searchParams: { periodo?: string };
 }) {
+  const session = await auth();
+  const role = (session?.user as { role?: string })?.role;
+  if (!temPermissao(role, "relatorios")) redirect("/dashboard");
+
   const lojaId = await getLojaId();
   const periodo = searchParams.periodo ?? "30d";
-  const { inicio, fim, label: labelPeriodo } = calcularIntervalo(periodo);
+  const { inicio, fim, inicioAnterior, fimAnterior, label: labelPeriodo } = calcularIntervalo(periodo);
 
-  const [loja, dadosDiarios, receitaMeses, totalPedidos, totalReceita, pedidosPorStatus, pedidosPorCanal, topProdutos, pagamentosPorMetodo] = await Promise.all([
+  const [
+    loja,
+    dadosDiarios,
+    receitaMeses,
+    totalPedidos,
+    totalReceita,
+    pedidosPorStatus,
+    pedidosPorCanal,
+    topProdutosPorQtd,
+    pagamentosPorMetodo,
+    // P14 — métricas avançadas
+    receitaPeriodoAnterior,
+    pedidosPeriodoAnterior,
+    topProdutosPorReceita,
+    topClientes,
+    clientesNovos,
+    ticketMedioPeriodo,
+  ] = await Promise.all([
     prisma.loja.findUnique({
       where: { id: lojaId },
       select: { moeda: true, corPrimaria: true },
     }),
 
-    // Receita por dia no período selecionado
     prisma.$queryRaw<DiaRow[]>`
       SELECT
         DATE_TRUNC('day', "createdAt") AS dia,
@@ -39,7 +62,6 @@ export default async function RelatoriosPage({
       ORDER BY dia ASC
     `,
 
-    // Últimos 12 meses para o gráfico mensal
     (async () => {
       const agora = new Date();
       const meses = Array.from({ length: 12 }, (_, i) => {
@@ -61,13 +83,12 @@ export default async function RelatoriosPage({
       );
     })(),
 
-    // Totais globais
     prisma.pedido.count({ where: { lojaId } }),
     prisma.pedido.aggregate({ where: { lojaId, status: { not: "CANCELLED" } }, _sum: { total: true } }),
     prisma.pedido.groupBy({ by: ["status"], where: { lojaId }, _count: true }),
     prisma.pedido.groupBy({ by: ["channel"], where: { lojaId }, _count: true }),
 
-    // Top 5 produtos (global)
+    // Top 5 por quantidade (global)
     prisma.itemPedido.groupBy({
       by: ["produtoId"],
       where: { pedido: { lojaId, status: { not: "CANCELLED" } } },
@@ -84,10 +105,96 @@ export default async function RelatoriosPage({
       }));
     }),
 
-    // Métodos de pagamento no período
     prisma.pagamento.groupBy({
       by: ["metodo"],
       where: { lojaId, status: "CONFIRMADO", criadoEm: { gte: inicio, lte: fim } },
+      _count: true,
+    }),
+
+    // P14 — receita período anterior
+    prisma.pedido.aggregate({
+      where: { lojaId, status: { not: "CANCELLED" }, createdAt: { gte: inicioAnterior, lte: fimAnterior } },
+      _sum: { total: true },
+    }),
+
+    // P14 — pedidos período anterior
+    prisma.pedido.count({
+      where: { lojaId, status: { not: "CANCELLED" }, createdAt: { gte: inicioAnterior, lte: fimAnterior } },
+    }),
+
+    // P14 — top 5 produtos por receita no período
+    prisma.itemPedido.groupBy({
+      by: ["produtoId"],
+      where: {
+        pedido: { lojaId, status: { not: "CANCELLED" }, createdAt: { gte: inicio, lte: fim } },
+      },
+      _sum: { quantidade: true },
+      orderBy: { _sum: { quantidade: "desc" } },
+      take: 5,
+    }).then(async (items) => {
+      if (items.length === 0) return [];
+      const ids = items.map(i => i.produtoId).filter(Boolean) as string[];
+      // Calcular receita real: soma(precoUnitario * quantidade)
+      const receitas = await Promise.all(
+        ids.map(id =>
+          prisma.itemPedido.aggregate({
+            where: {
+              produtoId: id,
+              pedido: { lojaId, status: { not: "CANCELLED" }, createdAt: { gte: inicio, lte: fim } },
+            },
+            _sum: { quantidade: true },
+          }).then(async r => {
+            // Buscar preço médio a partir dos itens do período
+            const amostra = await prisma.itemPedido.findFirst({
+              where: { produtoId: id, pedido: { lojaId } },
+              select: { precoUnitario: true },
+            });
+            const precoUnit = Number(amostra?.precoUnitario ?? 0);
+            return { produtoId: id, receita: precoUnit * Number(r._sum.quantidade ?? 0), quantidade: Number(r._sum.quantidade ?? 0) };
+          })
+        )
+      );
+      const produtos = await prisma.produto.findMany({ where: { id: { in: ids } }, select: { id: true, titulo: true } });
+      return receitas
+        .sort((a, b) => b.receita - a.receita)
+        .map(r => ({
+          titulo: produtos.find(p => p.id === r.produtoId)?.titulo ?? "Produto",
+          quantidade: r.quantidade,
+          receita: r.receita,
+        }));
+    }),
+
+    // P14 — top 5 clientes por receita no período
+    prisma.pedido.groupBy({
+      by: ["clienteEmail", "clienteNome"],
+      where: { lojaId, status: { not: "CANCELLED" }, createdAt: { gte: inicio, lte: fim } },
+      _sum: { total: true },
+      _count: true,
+      orderBy: { _sum: { total: "desc" } },
+      take: 5,
+    }).then(rows => rows.map(r => ({
+      nome: r.clienteNome ?? r.clienteEmail ?? "—",
+      email: r.clienteEmail ?? "",
+      receita: Number(r._sum.total ?? 0),
+      pedidos: r._count,
+    }))),
+
+    // P14 — clientes novos no período (1.º pedido dentro do intervalo)
+    prisma.pedido.groupBy({
+      by: ["clienteEmail"],
+      where: { lojaId },
+      _min: { createdAt: true },
+    }).then(rows =>
+      rows.filter(r => {
+        const first = r._min.createdAt;
+        return first && first >= inicio && first <= fim;
+      }).length
+    ),
+
+    // P14 — ticket médio no período
+    prisma.pedido.aggregate({
+      where: { lojaId, status: { not: "CANCELLED" }, createdAt: { gte: inicio, lte: fim } },
+      _avg: { total: true },
       _count: true,
     }),
   ]);
@@ -106,7 +213,6 @@ export default async function RelatoriosPage({
     TRANSFERENCIA: "Transferência", DESCONHECIDO: "Outros",
   };
 
-  // Preencher dias sem dados com 0
   const diasDoIntervalo: { label: string; receita: number; pedidos: number }[] = [];
   const cursor = new Date(inicio);
   cursor.setHours(0, 0, 0, 0);
@@ -125,6 +231,15 @@ export default async function RelatoriosPage({
 
   const receitaPeriodo = diasDoIntervalo.reduce((s, d) => s + d.receita, 0);
   const pedidosPeriodo = diasDoIntervalo.reduce((s, d) => s + d.pedidos, 0);
+  const receitaAnteriorNum = Number(receitaPeriodoAnterior._sum.total ?? 0);
+  const ticketMedio = Number(ticketMedioPeriodo._avg.total ?? 0);
+  const ticketMedioAnterior = pedidosPeriodoAnterior > 0
+    ? receitaAnteriorNum / pedidosPeriodoAnterior
+    : 0;
+
+  const variacaoReceita = formatarVariacao(receitaPeriodo, receitaAnteriorNum);
+  const variacaoPedidos = formatarVariacao(pedidosPeriodo, pedidosPeriodoAnterior);
+  const variacaoTicket = formatarVariacao(ticketMedio, ticketMedioAnterior);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -150,18 +265,38 @@ export default async function RelatoriosPage({
           </div>
         </div>
 
-        {/* KPIs do período */}
+        {/* KPIs com variação vs período anterior */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {[
-            { icon: "💰", label: `Receita — ${labelPeriodo}`, value: formatarPreco(receitaPeriodo, moeda) },
-            { icon: "📦", label: `Pedidos — ${labelPeriodo}`, value: pedidosPeriodo.toString() },
-            { icon: "💰", label: "Receita total",  value: formatarPreco(Number(totalReceita._sum.total ?? 0), moeda) },
-            { icon: "📊", label: "Total pedidos",  value: totalPedidos.toString() },
+            {
+              label: `Receita — ${labelPeriodo}`,
+              value: formatarPreco(receitaPeriodo, moeda),
+              variacao: variacaoReceita,
+            },
+            {
+              label: `Pedidos — ${labelPeriodo}`,
+              value: pedidosPeriodo.toString(),
+              variacao: variacaoPedidos,
+            },
+            {
+              label: "Ticket médio",
+              value: formatarPreco(ticketMedio, moeda),
+              variacao: variacaoTicket,
+            },
+            {
+              label: "Clientes novos",
+              value: clientesNovos.toString(),
+              variacao: null,
+            },
           ].map(kpi => (
             <div key={kpi.label} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-              <div className="text-2xl mb-2">{kpi.icon}</div>
               <p className="text-xl font-black text-slate-900 leading-tight">{kpi.value}</p>
-              <p className="text-xs text-slate-400 mt-1">{kpi.label}</p>
+              <p className="text-xs text-slate-400 mt-1 mb-2">{kpi.label}</p>
+              {kpi.variacao && kpi.variacao.positivo !== null && (
+                <p className={`text-[10px] font-bold ${kpi.variacao.positivo ? "text-green-600" : "text-red-500"}`}>
+                  {kpi.variacao.positivo ? "▲" : "▼"} {kpi.variacao.texto}
+                </p>
+              )}
             </div>
           ))}
         </div>
@@ -169,13 +304,17 @@ export default async function RelatoriosPage({
         <RelatoriosClient
           diasDoIntervalo={diasDoIntervalo}
           receitaMeses={receitaMeses}
-          topProdutos={topProdutos}
+          topProdutos={topProdutosPorQtd}
+          topProdutosPorReceita={topProdutosPorReceita}
+          topClientes={topClientes}
           pedidosPorStatus={pedidosPorStatus.map(s => ({ status: statusLabels[s.status] ?? s.status, count: s._count }))}
           pedidosPorCanal={pedidosPorCanal.map(c => ({ canal: c.channel, count: c._count }))}
           pagamentosPorMetodo={pagamentosPorMetodo.map(p => ({ metodo: metodoLabels[p.metodo] ?? p.metodo, count: p._count }))}
           moeda={moeda}
           cor={cor}
           labelPeriodo={labelPeriodo}
+          totalGlobal={Number(totalReceita._sum.total ?? 0)}
+          totalPedidosGlobal={totalPedidos}
         />
       </div>
     </div>

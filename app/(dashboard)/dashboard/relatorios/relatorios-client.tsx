@@ -7,12 +7,16 @@ interface Props {
   diasDoIntervalo: { label: string; receita: number; pedidos: number }[];
   receitaMeses: { label: string; receita: number; pedidos: number }[];
   topProdutos: { titulo: string; quantidade: number }[];
+  topProdutosPorReceita: { titulo: string; quantidade: number; receita: number }[];
+  topClientes: { nome: string; email: string; receita: number; pedidos: number }[];
   pedidosPorStatus: { status: string; count: number }[];
   pedidosPorCanal: { canal: string; count: number }[];
   pagamentosPorMetodo: { metodo: string; count: number }[];
   moeda: string;
   cor: string;
   labelPeriodo: string;
+  totalGlobal: number;
+  totalPedidosGlobal: number;
 }
 
 const STATUS_CORES: Record<string, string> = {
@@ -40,8 +44,6 @@ function LineChart({
   const innerH = H - PAD.top - PAD.bottom;
 
   const maxR = Math.max(...dados.map(d => d.receita), 1);
-
-  // Skip labels to avoid crowding
   const skipFactor = dados.length > 30 ? 7 : dados.length > 14 ? 3 : 1;
 
   const points = dados.map((d, i) => ({
@@ -50,58 +52,29 @@ function LineChart({
     ...d,
   }));
 
-  const pathD = points
-    .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
-    .join(" ");
-
+  const pathD = points.map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`)).join(" ");
   const areaD = `${pathD} L ${points[points.length - 1].x} ${PAD.top + innerH} L ${points[0].x} ${PAD.top + innerH} Z`;
-
   const gradientId = `grad-${cor.replace("#", "")}`;
 
   return (
     <div className="relative w-full overflow-x-auto">
-      <svg
-        viewBox={`0 0 ${W} ${H}`}
-        className="w-full"
-        style={{ minWidth: "300px" }}
-        onMouseLeave={() => setHoverIdx(null)}
-      >
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ minWidth: "300px" }} onMouseLeave={() => setHoverIdx(null)}>
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={cor} stopOpacity="0.18" />
             <stop offset="100%" stopColor={cor} stopOpacity="0" />
           </linearGradient>
         </defs>
-
-        {/* Grid lines */}
-        {[0, 0.25, 0.5, 0.75, 1].map((frac) => {
-          const y = PAD.top + frac * innerH;
-          return (
-            <line key={frac} x1={PAD.left} y1={y} x2={W - PAD.right} y2={y}
-              stroke="#e2e8f0" strokeWidth="1" />
-          );
-        })}
-
-        {/* Area fill */}
-        {points.length > 1 && (
-          <path d={areaD} fill={`url(#${gradientId})`} />
-        )}
-
-        {/* Line */}
-        {points.length > 1 && (
-          <path d={pathD} fill="none" stroke={cor} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-        )}
-
-        {/* Hover line */}
+        {[0, 0.25, 0.5, 0.75, 1].map((frac) => (
+          <line key={frac} x1={PAD.left} y1={PAD.top + frac * innerH} x2={W - PAD.right} y2={PAD.top + frac * innerH}
+            stroke="#e2e8f0" strokeWidth="1" />
+        ))}
+        {points.length > 1 && <path d={areaD} fill={`url(#${gradientId})`} />}
+        {points.length > 1 && <path d={pathD} fill="none" stroke={cor} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />}
         {hoverIdx !== null && points[hoverIdx] && (
-          <line
-            x1={points[hoverIdx].x} y1={PAD.top}
-            x2={points[hoverIdx].x} y2={PAD.top + innerH}
-            stroke={cor} strokeWidth="1" strokeDasharray="4 2" opacity="0.5"
-          />
+          <line x1={points[hoverIdx].x} y1={PAD.top} x2={points[hoverIdx].x} y2={PAD.top + innerH}
+            stroke={cor} strokeWidth="1" strokeDasharray="4 2" opacity="0.5" />
         )}
-
-        {/* Dots + hover zones */}
         {points.map((p, i) => (
           <g key={i}>
             <rect
@@ -113,37 +86,25 @@ function LineChart({
               onMouseEnter={() => setHoverIdx(i)}
               style={{ cursor: "crosshair" }}
             />
-            <circle
-              cx={p.x} cy={p.y} r={hoverIdx === i ? 5 : 3}
-              fill={hoverIdx === i ? cor : "white"}
-              stroke={cor}
-              strokeWidth="2"
-              style={{ transition: "r 0.1s" }}
-            />
+            <circle cx={p.x} cy={p.y} r={hoverIdx === i ? 5 : 3}
+              fill={hoverIdx === i ? cor : "white"} stroke={cor} strokeWidth="2"
+              style={{ transition: "r 0.1s" }} />
           </g>
         ))}
-
-        {/* X labels (sampled) */}
         {points.map((p, i) => i % skipFactor === 0 && (
-          <text key={i} x={p.x} y={H - 4} textAnchor="middle"
-            fontSize="10" fill="#94a3b8" fontFamily="inherit">
+          <text key={i} x={p.x} y={H - 4} textAnchor="middle" fontSize="10" fill="#94a3b8" fontFamily="inherit">
             {p.label}
           </text>
         ))}
-
-        {/* Tooltip */}
         {hoverIdx !== null && points[hoverIdx] && (() => {
           const p = points[hoverIdx];
-          const bw = 130;
-          const bh = 44;
+          const bw = 130; const bh = 44;
           const bx = Math.min(Math.max(p.x - bw / 2, PAD.left), W - PAD.right - bw);
           const by = p.y - bh - 8 < PAD.top ? p.y + 8 : p.y - bh - 8;
           return (
             <g>
               <rect x={bx} y={by} width={bw} height={bh} rx="8" fill="#0f172a" opacity="0.92" />
-              <text x={bx + 10} y={by + 16} fontSize="10" fill="#94a3b8" fontFamily="inherit">
-                {p.label}
-              </text>
+              <text x={bx + 10} y={by + 16} fontSize="10" fill="#94a3b8" fontFamily="inherit">{p.label}</text>
               <text x={bx + 10} y={by + 33} fontSize="13" fontWeight="700" fill="white" fontFamily="inherit">
                 {formatarPreco(p.receita, moeda)}
               </text>
@@ -158,15 +119,7 @@ function LineChart({
   );
 }
 
-function BarChart({
-  dados,
-  moeda,
-  cor,
-}: {
-  dados: { label: string; receita: number; pedidos: number }[];
-  moeda: string;
-  cor: string;
-}) {
+function BarChart({ dados, moeda, cor }: { dados: { label: string; receita: number; pedidos: number }[]; moeda: string; cor: string }) {
   const maxR = Math.max(...dados.map(m => m.receita), 1);
   return (
     <div className="flex items-end gap-2 h-36">
@@ -180,14 +133,8 @@ function BarChart({
                   {formatarPreco(m.receita, moeda)}
                 </div>
               )}
-              <div
-                className="w-full rounded-t-md transition-all duration-500"
-                style={{
-                  height: `${Math.max(altura, m.receita > 0 ? 4 : 0)}%`,
-                  background: `linear-gradient(to top, ${cor}, ${cor}88)`,
-                  minHeight: m.receita > 0 ? "6px" : "0",
-                }}
-              />
+              <div className="w-full rounded-t-md transition-all duration-500"
+                style={{ height: `${Math.max(altura, m.receita > 0 ? 4 : 0)}%`, background: `linear-gradient(to top, ${cor}, ${cor}88)`, minHeight: m.receita > 0 ? "6px" : "0" }} />
               {m.receita === 0 && <div className="w-full h-0.5 rounded bg-slate-100" />}
             </div>
             <p className="text-[9px] font-semibold text-slate-400">{m.label}</p>
@@ -202,23 +149,27 @@ export function RelatoriosClient({
   diasDoIntervalo,
   receitaMeses,
   topProdutos,
+  topProdutosPorReceita,
+  topClientes,
   pedidosPorStatus,
   pedidosPorCanal,
   pagamentosPorMetodo,
   moeda,
   cor,
   labelPeriodo,
+  totalGlobal,
+  totalPedidosGlobal,
 }: Props) {
   const totalStatus = pedidosPorStatus.reduce((s, p) => s + p.count, 0);
   const totalCanal = pedidosPorCanal.reduce((s, c) => s + c.count, 0);
+  const maxTopReceita = Math.max(...topProdutosPorReceita.map(p => p.receita), 1);
+  const maxTopCliente = Math.max(...topClientes.map(c => c.receita), 1);
 
   return (
     <div className="space-y-6">
-      {/* Gráfico de linha — receita por dia no período */}
+      {/* Gráfico linha */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-        <h2 className="text-base font-bold text-slate-900 mb-1">
-          Receita por dia — {labelPeriodo}
-        </h2>
+        <h2 className="text-base font-bold text-slate-900 mb-1">Receita por dia — {labelPeriodo}</h2>
         <p className="text-xs text-slate-400 mb-4">Passe o rato para ver o detalhe de cada dia</p>
         {diasDoIntervalo.every(d => d.receita === 0) ? (
           <div className="h-36 flex items-center justify-center">
@@ -229,10 +180,83 @@ export function RelatoriosClient({
         )}
       </div>
 
-      {/* Gráfico de barras — últimos 12 meses */}
+      {/* Barras 12 meses */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
         <h2 className="text-base font-bold text-slate-900 mb-6">Receita — últimos 12 meses</h2>
         <BarChart dados={receitaMeses} moeda={moeda} cor={cor} />
+      </div>
+
+      {/* Top produtos por receita no período — P14 */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <h2 className="text-base font-bold text-slate-900 mb-1">Produtos mais rentáveis — {labelPeriodo}</h2>
+        <p className="text-xs text-slate-400 mb-4">Por receita gerada no período</p>
+        {topProdutosPorReceita.length === 0 ? (
+          <p className="text-sm text-slate-400 text-center py-6">Sem vendas no período</p>
+        ) : (
+          <div className="space-y-4">
+            {topProdutosPorReceita.map((p, i) => {
+              const pct = (p.receita / maxTopReceita) * 100;
+              return (
+                <div key={p.titulo}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white flex-shrink-0"
+                        style={{ background: i === 0 ? "#f59e0b" : i === 1 ? "#94a3b8" : i === 2 ? "#d97706" : cor }}>
+                        {i + 1}
+                      </span>
+                      <span className="text-sm font-medium text-slate-800 truncate max-w-[200px]">{p.titulo}</span>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <span className="text-sm font-black text-slate-900 tabular-nums">{formatarPreco(p.receita, moeda)}</span>
+                      <span className="text-xs text-slate-400 ml-2">({p.quantidade} un.)</span>
+                    </div>
+                  </div>
+                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${pct}%`, background: i === 0 ? "#f59e0b" : i === 1 ? "#94a3b8" : i === 2 ? "#d97706" : cor }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Top clientes — P14 */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <h2 className="text-base font-bold text-slate-900 mb-1">Melhores clientes — {labelPeriodo}</h2>
+        <p className="text-xs text-slate-400 mb-4">Por receita gerada no período</p>
+        {topClientes.length === 0 ? (
+          <p className="text-sm text-slate-400 text-center py-6">Sem compras no período</p>
+        ) : (
+          <div className="space-y-4">
+            {topClientes.map((c, i) => {
+              const pct = (c.receita / maxTopCliente) * 100;
+              return (
+                <div key={c.email}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black text-white flex-shrink-0"
+                        style={{ background: cor }}>
+                        {c.nome.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-slate-800 truncate">{c.nome}</p>
+                        <p className="text-xs text-slate-400">{c.pedidos} pedido{c.pedidos !== 1 ? "s" : ""}</p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-black text-slate-900 tabular-nums flex-shrink-0 ml-2">
+                      {formatarPreco(c.receita, moeda)}
+                    </span>
+                  </div>
+                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: cor }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div className="grid sm:grid-cols-2 gap-6">
@@ -249,8 +273,7 @@ export function RelatoriosClient({
                   <div key={s.status}>
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full flex-shrink-0"
-                          style={{ background: STATUS_CORES[s.status] ?? "#94a3b8" }} />
+                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: STATUS_CORES[s.status] ?? "#94a3b8" }} />
                         <span className="text-xs font-medium text-slate-700">{s.status}</span>
                       </div>
                       <span className="text-xs font-black text-slate-900">{s.count}</span>
@@ -266,9 +289,9 @@ export function RelatoriosClient({
           )}
         </div>
 
-        {/* Top produtos */}
+        {/* Top produtos por quantidade (global) */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-          <h2 className="text-base font-bold text-slate-900 mb-4">Produtos mais vendidos</h2>
+          <h2 className="text-base font-bold text-slate-900 mb-4">Mais vendidos (total, por unidades)</h2>
           {topProdutos.length === 0 ? (
             <p className="text-sm text-slate-400 text-center py-6">Ainda sem vendas</p>
           ) : (
@@ -343,7 +366,22 @@ export function RelatoriosClient({
         </div>
       </div>
 
-      {/* Exportar com datas */}
+      {/* Totais globais */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <h2 className="text-base font-bold text-slate-900 mb-4">Resumo global</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-xs text-slate-400">Receita total (all time)</p>
+            <p className="text-lg font-black text-slate-900 tabular-nums">{formatarPreco(totalGlobal, moeda)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400">Pedidos totais (all time)</p>
+            <p className="text-lg font-black text-slate-900 tabular-nums">{totalPedidosGlobal}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Exportar por período */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
         <h2 className="text-base font-bold text-slate-900 mb-4">Exportar pedidos por período</h2>
         <ExportarForm cor={cor} />
