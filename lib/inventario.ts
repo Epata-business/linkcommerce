@@ -233,6 +233,56 @@ export async function libertarReserva(
 }
 
 /**
+ * Ajuste manual de stock pelo lojista (positivo ou negativo).
+ * Altera o stock físico directamente; não afecta stockReservado.
+ */
+export async function ajustarStock(
+  tx: Prisma.TransactionClient,
+  lojaId: string,
+  produtoId: string,
+  varianteId: string | null,
+  delta: number,
+  userId: string | undefined,
+  nota: string,
+) {
+  if (delta === 0) return;
+  const tipo = delta > 0 ? ("REPOSICAO" as const) : ("AJUSTE" as const);
+
+  if (varianteId) {
+    const rows = await tx.$queryRaw<{ stock: number }[]>`
+      SELECT stock FROM variantes WHERE id = ${varianteId} FOR UPDATE
+    `;
+    const novoStock = (rows[0]?.stock ?? 0) + delta;
+    if (novoStock < 0) throw new Error("STOCK_NEGATIVO");
+    await tx.variante.update({
+      where: { id: varianteId },
+      data: { stock: { increment: delta } },
+    });
+  } else {
+    const rows = await tx.$queryRaw<{ stock: number }[]>`
+      SELECT stock FROM produtos WHERE id = ${produtoId} AND "lojaId" = ${lojaId} FOR UPDATE
+    `;
+    const novoStock = (rows[0]?.stock ?? 0) + delta;
+    if (novoStock < 0) throw new Error("STOCK_NEGATIVO");
+    await tx.produto.update({
+      where: { id: produtoId },
+      data: { stock: { increment: delta } },
+    });
+  }
+
+  await tx.movimentoStock.create({
+    data: {
+      lojaId,
+      produtoId,
+      varianteId: varianteId ?? null,
+      tipo,
+      quantidade: delta,
+      nota,
+    },
+  });
+}
+
+/**
  * Regista devolução: incrementa stock físico.
  */
 export async function registarDevolucao(

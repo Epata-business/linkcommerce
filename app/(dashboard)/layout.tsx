@@ -14,9 +14,11 @@ import { NAV_POR_ROLE, type Recurso } from "@/lib/rbac";
 const ALL_NAV_LINKS: { href: string; label: string; recurso: Recurso }[] = [
   { href: "/dashboard",               label: "Início",         recurso: "dashboard"      },
   { href: "/dashboard/produtos",      label: "Produtos",       recurso: "produtos"       },
+  { href: "/dashboard/inventario",    label: "Inventário",     recurso: "inventario"     },
   { href: "/dashboard/pedidos",       label: "Pedidos",        recurso: "pedidos"        },
   { href: "/dashboard/clientes",      label: "Clientes",       recurso: "clientes"       },
   { href: "/dashboard/marketing",     label: "Marketing",      recurso: "marketing"      },
+  { href: "/dashboard/devolucoes",    label: "Devoluções",     recurso: "devolucoes"     },
   { href: "/dashboard/envios",        label: "Envios",         recurso: "envios"         },
   { href: "/dashboard/qrcode",        label: "QR Code",        recurso: "qrcode"         },
   { href: "/dashboard/relatorios",    label: "Analytics",      recurso: "relatorios"     },
