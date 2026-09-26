@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 import { enviarEmailConfirmacaoPedido } from "@/lib/email";
-import { reservarStock } from "@/lib/inventario";
+import { reservarStock, type ItemReserva } from "@/lib/inventario";
 import { criarNotificacao } from "@/lib/notificacoes";
 import { notificarNovoPedidoLojista } from "@/lib/whatsapp";
 import { criarFatura } from "@/lib/faturas";
@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
           },
         });
         if (cupaoId) await tx.cupao.update({ where: { id: cupaoId }, data: { usosAtuais: { increment: 1 } } });
-        await reservarStock(tx, loja.id, p.id, itensReserva);
+        await reservarStock(tx, loja.id, p.id, itensReserva, "directo");
         return p;
       }, { isolationLevel: "Serializable" });
     } catch (err) {
@@ -216,7 +216,7 @@ export async function POST(req: NextRequest) {
           },
         });
         if (cupaoId) await tx.cupao.update({ where: { id: cupaoId }, data: { usosAtuais: { increment: 1 } } });
-        await reservarStock(tx, loja.id, p.id, itensReserva);
+        await reservarStock(tx, loja.id, p.id, itensReserva, "multicaixa");
         return p;
       }, { isolationLevel: "Serializable" });
     } catch (err) {
@@ -305,7 +305,7 @@ export async function POST(req: NextRequest) {
         },
       });
       if (cupaoId) await tx.cupao.update({ where: { id: cupaoId }, data: { usosAtuais: { increment: 1 } } });
-      await reservarStock(tx, loja.id, p.id, itensReserva);
+      await reservarStock(tx, loja.id, p.id, itensReserva, "stripe");
       return p;
     }, { isolationLevel: "Serializable" });
   } catch (err) {
