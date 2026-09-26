@@ -24,6 +24,8 @@ const vendaSchema = z.object({
   itens: z.array(itemSchema).min(1),
   total: z.number().nonnegative(),
   clienteEmail: z.string().email().optional(),
+  clienteNome: z.string().optional(),
+  metodoPagamento: z.string().optional(),
   criadoEm: z.string(),
 });
 
@@ -47,9 +49,11 @@ export async function POST(request: Request) {
           data: {
             lojaId: venda.lojaId,
             clienteEmail: venda.clienteEmail ?? "cliente-balcao@pos.local",
+            clienteNome: venda.clienteNome ?? null,
+            morada: venda.metodoPagamento ? { metodoPagamento: venda.metodoPagamento } : undefined,
             subtotal: venda.total,
             total: venda.total,
-            status: "DELIVERED", // venda POS é entregue no acto
+            status: "DELIVERED",
             channel: "POS",
             clientUuid: venda.clientUuid,
             sincronizadoEm: new Date(),

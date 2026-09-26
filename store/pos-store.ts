@@ -1,15 +1,6 @@
 import { create } from "zustand";
 import { guardarVendaOffline, listarVendasPendentes, marcarComoSincronizada } from "@/lib/pos-db";
 
-// -----------------------------------------------------------------------------
-// store/pos-store.ts
-// Estado global do POS (carrinho da venda actual + estado de sincronização).
-// Modo offline crítico: toda venda finalizada é primeiro escrita no IndexedDB;
-// só depois tentamos enviar para /api/pos/sync. Se falhar (sem rede), fica
-// marcada como pendente e uma venda no listener 'online' tenta sincronizar
-// tudo automaticamente.
-// -----------------------------------------------------------------------------
-
 export interface ItemPosCarrinho {
   produtoId: string;
   varianteId?: string;
@@ -24,9 +15,10 @@ interface PosState {
   pendentes: number;
   adicionar: (item: ItemPosCarrinho) => void;
   removerItem: (produtoId: string, varianteId?: string) => void;
+  ajustarQuantidade: (produtoId: string, varianteId: string | undefined, quantidade: number) => void;
   limpar: () => void;
   total: () => number;
-  finalizarVenda: (lojaId: string, clienteEmail?: string) => Promise<void>;
+  finalizarVenda: (lojaId: string, clienteEmail?: string, clienteNome?: string, metodoPagamento?: string) => Promise<void>;
   sincronizarPendentes: () => Promise<void>;
   atualizarContadorPendentes: () => Promise<void>;
 }
@@ -56,14 +48,26 @@ export const usePosStore = create<PosState>((set, get) => ({
       itens: state.itens.filter((i) => !(i.produtoId === produtoId && i.varianteId === varianteId)),
     })),
 
+  ajustarQuantidade: (produtoId, varianteId, quantidade) =>
+    set((state) => {
+      if (quantidade <= 0) {
+        return { itens: state.itens.filter(i => !(i.produtoId === produtoId && i.varianteId === varianteId)) };
+      }
+      return {
+        itens: state.itens.map(i =>
+          i.produtoId === produtoId && i.varianteId === varianteId
+            ? { ...i, quantidade }
+            : i
+        ),
+      };
+    }),
+
   limpar: () => set({ itens: [] }),
 
   total: () => get().itens.reduce((acc, i) => acc + i.precoUnitario * i.quantidade, 0),
 
-  // Passo crítico: grava SEMPRE localmente primeiro (garante zero perda de
-  // venda mesmo que a chamada de rede a seguir falhe), só depois tenta
-  // sincronizar imediatamente se houver ligação.
-  finalizarVenda: async (lojaId, clienteEmail) => {
+  // Grava SEMPRE localmente primeiro — zero perda de venda offline.
+  finalizarVenda: async (lojaId, clienteEmail, clienteNome, metodoPagamento) => {
     const { itens, total } = get();
     if (itens.length === 0) return;
 
@@ -73,6 +77,8 @@ export const usePosStore = create<PosState>((set, get) => ({
       itens,
       total: total(),
       clienteEmail,
+      clienteNome,
+      metodoPagamento,
       criadoEm: new Date().toISOString(),
       sincronizada: false,
     };
@@ -87,9 +93,6 @@ export const usePosStore = create<PosState>((set, get) => ({
     }
   },
 
-  // Envia todas as vendas ainda não sincronizadas para /api/pos/sync.
-  // Idempotente: o servidor usa clientUuid como chave única (ver Pedido.clientUuid
-  // no schema.prisma), por isso reenviar a mesma venda não duplica o pedido.
   sincronizarPendentes: async () => {
     if (get().aSincronizar) return;
     set({ aSincronizar: true });
@@ -111,9 +114,7 @@ export const usePosStore = create<PosState>((set, get) => ({
         }
       }
     } catch {
-      // Sem rede ou servidor indisponível: as vendas continuam guardadas
-      // localmente e serão retentadas no próximo evento 'online' ou no
-      // próximo finalizarVenda().
+      // Sem rede — vendas ficam guardadas e são retentadas no próximo 'online'.
     } finally {
       set({ aSincronizar: false });
       await get().atualizarContadorPendentes();

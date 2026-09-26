@@ -24,6 +24,8 @@ export interface VendaPosOffline {
   }[];
   total: number;
   clienteEmail?: string;
+  clienteNome?: string;
+  metodoPagamento?: string;
   criadoEm: string; // ISO string
   sincronizada: boolean;
 }
