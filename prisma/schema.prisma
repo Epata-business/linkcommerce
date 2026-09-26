@@ -187,6 +187,7 @@ model Loja {
   qrCodes          QrCode[]
   auditLogs        AuditLog[]
   faturas          Fatura[]
+  avaliacoes       Avaliacao[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -271,6 +272,7 @@ model Produto {
   variantes        Variante[]
   itensPedido      ItemPedido[]
   movimentosStock  MovimentoStock[]
+  avaliacoes       Avaliacao[]
 
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -618,4 +620,23 @@ model Cupao {
 
   @@unique([lojaId, codigo])
   @@map("cupoes")
+}
+
+model Avaliacao {
+  id           String   @id @default(cuid())
+  lojaId       String
+  loja         Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  produtoId    String
+  produto      Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  pedidoId     String?
+  clienteEmail String
+  clienteNome  String?
+  estrelas     Int      // 1–5
+  comentario   String?  @db.Text
+  aprovada     Boolean  @default(false)
+  criadaEm     DateTime @default(now())
+
+  @@unique([pedidoId, produtoId]) // um cliente avalia cada produto uma vez por pedido
+  @@index([lojaId, produtoId, aprovada])
+  @@map("avaliacoes")
 }

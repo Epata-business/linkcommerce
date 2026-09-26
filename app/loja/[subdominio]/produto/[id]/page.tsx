@@ -6,6 +6,7 @@ import { formatarPreco } from "@/lib/moeda";
 import { getLocale, t } from "@/lib/i18n";
 import { AddToCartButton } from "@/components/storefront/add-to-cart-button";
 import { ProductGallery } from "@/components/storefront/product-gallery";
+import { AvaliacoesSection } from "@/components/storefront/avaliacoes-section";
 
 interface Props {
   params: { subdominio: string; id: string };
@@ -66,6 +67,25 @@ export default async function ProdutoPage({ params }: Props) {
   const preco = Number(produto.preco);
   const telefoneWA = loja.telefoneWA?.replace(/\D/g, "") ?? null;
   const hasImage = isDirectImageUrl(produto.imagemUrl);
+
+  // Avaliações aprovadas + média
+  const [avaliacoesRaw, avaliacaoAggregate] = await Promise.all([
+    prisma.avaliacao.findMany({
+      where: { produtoId: produto.id, lojaId: produto.lojaId, aprovada: true },
+      orderBy: { criadaEm: "desc" },
+      take: 20,
+      select: { id: true, clienteNome: true, estrelas: true, comentario: true, criadaEm: true },
+    }),
+    prisma.avaliacao.aggregate({
+      where: { produtoId: produto.id, lojaId: produto.lojaId, aprovada: true },
+      _avg: { estrelas: true },
+      _count: true,
+    }),
+  ]);
+
+  const avaliacoes = avaliacoesRaw.map(a => ({ ...a, criadaEm: a.criadaEm.toISOString() }));
+  const mediaEstrelas = Number(avaliacaoAggregate._avg.estrelas ?? 0);
+  const totalAvaliacoes = avaliacaoAggregate._count;
 
   // Produtos relacionados (mesma loja, excluindo este)
   const relacionados = await prisma.produto.findMany({
@@ -198,6 +218,16 @@ export default async function ProdutoPage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      {/* ── Avaliações ── */}
+      <AvaliacoesSection
+        lojaId={produto.lojaId}
+        produtoId={produto.id}
+        avaliacoes={avaliacoes}
+        mediaEstrelas={mediaEstrelas}
+        totalAvaliacoes={totalAvaliacoes}
+        cor={cor}
+      />
 
       {/* ── Produtos relacionados ── */}
       {relacionados.length > 0 && (

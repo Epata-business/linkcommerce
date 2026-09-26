@@ -21,14 +21,15 @@ export type Recurso =
   | "configuracoes"
   | "equipa"
   | "auditlog"
-  | "faturas";
+  | "faturas"
+  | "avaliacoes";
 
 // * = acesso total ao recurso
 const PERMISSOES: Record<RoleUtilizador, Recurso[] | ["*"]> = {
   ADMIN_PLATAFORMA: ["*"],
   LOJISTA:          ["*"],
-  GESTOR:           ["dashboard", "pedidos", "produtos", "clientes", "marketing", "qrcode", "envios", "relatorios", "exportar", "notificacoes", "configuracoes", "auditlog", "faturas"],
-  OPERADOR:         ["pedidos", "produtos", "clientes", "notificacoes"],
+  GESTOR:           ["dashboard", "pedidos", "produtos", "clientes", "marketing", "qrcode", "envios", "relatorios", "exportar", "notificacoes", "configuracoes", "auditlog", "faturas", "avaliacoes"],
+  OPERADOR:         ["pedidos", "produtos", "clientes", "notificacoes", "avaliacoes"],
   OPERADOR_POS:     [],
   MARKETING:        ["marketing", "qrcode", "relatorios", "notificacoes"],
   FINANCEIRO:       ["relatorios", "exportar", "pedidos", "notificacoes", "faturas"],
@@ -64,10 +65,10 @@ export const ROLES_ATRIBUIVEIS: RoleUtilizador[] = [
 
 // Nav links visíveis por role
 export const NAV_POR_ROLE: Record<string, Recurso[]> = {
-  LOJISTA:          ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "equipa", "notificacoes", "configuracoes", "auditlog", "faturas"],
-  GESTOR:           ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "notificacoes", "configuracoes", "auditlog", "faturas"],
-  OPERADOR:         ["pedidos", "produtos", "clientes", "notificacoes"],
+  LOJISTA:          ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "equipa", "notificacoes", "configuracoes", "auditlog", "faturas", "avaliacoes"],
+  GESTOR:           ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "notificacoes", "configuracoes", "auditlog", "faturas", "avaliacoes"],
+  OPERADOR:         ["pedidos", "produtos", "clientes", "notificacoes", "avaliacoes"],
   MARKETING:        ["marketing", "qrcode", "relatorios", "notificacoes"],
   FINANCEIRO:       ["relatorios", "exportar", "pedidos", "notificacoes", "faturas"],
-  ADMIN_PLATAFORMA: ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "equipa", "notificacoes", "configuracoes", "auditlog", "faturas"],
+  ADMIN_PLATAFORMA: ["dashboard", "produtos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "equipa", "notificacoes", "configuracoes", "auditlog", "faturas", "avaliacoes"],
 };
