@@ -33,6 +33,7 @@ const CheckoutSchema = z.object({
   metodoPagamento: z.enum(["cartao", "mbway", "multibanco", "multicaixa", "paypal"]).default("cartao"),
   comprovanteUrl: z.string().url().optional(),
   zonaEntregaId: z.string().optional(),
+  codigoCupao: z.string().optional(),
 });
 
 // Mapeia o método do checkout para o enum MetodoPagamento do schema
@@ -60,7 +61,7 @@ export async function POST(req: NextRequest) {
 
   const {
     subdominio, itens, clienteEmail, clienteNome, clienteTelefone,
-    morada, metodoPagamento, comprovanteUrl, zonaEntregaId,
+    morada, metodoPagamento, comprovanteUrl, zonaEntregaId, codigoCupao,
   } = parsed.data;
 
   const loja = await prisma.loja.findUnique({
@@ -72,7 +73,24 @@ export async function POST(req: NextRequest) {
   const moedaLoja = loja.moeda ?? "AOA";
   const moedaStripe = moedaLoja.toLowerCase();
   const clientUuid = randomUUID();
-  const total = itens.reduce((s, i) => s + i.precoUnitario * i.quantidade, 0);
+  const subtotalCalc = itens.reduce((s, i) => s + i.precoUnitario * i.quantidade, 0);
+
+  // Validar cupão (se fornecido)
+  let cupaoId: string | null = null;
+  let descontoValor = 0;
+  if (codigoCupao) {
+    const cupao = await prisma.cupao.findUnique({
+      where: { lojaId_codigo: { lojaId: loja.id, codigo: codigoCupao.toUpperCase() } },
+    });
+    if (cupao && cupao.ativo && (!cupao.validade || cupao.validade >= new Date()) &&
+        (cupao.usosMaximos === null || cupao.usosAtuais < cupao.usosMaximos)) {
+      cupaoId = cupao.id;
+      descontoValor = cupao.tipo === "PERCENTAGEM"
+        ? Math.round((subtotalCalc * Number(cupao.valor) / 100) * 100) / 100
+        : Math.min(Number(cupao.valor), subtotalCalc);
+    }
+  }
+  const total = Math.max(0, Math.round((subtotalCalc - descontoValor) * 100) / 100);
   const origin = req.nextUrl.origin;
   const metodoPagamentoEnum = METODO_MAP[metodoPagamento] ?? "DESCONHECIDO";
 
@@ -95,12 +113,13 @@ export async function POST(req: NextRequest) {
             clienteEmail,
             clienteNome,
             morada: { ...morada, clienteTelefone: clienteTelefone ?? null },
-            subtotal: total,
-            desconto: 0,
+            subtotal: subtotalCalc,
+            desconto: descontoValor,
             total,
             status: "PENDING",
             channel: "ONLINE",
             clientUuid,
+            cupaoId,
             itens: {
               create: itens.map((i) => ({
                 produtoId: i.produtoId,
@@ -116,12 +135,13 @@ export async function POST(req: NextRequest) {
             lojaId: loja.id,
             pedidoId: p.id,
             metodo: "DESCONHECIDO",
-            status: "CONFIRMADO", // dev mode: assume confirmado
+            status: "CONFIRMADO",
             valor: total,
             moeda: moedaLoja,
             provedor: "manual",
           },
         });
+        if (cupaoId) await tx.cupao.update({ where: { id: cupaoId }, data: { usosAtuais: { increment: 1 } } });
         await reservarStock(tx, loja.id, p.id, itensReserva);
         return p;
       }, { isolationLevel: "Serializable" });
@@ -159,12 +179,13 @@ export async function POST(req: NextRequest) {
             clienteEmail,
             clienteNome,
             morada: { ...morada, clienteTelefone: clienteTelefone ?? null },
-            subtotal: total,
-            desconto: 0,
+            subtotal: subtotalCalc,
+            desconto: descontoValor,
             total,
             status: "PENDING",
             channel: "ONLINE",
             clientUuid,
+            cupaoId,
             zonaEntregaId: zonaEntregaId ?? null,
             itens: {
               create: itens.map((i) => ({
@@ -189,6 +210,7 @@ export async function POST(req: NextRequest) {
             comprovanteUrl: comprovanteUrl ?? null,
           },
         });
+        if (cupaoId) await tx.cupao.update({ where: { id: cupaoId }, data: { usosAtuais: { increment: 1 } } });
         await reservarStock(tx, loja.id, p.id, itensReserva);
         return p;
       }, { isolationLevel: "Serializable" });
@@ -247,12 +269,13 @@ export async function POST(req: NextRequest) {
           clienteEmail,
           clienteNome,
           morada: { ...morada, clienteTelefone: clienteTelefone ?? null },
-          subtotal: total,
-          desconto: 0,
+          subtotal: subtotalCalc,
+          desconto: descontoValor,
           total,
           status: "PENDING",
           channel: "ONLINE",
           clientUuid,
+          cupaoId,
           itens: {
             create: itens.map((i) => ({
               produtoId: i.produtoId,
@@ -275,6 +298,7 @@ export async function POST(req: NextRequest) {
           provedor: "stripe",
         },
       });
+      if (cupaoId) await tx.cupao.update({ where: { id: cupaoId }, data: { usosAtuais: { increment: 1 } } });
       await reservarStock(tx, loja.id, p.id, itensReserva);
       return p;
     }, { isolationLevel: "Serializable" });
