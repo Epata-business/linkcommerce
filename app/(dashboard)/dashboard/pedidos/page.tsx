@@ -31,19 +31,30 @@ const METODO_LABEL: Record<string, string> = {
 export default async function PedidosPage({
   searchParams,
 }: {
-  searchParams: { status?: string };
+  searchParams: { status?: string; q?: string };
 }) {
   const lojaId = await getLojaId();
   const filtroStatus = searchParams.status?.toUpperCase();
+  const query = searchParams.q?.trim() ?? "";
+
+  const whereBase = {
+    lojaId,
+    ...(filtroStatus && filtroStatus !== "TODOS" ? { status: filtroStatus as never } : {}),
+    ...(query ? {
+      OR: [
+        { clienteNome: { contains: query, mode: "insensitive" as const } },
+        { clienteEmail: { contains: query, mode: "insensitive" as const } },
+        { id: { endsWith: query.toUpperCase() } },
+      ],
+    } : {}),
+  };
 
   const [loja, pedidos] = await Promise.all([
     prisma.loja.findUnique({ where: { id: lojaId }, select: { moeda: true } }),
     prisma.pedido.findMany({
-      where: {
-        lojaId,
-        ...(filtroStatus && filtroStatus !== "TODOS" ? { status: filtroStatus as never } : {}),
-      },
+      where: whereBase,
       orderBy: { createdAt: "desc" },
+      take: 100,
       include: {
         itens: {
           include: { produto: { select: { titulo: true, imagemUrl: true } } },
@@ -109,6 +120,30 @@ export default async function PedidosPage({
             </div>
           ))}
         </div>
+
+        {/* Pesquisa */}
+        <form method="GET" action="/dashboard/pedidos" className="mb-4 flex gap-2">
+          {filtroStatus && filtroStatus !== "TODOS" && (
+            <input type="hidden" name="status" value={filtroStatus.toLowerCase()} />
+          )}
+          <div className="relative flex-1">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              name="q"
+              defaultValue={query}
+              placeholder="Pesquisar pedido, cliente ou email…"
+              className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400"
+            />
+          </div>
+          {query && (
+            <a href={filtroStatus && filtroStatus !== "TODOS" ? `/dashboard/pedidos?status=${filtroStatus.toLowerCase()}` : "/dashboard/pedidos"}
+              className="flex items-center rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-500 hover:bg-slate-50 transition-colors">
+              ✕ Limpar
+            </a>
+          )}
+        </form>
 
         {/* Tabs de filtro */}
         <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">

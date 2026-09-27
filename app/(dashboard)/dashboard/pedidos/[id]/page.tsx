@@ -196,6 +196,67 @@ export default async function PedidoDetailPage({ params }: { params: { id: strin
             estadosPossiveis={estadosPossiveis}
             cor={cor}
           />
+
+          {/* Timeline do pedido */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+            <h2 className="font-bold text-slate-800 mb-4">Timeline</h2>
+            <div className="relative">
+              <div className="absolute left-3.5 top-0 bottom-0 w-px bg-slate-100" />
+              <div className="space-y-4">
+                {[
+                  {
+                    status: "PENDING",
+                    label: "Pedido criado",
+                    sub: new Date(pedido.createdAt).toLocaleString("pt-PT", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+                    done: true,
+                  },
+                  {
+                    status: "PROCESSING",
+                    label: "Pagamento recebido",
+                    sub: pedido.pagamentos?.[0]?.criadoEm
+                      ? new Date(pedido.pagamentos[0].criadoEm).toLocaleString("pt-PT", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })
+                      : undefined,
+                    done: ["PROCESSING", "SHIPPED", "DELIVERED"].includes(pedido.status),
+                  },
+                  {
+                    status: "SHIPPED",
+                    label: "Entregue à transportadora",
+                    sub: tracking ? `Tracking: ${tracking}` : undefined,
+                    done: ["SHIPPED", "DELIVERED"].includes(pedido.status),
+                  },
+                  {
+                    status: "DELIVERED",
+                    label: "Entregue ao cliente",
+                    sub: undefined,
+                    done: pedido.status === "DELIVERED",
+                  },
+                ].map((step, i) => {
+                  const isCancelled = pedido.status === "CANCELLED";
+                  const isDone = step.done && !isCancelled;
+                  return (
+                    <div key={step.status} className="flex items-start gap-4 relative">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 z-10 text-xs font-bold transition-colors
+                        ${isDone ? "bg-green-500 text-white" : "bg-white border-2 border-slate-200 text-slate-400"}`}>
+                        {isDone ? "✓" : (i + 1)}
+                      </div>
+                      <div className="flex-1 min-w-0 pb-1">
+                        <p className={`text-sm font-semibold ${isDone ? "text-slate-900" : "text-slate-400"}`}>{step.label}</p>
+                        {step.sub && <p className="text-xs text-slate-400 mt-0.5">{step.sub}</p>}
+                      </div>
+                    </div>
+                  );
+                })}
+                {pedido.status === "CANCELLED" && (
+                  <div className="flex items-start gap-4 relative">
+                    <div className="w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center flex-shrink-0 z-10 text-xs font-bold">✕</div>
+                    <div className="flex-1 min-w-0 pb-1">
+                      <p className="text-sm font-semibold text-red-600">Pedido cancelado</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

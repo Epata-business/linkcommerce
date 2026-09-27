@@ -17,6 +17,8 @@ interface Props {
   labelPeriodo: string;
   totalGlobal: number;
   totalPedidosGlobal: number;
+  apenasGrafico?: boolean; // renderiza só o gráfico de linha (sem barras/tabelas)
+  semGrafico?: boolean;    // renderiza tudo menos o gráfico de linha
 }
 
 const STATUS_CORES: Record<string, string> = {
@@ -159,6 +161,8 @@ export function RelatoriosClient({
   labelPeriodo,
   totalGlobal,
   totalPedidosGlobal,
+  apenasGrafico = false,
+  semGrafico = false,
 }: Props) {
   const totalStatus = pedidosPorStatus.reduce((s, p) => s + p.count, 0);
   const totalCanal = pedidosPorCanal.reduce((s, c) => s + c.count, 0);
@@ -167,10 +171,15 @@ export function RelatoriosClient({
 
   return (
     <div className="space-y-6">
-      {/* Gráfico linha */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-        <h2 className="text-base font-bold text-slate-900 mb-1">Receita por dia — {labelPeriodo}</h2>
-        <p className="text-xs text-slate-400 mb-4">Passe o rato para ver o detalhe de cada dia</p>
+      {/* Gráfico linha — oculto quando semGrafico=true */}
+      {!semGrafico && (
+      <div className={apenasGrafico ? "" : "bg-white rounded-2xl border border-slate-100 shadow-sm p-6"}>
+        {!apenasGrafico && (
+          <>
+            <h2 className="text-base font-bold text-slate-900 mb-1">Receita por dia — {labelPeriodo}</h2>
+            <p className="text-xs text-slate-400 mb-4">Passe o rato para ver o detalhe de cada dia</p>
+          </>
+        )}
         {diasDoIntervalo.every(d => d.receita === 0) ? (
           <div className="h-36 flex items-center justify-center">
             <p className="text-sm text-slate-400">Sem receita no período selecionado</p>
@@ -179,6 +188,9 @@ export function RelatoriosClient({
           <LineChart dados={diasDoIntervalo} moeda={moeda} cor={cor} />
         )}
       </div>
+      )}
+      {/* Tudo abaixo oculto quando apenasGrafico=true */}
+      {!apenasGrafico && <>
 
       {/* Barras 12 meses */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
@@ -386,6 +398,8 @@ export function RelatoriosClient({
         <h2 className="text-base font-bold text-slate-900 mb-4">Exportar pedidos por período</h2>
         <ExportarForm cor={cor} />
       </div>
+
+      </>}
     </div>
   );
 }

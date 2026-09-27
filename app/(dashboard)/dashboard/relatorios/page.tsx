@@ -45,6 +45,8 @@ export default async function RelatoriosPage({
     stockAggregate,
     stockBaixo,
     stockEsgotado,
+    taxaRecompra,
+    taxaAbandono,
   ] = await Promise.all([
     prisma.loja.findUnique({
       where: { id: lojaId },
@@ -205,12 +207,35 @@ export default async function RelatoriosPage({
     prisma.produto.aggregate({ where: { lojaId }, _count: true, _sum: { stock: true } }),
     prisma.produto.count({ where: { lojaId, stock: { lte: 5, gt: 0 } } }),
     prisma.produto.count({ where: { lojaId, stock: 0 } }),
+
+    // Taxa de recompra: clientes com ≥ 2 pedidos no período / total clientes com pedidos no período
+    (async () => {
+      const porCliente = await prisma.pedido.groupBy({
+        by: ["clienteEmail"],
+        where: { lojaId, status: { not: "CANCELLED" }, createdAt: { gte: inicio, lte: fim } },
+        _count: true,
+      });
+      if (porCliente.length === 0) return 0;
+      const recorrentes = porCliente.filter(c => c._count >= 2).length;
+      return Math.round((recorrentes / porCliente.length) * 100);
+    })(),
+
+    // Taxa de abandono de carrinhos no período
+    (async () => {
+      const [convertidos, abandonados] = await Promise.all([
+        prisma.carrinhoAbandonado.count({ where: { lojaId, status: { in: ["CONVERTIDO", "RECUPERADO"] }, criadoEm: { gte: inicio, lte: fim } } }),
+        prisma.carrinhoAbandonado.count({ where: { lojaId, criadoEm: { gte: inicio, lte: fim } } }),
+      ]);
+      if (abandonados === 0) return null as null;
+      const taxa = Math.round(((abandonados - convertidos) / abandonados) * 100);
+      return taxa;
+    })(),
   ]);
 
   const moeda = loja?.moeda ?? "EUR";
   const cor = loja?.corPrimaria ?? "#153DFC";
 
-  const statusLabels: Record<string, string> = {
+  const STATUS_CONFIG_LABELS: Record<string, string> = {
     PENDING: "Pendente", PROCESSING: "Em processamento",
     SHIPPED: "Enviado", DELIVERED: "Entregue", CANCELLED: "Cancelado",
   };
@@ -273,40 +298,89 @@ export default async function RelatoriosPage({
           </div>
         </div>
 
-        {/* KPIs com variação vs período anterior */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        {/* KPIs — 6 métricas em 2 linhas de 3 */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
           {[
-            {
-              label: `Receita — ${labelPeriodo}`,
-              value: formatarPreco(receitaPeriodo, moeda),
-              variacao: variacaoReceita,
-            },
-            {
-              label: `Pedidos — ${labelPeriodo}`,
-              value: pedidosPeriodo.toString(),
-              variacao: variacaoPedidos,
-            },
-            {
-              label: "Ticket médio",
-              value: formatarPreco(ticketMedio, moeda),
-              variacao: variacaoTicket,
-            },
-            {
-              label: "Clientes novos",
-              value: clientesNovos.toString(),
-              variacao: null,
-            },
+            { label: "Vendas", value: formatarPreco(receitaPeriodo, moeda), variacao: variacaoReceita, destaque: true },
+            { label: "Pedidos", value: pedidosPeriodo.toString(), variacao: variacaoPedidos, destaque: false },
+            { label: "Ticket médio", value: formatarPreco(ticketMedio, moeda), variacao: variacaoTicket, destaque: false },
           ].map(kpi => (
-            <div key={kpi.label} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-              <p className="text-xl font-black text-slate-900 leading-tight">{kpi.value}</p>
-              <p className="text-xs text-slate-400 mt-1 mb-2">{kpi.label}</p>
+            <div key={kpi.label} className={`bg-white rounded-2xl border p-5 shadow-sm ${kpi.destaque ? "border-indigo-100 ring-1 ring-indigo-100" : "border-slate-100"}`}>
+              <p className="text-[11px] text-slate-400 uppercase tracking-wide font-semibold mb-1">{kpi.label}</p>
+              <p className="text-2xl font-black text-slate-900 leading-tight">{kpi.value}</p>
               {kpi.variacao && kpi.variacao.positivo !== null && (
-                <p className={`text-[10px] font-bold ${kpi.variacao.positivo ? "text-green-600" : "text-red-500"}`}>
-                  {kpi.variacao.positivo ? "▲" : "▼"} {kpi.variacao.texto}
+                <p className={`text-[11px] font-bold mt-1.5 ${kpi.variacao.positivo ? "text-green-600" : "text-red-500"}`}>
+                  {kpi.variacao.positivo ? "↑" : "↓"} {kpi.variacao.texto} vs período anterior
                 </p>
               )}
             </div>
           ))}
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+          {[
+            { label: "Clientes novos", value: clientesNovos.toString(), sub: labelPeriodo },
+            { label: "Taxa de recompra", value: `${taxaRecompra}%`, sub: "clientes com ≥ 2 pedidos" },
+            { label: "Abandono de carrinho", value: taxaAbandono !== null ? `${taxaAbandono}%` : "—", sub: taxaAbandono !== null ? "carrinhos não convertidos" : "sem dados" },
+          ].map(kpi => (
+            <div key={kpi.label} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+              <p className="text-[11px] text-slate-400 uppercase tracking-wide font-semibold mb-1">{kpi.label}</p>
+              <p className="text-2xl font-black text-slate-900 leading-tight">{kpi.value}</p>
+              <p className="text-[11px] text-slate-400 mt-1">{kpi.sub}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Gráfico + Pedidos por estado — side by side */}
+        <div className="grid lg:grid-cols-3 gap-4 mb-8">
+          {/* Gráfico de vendas — 2/3 */}
+          <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-4">Vendas — {labelPeriodo}</p>
+            <RelatoriosClient
+              diasDoIntervalo={diasDoIntervalo}
+              receitaMeses={receitaMeses}
+              topProdutos={topProdutosPorQtd}
+              topProdutosPorReceita={topProdutosPorReceita}
+              topClientes={topClientes}
+              pedidosPorStatus={pedidosPorStatus.map(s => ({ status: STATUS_CONFIG_LABELS[s.status] ?? s.status, count: s._count }))}
+              pedidosPorCanal={pedidosPorCanal.map(c => ({ canal: c.channel, count: c._count }))}
+              pagamentosPorMetodo={pagamentosPorMetodo.map(p => ({ metodo: metodoLabels[p.metodo] ?? p.metodo, count: p._count }))}
+              moeda={moeda}
+              cor={cor}
+              labelPeriodo={labelPeriodo}
+              totalGlobal={Number(totalReceita._sum.total ?? 0)}
+              totalPedidosGlobal={totalPedidos}
+              apenasGrafico
+            />
+          </div>
+
+          {/* Pedidos por estado — 1/3 */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-4">Pedidos por estado</p>
+            <div className="space-y-2.5">
+              {[
+                { status: "PENDING",    icon: "🟡", label: "A aguardar pagamento" },
+                { status: "PROCESSING", icon: "🟢", label: "Pagos / Em preparação" },
+                { status: "SHIPPED",    icon: "🔵", label: "Enviados" },
+                { status: "DELIVERED",  icon: "✅", label: "Entregues" },
+                { status: "CANCELLED",  icon: "🔴", label: "Cancelados" },
+              ].map(row => {
+                const found = pedidosPorStatus.find(s => s.status === row.status);
+                const count = found?._count ?? 0;
+                return (
+                  <div key={row.status} className="flex items-center justify-between text-sm">
+                    <span className="text-slate-600">{row.icon} {row.label}</span>
+                    <span className="font-black text-slate-900 tabular-nums">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-4 pt-4 border-t border-slate-100">
+              <div className="flex justify-between text-sm font-bold text-slate-700">
+                <span>Total</span>
+                <span className="tabular-nums">{pedidosPorStatus.reduce((s, r) => s + r._count, 0)}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Stock health */}
@@ -346,13 +420,14 @@ export default async function RelatoriosPage({
           )}
         </div>
 
+        {/* Tabelas detalhadas — top produtos, clientes, métodos */}
         <RelatoriosClient
           diasDoIntervalo={diasDoIntervalo}
           receitaMeses={receitaMeses}
           topProdutos={topProdutosPorQtd}
           topProdutosPorReceita={topProdutosPorReceita}
           topClientes={topClientes}
-          pedidosPorStatus={pedidosPorStatus.map(s => ({ status: statusLabels[s.status] ?? s.status, count: s._count }))}
+          pedidosPorStatus={pedidosPorStatus.map(s => ({ status: STATUS_CONFIG_LABELS[s.status] ?? s.status, count: s._count }))}
           pedidosPorCanal={pedidosPorCanal.map(c => ({ canal: c.channel, count: c._count }))}
           pagamentosPorMetodo={pagamentosPorMetodo.map(p => ({ metodo: metodoLabels[p.metodo] ?? p.metodo, count: p._count }))}
           moeda={moeda}
@@ -360,6 +435,7 @@ export default async function RelatoriosPage({
           labelPeriodo={labelPeriodo}
           totalGlobal={Number(totalReceita._sum.total ?? 0)}
           totalPedidosGlobal={totalPedidos}
+          semGrafico
         />
       </div>
     </div>
