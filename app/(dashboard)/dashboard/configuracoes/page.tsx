@@ -43,6 +43,30 @@ export default async function ConfiguracoesPage({
     redirect("/dashboard/configuracoes?saved=1");
   }
 
+  async function guardarDominioProprio(formData: FormData) {
+    "use server";
+    const lojaIdServer = await getLojaId();
+    const lojaAtual = await prisma.loja.findUnique({
+      where: { id: lojaIdServer },
+      select: { planoId: true, plano: { select: { permiteDominioProprio: true } }, subscricao: { select: { plano: { select: { permiteDominioProprio: true } } } } },
+    });
+    const permitido =
+      lojaAtual?.subscricao?.plano?.permiteDominioProprio ||
+      lojaAtual?.plano?.permiteDominioProprio;
+    if (!permitido) return;
+
+    const dominio = (formData.get("dominioProprio") as string)?.toLowerCase().trim() || null;
+    // Validação básica: sem espaços, sem protocolo, sem path
+    if (dominio && (dominio.includes(" ") || dominio.startsWith("http") || dominio.includes("/"))) return;
+
+    await prisma.loja.update({
+      where: { id: lojaIdServer },
+      data: { dominioProprio: dominio || null },
+    });
+    revalidatePath("/dashboard/configuracoes");
+    redirect("/dashboard/configuracoes?saved=1");
+  }
+
   async function guardarSeo(formData: FormData) {
     "use server";
     const lojaIdServer = await getLojaId();
@@ -231,6 +255,65 @@ export default async function ConfiguracoesPage({
           </div>
         </form>
       </div>
+      {/* Domínio Próprio */}
+      {(() => {
+        const permiteDominio =
+          loja.subscricao?.plano?.permiteDominioProprio ||
+          loja.plano?.permiteDominioProprio;
+        return (
+          <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-800">Domínio próprio</h2>
+                <p className="text-xs text-slate-400 mt-0.5">Usa o teu domínio (ex: loja.meunegocio.ao) em vez do subdomínio LinkCommerce.</p>
+              </div>
+            </div>
+
+            {!permiteDominio ? (
+              <div className="rounded-xl bg-slate-50 border border-slate-100 px-4 py-4 text-center">
+                <p className="text-sm text-slate-500 mb-2">Disponível nos planos <strong>Growth</strong> e <strong>Enterprise</strong>.</p>
+                <a href="/dashboard/configuracoes/planos" className="inline-block text-sm font-semibold text-indigo-600 hover:underline">
+                  Ver planos →
+                </a>
+              </div>
+            ) : (
+              <form action={guardarDominioProprio} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Domínio (sem https://)</label>
+                  <input
+                    name="dominioProprio"
+                    defaultValue={loja.dominioProprio ?? ""}
+                    placeholder="loja.meusite.ao"
+                    className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-mono focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  />
+                  <p className="mt-1 text-xs text-slate-400">Deixar vazio remove o domínio próprio.</p>
+                </div>
+
+                {loja.dominioProprio && (
+                  <div className="rounded-xl bg-blue-50 border border-blue-100 p-4 text-xs text-blue-800 space-y-1">
+                    <p className="font-semibold mb-2">Configuração DNS necessária:</p>
+                    <p>Adiciona um registo <strong>CNAME</strong> no teu painel DNS:</p>
+                    <div className="font-mono bg-white rounded-lg px-3 py-2 border border-blue-100 mt-1">
+                      <span className="text-slate-500">{loja.dominioProprio}</span>
+                      <span className="text-slate-400 mx-2">→</span>
+                      <span className="text-indigo-700">cname.vercel-dns.com</span>
+                    </div>
+                    <p className="mt-2 text-blue-600">A propagação DNS pode demorar até 48h. Após propagar, a loja fica disponível no teu domínio.</p>
+                  </div>
+                )}
+
+                <Button type="submit" variant="outline" className="text-sm">Guardar domínio</Button>
+              </form>
+            )}
+          </div>
+        );
+      })()}
+
       {/* SEO */}
       <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex items-start gap-3 mb-4">
