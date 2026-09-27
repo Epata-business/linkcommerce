@@ -25,7 +25,8 @@ export type Recurso =
   | "faturas"
   | "avaliacoes"
   | "devolucoes"
-  | "carrinhos";
+  | "carrinhos"
+  | "api";
 
 // * = acesso total ao recurso
 const PERMISSOES: Record<RoleUtilizador, Recurso[] | ["*"]> = {
@@ -68,7 +69,7 @@ export const ROLES_ATRIBUIVEIS: RoleUtilizador[] = [
 
 // Nav links visíveis por role
 export const NAV_POR_ROLE: Record<string, Recurso[]> = {
-  LOJISTA:          ["dashboard", "produtos", "inventario", "devolucoes", "carrinhos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "equipa", "notificacoes", "configuracoes", "auditlog", "faturas", "avaliacoes"],
+  LOJISTA:          ["dashboard", "produtos", "inventario", "devolucoes", "carrinhos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "equipa", "notificacoes", "configuracoes", "api", "auditlog", "faturas", "avaliacoes"],
   GESTOR:           ["dashboard", "produtos", "inventario", "devolucoes", "carrinhos", "pedidos", "clientes", "marketing", "envios", "qrcode", "relatorios", "exportar", "notificacoes", "configuracoes", "auditlog", "faturas", "avaliacoes"],
   OPERADOR:         ["pedidos", "produtos", "inventario", "devolucoes", "clientes", "notificacoes", "avaliacoes"],
   MARKETING:        ["marketing", "qrcode", "relatorios", "notificacoes"],

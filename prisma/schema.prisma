@@ -194,6 +194,7 @@ model Loja {
 
   carrinhos        CarrinhoAbandonado[]
   pushSubscricoes  PushSubscricao[]
+  apiKeys          ApiKey[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -734,4 +735,23 @@ model PushSubscricao {
   @@unique([userId, endpoint])
   @@index([lojaId])
   @@map("push_subscricoes")
+}
+
+// -----------------------------------------------------------------------------
+// API PÚBLICA — chaves de acesso por loja
+// -----------------------------------------------------------------------------
+
+model ApiKey {
+  id         String   @id @default(cuid())
+  lojaId     String
+  loja       Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  nome       String   // label descritivo: "ERP Luanda", "App Mobile"
+  keyHash    String   @unique // SHA-256 da chave; a chave em claro só é mostrada uma vez
+  prefixo    String   // primeiros 8 chars para identificação: "lc_xxxxx"
+  ativa      Boolean  @default(true)
+  ultimoUso  DateTime?
+  criadaEm   DateTime @default(now())
+
+  @@index([lojaId])
+  @@map("api_keys")
 }
