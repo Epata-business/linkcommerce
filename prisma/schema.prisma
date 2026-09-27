@@ -195,6 +195,7 @@ model Loja {
   carrinhos        CarrinhoAbandonado[]
   pushSubscricoes  PushSubscricao[]
   apiKeys          ApiKey[]
+  campanhas        Campanha[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -754,4 +755,32 @@ model ApiKey {
 
   @@index([lojaId])
   @@map("api_keys")
+}
+
+// -----------------------------------------------------------------------------
+// CAMPANHAS DE EMAIL MARKETING
+// -----------------------------------------------------------------------------
+
+enum StatusCampanha {
+  RASCUNHO
+  ENVIANDO
+  ENVIADA
+  FALHADA
+}
+
+model Campanha {
+  id             String         @id @default(cuid())
+  lojaId         String
+  loja           Loja           @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  nome           String
+  assunto        String
+  corpo          String         @db.Text // HTML do email
+  status         StatusCampanha @default(RASCUNHO)
+  totalEnviados  Int            @default(0)
+  totalFalhados  Int            @default(0)
+  enviadaEm      DateTime?
+  criadaEm       DateTime       @default(now())
+
+  @@index([lojaId, status])
+  @@map("campanhas")
 }
