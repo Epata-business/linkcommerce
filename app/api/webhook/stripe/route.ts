@@ -5,6 +5,7 @@ import { enviarEmailConfirmacaoPedido } from "@/lib/email";
 import { confirmarVenda } from "@/lib/inventario";
 import { criarNotificacao } from "@/lib/notificacoes";
 import { criarFatura } from "@/lib/faturas";
+import { enviarPushParaLoja } from "@/lib/push";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -124,6 +125,11 @@ export async function POST(req: NextRequest) {
     mensagem: `Pedido #${pedidoId.slice(-8).toUpperCase()} de ${clienteNome} foi pago via Stripe.`,
     link: `/dashboard/pedidos/${pedidoId}`,
     pedidoId,
+  });
+  void enviarPushParaLoja(lojaId, {
+    title: `🛒 Novo pedido — pagamento confirmado`,
+    body: `${clienteNome} · Stripe · #${pedidoId.slice(-8).toUpperCase()}`,
+    url: `/dashboard/pedidos/${pedidoId}`,
   });
 
   const itensEmail = pedidoExiste.itens.map((i) => ({

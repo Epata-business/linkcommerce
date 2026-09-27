@@ -8,6 +8,7 @@ import { DashboardLocaleSwitcher } from "@/components/dashboard/locale-switcher"
 import { MobileSidebar } from "@/components/dashboard/mobile-sidebar";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 import { NotificacoesBell } from "@/components/dashboard/notificacoes-bell";
+import { PushPermissionBtn } from "@/components/dashboard/push-permission-btn";
 import { PesquisaGlobal } from "@/components/dashboard/pesquisa-global";
 import { NAV_POR_ROLE, type Recurso } from "@/lib/rbac";
 
@@ -151,6 +152,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <div className="px-3 pb-2">
             <NotificacoesBell naoLidas={naoLidas} recentes={recentesNotif} />
           </div>
+
+          {/* Push notifications */}
+          <PushPermissionBtn />
 
           {lojaAtual && (
             <div className="px-2 pb-3">

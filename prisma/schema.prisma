@@ -192,7 +192,8 @@ model Loja {
   faturas          Fatura[]
   avaliacoes       Avaliacao[]
 
-  carrinhos     CarrinhoAbandonado[]
+  carrinhos        CarrinhoAbandonado[]
+  pushSubscricoes  PushSubscricao[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -714,4 +715,23 @@ model CarrinhoAbandonado {
   @@index([lojaId, status, criadoEm])
   @@index([lojaId, clienteEmail])
   @@map("carrinhos_abandonados")
+}
+
+// -----------------------------------------------------------------------------
+// WEB PUSH SUBSCRIPTIONS
+// -----------------------------------------------------------------------------
+
+model PushSubscricao {
+  id          String   @id @default(cuid())
+  lojaId      String
+  loja        Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  userId      String
+  endpoint    String   @db.Text
+  p256dh      String   @db.Text
+  auth        String
+  criadaEm   DateTime @default(now())
+
+  @@unique([userId, endpoint])
+  @@index([lojaId])
+  @@map("push_subscricoes")
 }
