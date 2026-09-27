@@ -7,6 +7,7 @@ import { criarNotificacao } from "@/lib/notificacoes";
 import { notificarNovoPedidoLojista } from "@/lib/whatsapp";
 import { criarFatura } from "@/lib/faturas";
 import { enviarPushParaLoja } from "@/lib/push";
+import { dispararWebhooks } from "@/lib/webhook";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 
@@ -185,6 +186,7 @@ export async function POST(req: NextRequest) {
     if (loja.telefoneWA) void notificarNovoPedidoLojista({ telefoneWA: loja.telefoneWA, nomeLoja: loja.nome, clienteNome, pedidoId: pedido.id, total, moeda: moedaLoja, loja });
     void criarFatura({ lojaId: loja.id, pedidoId: pedido.id, subtotal: subtotalCalc, desconto: descontoValor, total, moeda: moedaLoja, taxaIva: moedaLoja === "AOA" ? 14 : 23, clienteNome, clienteEmail, lojaNome: loja.nome, lojaNif: loja.nif, lojaMorada: loja.moradaFiscal });
     void enviarPushParaLoja(loja.id, { title: `🛒 Novo pedido — ${loja.nome}`, body: `${clienteNome} · ${total.toFixed(2)} ${moedaLoja}`, url: `/dashboard/pedidos/${pedido.id}` });
+    void dispararWebhooks(loja.id, "pedido.criado", { pedidoId: pedido.id, clienteNome, clienteEmail, total, moeda: moedaLoja, canal: "directo" });
     void prisma.carrinhoAbandonado.update({ where: { id: carrinhoAbandonado.id }, data: { status: "CONVERTIDO" } });
     return NextResponse.json({
       modo: "directo",
@@ -270,6 +272,7 @@ export async function POST(req: NextRequest) {
     });
 
     void enviarPushParaLoja(loja.id, { title: `💳 Multicaixa pendente — ${loja.nome}`, body: `${clienteNome} · ${total.toFixed(2)} ${moedaLoja} — aguarda comprovativo`, url: `/dashboard/pedidos/${pedido.id}` });
+    void dispararWebhooks(loja.id, "pedido.criado", { pedidoId: pedido.id, clienteNome, clienteEmail, total, moeda: moedaLoja, canal: "multicaixa" });
     void prisma.carrinhoAbandonado.update({ where: { id: carrinhoAbandonado.id }, data: { status: "CONVERTIDO" } });
     return NextResponse.json({
       modo: "multicaixa",

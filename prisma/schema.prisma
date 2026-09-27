@@ -196,6 +196,7 @@ model Loja {
   pushSubscricoes  PushSubscricao[]
   apiKeys          ApiKey[]
   campanhas        Campanha[]
+  webhooks         Webhook[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -783,4 +784,22 @@ model Campanha {
 
   @@index([lojaId, status])
   @@map("campanhas")
+}
+
+// -----------------------------------------------------------------------------
+// WEBHOOKS OUTBOUND
+// -----------------------------------------------------------------------------
+
+model Webhook {
+  id        String   @id @default(cuid())
+  lojaId    String
+  loja      Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  url       String
+  secret    String   // usado para assinar o payload com HMAC-SHA256
+  eventos   String[] // ex: ["pedido.criado", "pedido.pago", "pedido.enviado"]
+  ativo     Boolean  @default(true)
+  criadoEm  DateTime @default(now())
+
+  @@index([lojaId])
+  @@map("webhooks")
 }

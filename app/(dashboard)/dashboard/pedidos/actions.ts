@@ -10,6 +10,7 @@ import { registarAudit } from "@/lib/audit";
 import { notificarPedidoEnviadoCliente } from "@/lib/whatsapp";
 import { criarNotificacao } from "@/lib/notificacoes";
 import { criarFatura } from "@/lib/faturas";
+import { dispararWebhooks } from "@/lib/webhook";
 
 async function getSessionInfo() {
   const session = await auth();
@@ -170,6 +171,23 @@ export async function atualizarStatusPedido(
         pedidoId,
       });
     }
+  }
+
+  // Disparar webhooks consoante a transição de status
+  const eventoMap: Partial<Record<string, import("@/lib/webhook").EventoWebhook>> = {
+    PROCESSING: "pedido.pago",
+    SHIPPED: "pedido.enviado",
+    DELIVERED: "pedido.entregue",
+    CANCELLED: "pedido.cancelado",
+  };
+  const eventoWebhook = eventoMap[statusParsed];
+  if (eventoWebhook) {
+    void dispararWebhooks(lojaId, eventoWebhook, {
+      pedidoId,
+      statusAnterior,
+      statusNovo: statusParsed,
+      tracking: tracking ?? null,
+    });
   }
 
   revalidatePath("/dashboard/pedidos");
