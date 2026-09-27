@@ -1,13 +1,14 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
+import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
-import { AddToCartButton } from "@/components/storefront/add-to-cart-button";
 import { StoreTracker } from "@/components/storefront/store-tracker";
-import { formatarPreco } from "@/lib/moeda";
+import { StorefrontGrid } from "@/components/storefront/storefront-grid";
 import { getLocale, t } from "@/lib/i18n";
 
-interface PageProps { params: { subdominio: string } }
+interface PageProps {
+  params: { subdominio: string };
+  searchParams?: { q?: string };
+}
 
 async function getLojaComProdutos(subdominio: string) {
   return prisma.loja.findUnique({
@@ -52,27 +53,15 @@ export async function generateMetadata({ params }: PageProps) {
   };
 }
 
-function isDirectImageUrl(url: string | null) {
-  if (!url) return false;
-  try {
-    const u = new URL(url);
-    const ext = u.pathname.split('.').pop()?.toLowerCase() ?? '';
-    if (['jpg','jpeg','png','webp','gif','avif','svg'].includes(ext)) return true;
-    const h = u.hostname;
-    return h.includes('unsplash.com') || h.includes('images.') || h.includes('cdn.')
-      || h.includes('cloudinary') || h.includes('imagekit') || h.includes('imgix')
-      || h.includes('picsum') || h.includes('placeholder') || h.includes('pexels')
-      || h.includes('googleapis.com') || h.includes('googleusercontent');
-  } catch { return false; }
-}
 
-export default async function StorefrontPage({ params }: PageProps) {
+export default async function StorefrontPage({ params, searchParams }: PageProps) {
   const loja = await getLojaComProdutos(params.subdominio);
   if (!loja) notFound();
 
   const locale = getLocale();
   const moeda = loja.moeda ?? "EUR";
   const cor = loja.corPrimaria || "#153DFC";
+  const initialQuery = searchParams?.q?.trim() ?? "";
 
   const jsonLdOrg = {
     "@context": "https://schema.org",
@@ -133,95 +122,28 @@ export default async function StorefrontPage({ params }: PageProps) {
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-slate-900">
                 {t("store_all_products", locale)}
                 <span className="ml-2 text-sm font-normal text-slate-400">({loja.produtos.length})</span>
               </h2>
             </div>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {loja.produtos.map((produto) => {
-                const hasImage = isDirectImageUrl(produto.imagemUrl);
-                return (
-                  <article key={produto.id}
-                    className="group relative rounded-3xl overflow-hidden bg-white transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl"
-                    style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06)' }}>
-                    {/* Área clicável — abre página de produto */}
-                    <Link href={`/loja/${params.subdominio}/produto/${produto.id}`} className="block">
-                      <div className="relative aspect-square overflow-hidden"
-                        style={{ background: `linear-gradient(145deg, ${cor}10 0%, ${cor}05 100%)` }}>
-                        {hasImage ? (
-                          <Image
-                            src={produto.imagemUrl!}
-                            alt={produto.titulo}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4">
-                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black text-white shadow-lg"
-                              style={{ background: `linear-gradient(135deg, ${cor}, ${cor}88)` }}>
-                              {produto.titulo.charAt(0).toUpperCase()}
-                            </div>
-                            <p className="text-xs text-slate-400 text-center line-clamp-2 leading-tight">{produto.titulo}</p>
-                          </div>
-                        )}
-
-                        {produto.stock <= 0 && (
-                          <span className="absolute top-2.5 left-2.5 rounded-full bg-slate-900/80 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm uppercase tracking-wide">
-                            {t("store_out_of_stock", locale)}
-                          </span>
-                        )}
-                        {produto.stock > 0 && produto.stock <= 5 && (
-                          <span className="absolute top-2.5 left-2.5 rounded-full px-2.5 py-1 text-[10px] font-bold text-white uppercase tracking-wide"
-                            style={{ background: '#f97316' }}>
-                            {t("store_last_units", locale)} {produto.stock}
-                          </span>
-                        )}
-
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                          style={{ background: `linear-gradient(to top, ${cor}20, transparent)` }} />
-                      </div>
-
-                      <div className="px-4 pt-4 pb-2">
-                        <h3 className="font-semibold text-slate-900 text-sm leading-snug line-clamp-2 group-hover:underline underline-offset-2"
-                          style={{ textDecorationColor: cor }}>
-                          {produto.titulo}
-                        </h3>
-                        {produto.descricao && (
-                          <p className="mt-1 text-xs text-slate-400 line-clamp-2 leading-relaxed">{produto.descricao}</p>
-                        )}
-                        <p className="mt-3 text-xl font-black" style={{ color: cor }}>
-                          {formatarPreco(Number(produto.preco), moeda)}
-                        </p>
-                      </div>
-                    </Link>
-
-                    {/* Botão carrinho fora do Link para não conflituar */}
-                    <div className="px-4 pb-4">
-                      <AddToCartButton
-                        produto={{
-                          id: produto.id,
-                          titulo: produto.titulo,
-                          preco: Number(produto.preco),
-                          imagemUrl: produto.imagemUrl,
-                          stock: produto.stock,
-                          variantes: produto.variantes.map((v) => ({
-                            id: v.id,
-                            nomeOpcao: v.nomeOpcao,
-                            precoExtra: Number(v.precoExtra),
-                            stock: v.stock,
-                          })),
-                        }}
-                        corPrimaria={cor}
-                        locale={locale}
-                      />
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
+            <Suspense fallback={null}>
+              <StorefrontGrid
+                produtos={loja.produtos.map((p) => ({
+                  ...p,
+                  preco: Number(p.preco),
+                  variantes: p.variantes.map((v) => ({ ...v, precoExtra: Number(v.precoExtra) })),
+                }))}
+                subdominio={params.subdominio}
+                moeda={moeda}
+                corPrimaria={cor}
+                initialQuery={initialQuery}
+                locale={locale}
+                outOfStockLabel={t("store_out_of_stock", locale)}
+                lastUnitsLabel={t("store_last_units", locale)}
+              />
+            </Suspense>
           </>
         )}
       </section>

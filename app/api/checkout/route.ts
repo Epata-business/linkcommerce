@@ -8,6 +8,7 @@ import { notificarNovoPedidoLojista } from "@/lib/whatsapp";
 import { criarFatura } from "@/lib/faturas";
 import { enviarPushParaLoja } from "@/lib/push";
 import { dispararWebhooks } from "@/lib/webhook";
+import { atribuirPontos } from "@/lib/fidelidade";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 
@@ -187,6 +188,7 @@ export async function POST(req: NextRequest) {
     void criarFatura({ lojaId: loja.id, pedidoId: pedido.id, subtotal: subtotalCalc, desconto: descontoValor, total, moeda: moedaLoja, taxaIva: moedaLoja === "AOA" ? 14 : 23, clienteNome, clienteEmail, lojaNome: loja.nome, lojaNif: loja.nif, lojaMorada: loja.moradaFiscal });
     void enviarPushParaLoja(loja.id, { title: `🛒 Novo pedido — ${loja.nome}`, body: `${clienteNome} · ${total.toFixed(2)} ${moedaLoja}`, url: `/dashboard/pedidos/${pedido.id}` });
     void dispararWebhooks(loja.id, "pedido.criado", { pedidoId: pedido.id, clienteNome, clienteEmail, total, moeda: moedaLoja, canal: "directo" });
+    void atribuirPontos({ lojaId: loja.id, clienteEmail, clienteNome, pedidoId: pedido.id, totalCompra: total });
     void prisma.carrinhoAbandonado.update({ where: { id: carrinhoAbandonado.id }, data: { status: "CONVERTIDO" } });
     return NextResponse.json({
       modo: "directo",

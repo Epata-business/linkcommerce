@@ -197,6 +197,8 @@ model Loja {
   apiKeys          ApiKey[]
   campanhas        Campanha[]
   webhooks         Webhook[]
+  configFidelidade ConfigFidelidade?
+  pontosFidelidade PontosFidelidade[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -802,4 +804,60 @@ model Webhook {
 
   @@index([lojaId])
   @@map("webhooks")
+}
+
+// -----------------------------------------------------------------------------
+// PROGRAMA DE FIDELIDADE
+// -----------------------------------------------------------------------------
+
+model ConfigFidelidade {
+  id              String   @id @default(cuid())
+  lojaId          String   @unique
+  loja            Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  ativo           Boolean  @default(false)
+  pontosPorUnidade Decimal @db.Decimal(8, 2) @default(1) // pontos por unidade monetária gasta (ex: 1 ponto por 1€)
+  valorPorPonto   Decimal  @db.Decimal(8, 4) @default(0.01) // valor monetário de 1 ponto (ex: 0,01€)
+  pontosMinResgatar Int    @default(100) // mínimo de pontos para resgatar
+
+  @@map("config_fidelidade")
+}
+
+model PontosFidelidade {
+  id          String   @id @default(cuid())
+  lojaId      String
+  loja        Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  clienteEmail String
+  clienteNome  String?
+  pontos      Int      @default(0) // saldo actual
+  totalGanho  Int      @default(0)
+  totalGasto  Int      @default(0)
+  updatedAt   DateTime @updatedAt
+  criadoEm    DateTime @default(now())
+
+  movimentos  MovimentoPontos[]
+
+  @@unique([lojaId, clienteEmail])
+  @@index([lojaId])
+  @@map("pontos_fidelidade")
+}
+
+enum TipoMovimentoPontos {
+  GANHO   // ganhou ao fazer uma compra
+  RESGATE // resgatou ao pagar um pedido
+  AJUSTE  // ajuste manual pelo lojista
+  EXPIRACAO
+}
+
+model MovimentoPontos {
+  id           String               @id @default(cuid())
+  saldoId      String
+  saldo        PontosFidelidade     @relation(fields: [saldoId], references: [id], onDelete: Cascade)
+  tipo         TipoMovimentoPontos
+  pontos       Int
+  pedidoId     String?
+  nota         String?
+  criadoEm     DateTime             @default(now())
+
+  @@index([saldoId])
+  @@map("movimentos_pontos")
 }

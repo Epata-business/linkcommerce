@@ -6,6 +6,7 @@ import { confirmarVenda } from "@/lib/inventario";
 import { criarNotificacao } from "@/lib/notificacoes";
 import { criarFatura } from "@/lib/faturas";
 import { enviarPushParaLoja } from "@/lib/push";
+import { atribuirPontos } from "@/lib/fidelidade";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -131,6 +132,7 @@ export async function POST(req: NextRequest) {
     body: `${clienteNome} · Stripe · #${pedidoId.slice(-8).toUpperCase()}`,
     url: `/dashboard/pedidos/${pedidoId}`,
   });
+  void atribuirPontos({ lojaId, clienteEmail: pedidoExiste.clienteEmail, clienteNome, pedidoId, totalCompra: Number(pedidoExiste.total) });
 
   const itensEmail = pedidoExiste.itens.map((i) => ({
     produtoId: i.produtoId,

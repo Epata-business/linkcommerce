@@ -19,6 +19,7 @@ const ALL_NAV_LINKS: { href: string; label: string; recurso: Recurso }[] = [
   { href: "/dashboard/pedidos",       label: "Pedidos",        recurso: "pedidos"        },
   { href: "/dashboard/clientes",      label: "Clientes",       recurso: "clientes"       },
   { href: "/dashboard/marketing",     label: "Marketing",      recurso: "marketing"      },
+  { href: "/dashboard/fidelidade",   label: "Fidelidade",     recurso: "fidelidade"     },
   { href: "/dashboard/devolucoes",    label: "Devoluções",     recurso: "devolucoes"     },
   { href: "/dashboard/carrinhos",     label: "Carrinhos",      recurso: "carrinhos"      },
   { href: "/dashboard/envios",        label: "Envios",         recurso: "envios"         },
