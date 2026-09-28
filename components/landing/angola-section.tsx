@@ -42,7 +42,7 @@ export function AngolaSection() {
   }, [visible]);
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden py-28 px-6"
+    <section ref={sectionRef} className="relative overflow-hidden py-14 px-6"
       style={{ background: "linear-gradient(180deg, #080A12 0%, #05082a 50%, #080A12 100%)" }}>
 
       {/* Fundo decorativo Angola */}
@@ -95,7 +95,7 @@ export function AngolaSection() {
         </div>
 
         {/* Flow animado WhatsApp → Entrega */}
-        <div className={`flex items-center justify-center gap-0 mb-20 flex-wrap transition-all duration-700 delay-200 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+        <div className={`flex items-center justify-center gap-0 mb-12 flex-wrap transition-all duration-700 delay-200 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           {FLOW.map((step, i) => (
             <div key={step.label} className="flex items-center">
               <div className={`flex flex-col items-center gap-1.5 px-3 transition-all duration-300 ${activeFlow === i ? "scale-110" : "scale-95 opacity-50"}`}>
@@ -124,7 +124,7 @@ export function AngolaSection() {
         <p className={`text-center text-xs font-bold text-white/30 uppercase tracking-widest mb-5 transition-all duration-700 delay-250 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           O mercado angolano em números — fontes públicas 2026
         </p>
-        <div className={`grid grid-cols-2 lg:grid-cols-4 gap-4 mb-16 transition-all duration-700 delay-300 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+        <div className={`grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10 transition-all duration-700 delay-300 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           {STATS.map((s, i) => (
             <div key={i} className="rounded-2xl p-5 text-center group hover:scale-105 transition-transform"
               style={{

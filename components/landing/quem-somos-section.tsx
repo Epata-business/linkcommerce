@@ -30,7 +30,7 @@ export function QuemSomosSection() {
   }, []);
 
   return (
-    <section ref={ref} className="relative py-28 px-6 overflow-hidden"
+    <section ref={ref} className="relative py-14 px-6 overflow-hidden"
       style={{ background: "linear-gradient(180deg, #080A12 0%, #060818 100%)" }}>
 
       <div className="relative z-10 max-w-6xl mx-auto">
@@ -44,7 +44,7 @@ export function QuemSomosSection() {
         </div>
 
         {/* Headline */}
-        <div className={`text-center mb-16 transition-all duration-700 delay-100 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+        <div className={`text-center mb-10 transition-all duration-700 delay-100 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight mb-5">
             A infraestrutura que transforma<br />
             <span style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
@@ -58,7 +58,7 @@ export function QuemSomosSection() {
         </div>
 
         {/* Missão + Visão */}
-        <div className={`grid md:grid-cols-2 gap-5 mb-20 transition-all duration-700 delay-200 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+        <div className={`grid md:grid-cols-2 gap-5 mb-12 transition-all duration-700 delay-200 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           <div className="rounded-2xl p-7" style={{ background: "rgba(21,61,236,0.06)", border: "1px solid rgba(21,61,236,0.15)" }}>
             <p className="text-xs font-bold text-[#8381FB] uppercase tracking-widest mb-3">Missão</p>
             <p className="text-white font-semibold text-lg leading-relaxed">
@@ -74,7 +74,7 @@ export function QuemSomosSection() {
         </div>
 
         {/* Produto LinkCommerce 1.0 */}
-        <div className={`mb-20 transition-all duration-700 delay-300 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+        <div className={`mb-12 transition-all duration-700 delay-300 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           <p className="text-center text-xs font-bold text-white/30 uppercase tracking-widest mb-8">LinkCommerce 1.0 — O produto completo</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
             {PRODUTO.map((p) => (
@@ -89,7 +89,7 @@ export function QuemSomosSection() {
         </div>
 
         {/* Roadmap */}
-        <div className={`mb-20 transition-all duration-700 delay-400 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+        <div className={`mb-12 transition-all duration-700 delay-400 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           <p className="text-center text-xs font-bold text-white/30 uppercase tracking-widest mb-8">Fases de evolução</p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {FASES.map((f, i) => (

@@ -182,7 +182,7 @@ export default async function HomePage() {
       </nav>
 
       {/* ── HERO ── */}
-      <section data-hero className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-28 pb-20 overflow-hidden">
+      <section data-hero className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-12 overflow-hidden">
         {/* Custom canvas hero background — brand blue/violet particles + aurora */}
         <HeroBackground />
         {/* Gradient overlay — keeps text crisp */}
@@ -200,7 +200,7 @@ export default async function HomePage() {
         </p>
 
         {/* CTAs */}
-        <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3 mb-20">
+        <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3 mb-12">
           <Link href="/comecar"
             className="rounded-full px-8 py-3.5 text-base font-semibold text-white transition-all hover:scale-105"
             style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)", boxShadow: "0 0 32px rgba(21,61,236,0.55)" }}>
@@ -223,7 +223,7 @@ export default async function HomePage() {
       <TraccaoSection locale={locale} />
 
       {/* ── FEATURE CARDS (Shopify style) ── */}
-      <section id="funcionalidades" className="py-24 px-6">
+      <section id="funcionalidades" className="py-14 px-6">
         <div className="max-w-6xl mx-auto space-y-5">
 
           {/* Row 1: Sell everywhere (wide) + POS (narrow) */}
@@ -369,9 +369,9 @@ export default async function HomePage() {
       <div id="angola"><AngolaSection /></div>
 
       {/* ── FLOW ── */}
-      <section className="py-20 px-6 relative overflow-hidden"
+      <section className="py-14 px-6 relative overflow-hidden"
         style={{ background: "linear-gradient(180deg,#080A12 0%,#02053D 50%,#080A12 100%)" }}>
-        <div className="max-w-3xl mx-auto text-center mb-14">
+        <div className="max-w-3xl mx-auto text-center mb-10">
           <p className="text-xs font-semibold tracking-widest text-[#8381FB] uppercase mb-3">
             {locale === "en" ? "How it works" : locale === "fr" ? "Comment ça marche" : locale === "es" ? "Cómo funciona" : "Como funciona"}
           </p>
@@ -416,12 +416,12 @@ export default async function HomePage() {
       </div>
 
       {/* ── PLANOS ── */}
-      <section id="precos" className="py-24 px-6">
+      <section id="precos" className="py-14 px-6">
         <PricingSection locale={locale} isAngola={isAngola} />
       </section>
 
       {/* ── CTA FINAL ── */}
-      <section className="py-28 px-6 text-center relative overflow-hidden">
+      <section className="py-16 px-6 text-center relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(21,61,236,0.12) 0%, transparent 70%)" }} />
         </div>

@@ -18,13 +18,13 @@ export async function TraccaoSection({ locale }: { locale: string }) {
 
   return (
     <section
-      className="py-28 px-6"
+      className="py-14 px-6"
       style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
     >
       <div className="max-w-6xl mx-auto">
 
         {/* Cabeçalho editorial */}
-        <div className="mb-16">
+        <div className="mb-10">
           <p className="text-[11px] font-bold tracking-[0.2em] uppercase mb-4"
             style={{ color: "rgba(131,129,251,0.7)" }}>
             {titulo}
