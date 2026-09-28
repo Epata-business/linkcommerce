@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { WhatsAppButton } from "@/components/storefront/whatsapp-button";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
 import { StorefrontLanguageSwitcher } from "@/components/storefront/language-switcher";
+import { ContaNav } from "@/components/storefront/conta-nav";
 import { getLocale, t } from "@/lib/i18n";
 
 export async function generateMetadata({ params }: { params: { subdominio: string } }): Promise<Metadata> {
@@ -85,7 +86,8 @@ export default async function StorefrontLayout({ children, params }: Props) {
             </Link>
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <ContaNav subdominio={params.subdominio} cor={cor} />
             <StorefrontLanguageSwitcher current={locale} cor={cor} />
             <CartDrawer corPrimaria={cor} locale={locale} moeda={loja.moeda ?? "EUR"} />
           </div>

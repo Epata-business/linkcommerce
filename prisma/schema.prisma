@@ -318,13 +318,14 @@ model Variante {
 // -----------------------------------------------------------------------------
 
 model Cliente {
-  id        String   @id @default(cuid())
-  lojaId    String
-  loja      Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
-  email     String
-  nome      String?
-  telefone  String?
-  morada    Json?
+  id           String   @id @default(cuid())
+  lojaId       String
+  loja         Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  email        String
+  nome         String?
+  telefone     String?
+  morada       Json?
+  passwordHash String?
 
   pedidos   Pedido[]
 
