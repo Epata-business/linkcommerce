@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
-import { enviarEmailPedidoEnviado, enviarEmailConfirmacaoPedido } from "@/lib/email";
+import { enviarEmailPedidoEnviado, enviarEmailConfirmacaoPedido, enviarEmailPedidoEntregue, enviarEmailPedidoCancelado } from "@/lib/email";
 import { libertarReserva, confirmarVenda } from "@/lib/inventario";
 import { registarAudit } from "@/lib/audit";
 import { notificarPedidoEnviadoCliente } from "@/lib/whatsapp";
@@ -168,6 +168,38 @@ export async function atualizarStatusPedido(
         titulo: "Pagamento confirmado",
         mensagem: `Pedido #${pedidoId.slice(-8).toUpperCase()} confirmado manualmente — ${Number(pedidoCompleto.total).toFixed(2)} ${moedaLoja}.`,
         link: `/dashboard/pedidos/${pedidoId}`,
+        pedidoId,
+      });
+    }
+  }
+
+  // Email para DELIVERED
+  if (statusParsed === "DELIVERED") {
+    const pedidoCompleto = await prisma.pedido.findUnique({
+      where: { id: pedidoId },
+      select: { clienteNome: true, clienteEmail: true, loja: { select: { nome: true } } },
+    });
+    if (pedidoCompleto) {
+      void enviarEmailPedidoEntregue({
+        nomeLoja: pedidoCompleto.loja.nome,
+        clienteNome: pedidoCompleto.clienteNome ?? "Cliente",
+        clienteEmail: pedidoCompleto.clienteEmail,
+        pedidoId,
+      });
+    }
+  }
+
+  // Email para CANCELLED
+  if (statusParsed === "CANCELLED" && statusAnterior !== "CANCELLED") {
+    const pedidoCompleto = await prisma.pedido.findUnique({
+      where: { id: pedidoId },
+      select: { clienteNome: true, clienteEmail: true, loja: { select: { nome: true } } },
+    });
+    if (pedidoCompleto) {
+      void enviarEmailPedidoCancelado({
+        nomeLoja: pedidoCompleto.loja.nome,
+        clienteNome: pedidoCompleto.clienteNome ?? "Cliente",
+        clienteEmail: pedidoCompleto.clienteEmail,
         pedidoId,
       });
     }

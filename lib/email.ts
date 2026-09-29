@@ -363,3 +363,99 @@ export async function enviarEmailCarrinhoAbandonado(data: {
     html,
   }).catch(() => {});
 }
+
+export async function enviarEmailPedidoEntregue(data: {
+  nomeLoja: string;
+  clienteNome: string;
+  clienteEmail: string;
+  pedidoId: string;
+}) {
+  const html = `<!DOCTYPE html>
+<html lang="pt">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#1e293b">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:40px 20px">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+        <tr><td style="background:linear-gradient(135deg,#059669,#10b981);padding:32px;text-align:center">
+          <div style="font-size:48px;margin-bottom:8px">✅</div>
+          <h1 style="margin:0;color:#fff;font-size:20px;font-weight:800">${data.nomeLoja}</h1>
+          <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:14px">Pedido entregue com sucesso!</p>
+        </td></tr>
+        <tr><td style="padding:32px">
+          <p style="margin:0 0 16px;font-size:16px">Olá, <strong>${data.clienteNome}</strong>!</p>
+          <p style="margin:0 0 24px;color:#64748b;font-size:14px;line-height:1.6">
+            O seu pedido <strong>#${data.pedidoId.slice(-8).toUpperCase()}</strong> foi marcado como entregue. Esperamos que esteja satisfeito com a sua compra!
+          </p>
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;text-align:center;margin-bottom:24px">
+            <p style="margin:0;font-size:14px;color:#166534;">Partilhe a sua experiência — a sua opinião ajuda outros compradores.</p>
+          </div>
+          <p style="margin:0;font-size:13px;color:#94a3b8;text-align:center">
+            Obrigado por comprar em <strong>${data.nomeLoja}</strong>
+          </p>
+        </td></tr>
+        <tr><td style="background:#f8fafc;padding:16px;text-align:center;border-top:1px solid #e2e8f0">
+          <p style="margin:0;font-size:11px;color:#94a3b8">Powered by <strong>LinkCommerce</strong> · Epata Lda</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  await resend.emails.send({
+    from: FROM,
+    to: data.clienteEmail,
+    subject: `✅ Pedido entregue — ${data.nomeLoja} #${data.pedidoId.slice(-8).toUpperCase()}`,
+    html,
+  }).catch(() => {});
+}
+
+export async function enviarEmailPedidoCancelado(data: {
+  nomeLoja: string;
+  clienteNome: string;
+  clienteEmail: string;
+  pedidoId: string;
+  motivo?: string;
+}) {
+  const html = `<!DOCTYPE html>
+<html lang="pt">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#1e293b">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:40px 20px">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+        <tr><td style="background:linear-gradient(135deg,#dc2626,#ef4444);padding:32px;text-align:center">
+          <div style="font-size:48px;margin-bottom:8px">❌</div>
+          <h1 style="margin:0;color:#fff;font-size:20px;font-weight:800">${data.nomeLoja}</h1>
+          <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:14px">O seu pedido foi cancelado</p>
+        </td></tr>
+        <tr><td style="padding:32px">
+          <p style="margin:0 0 16px;font-size:16px">Olá, <strong>${data.clienteNome}</strong>!</p>
+          <p style="margin:0 0 24px;color:#64748b;font-size:14px;line-height:1.6">
+            O seu pedido <strong>#${data.pedidoId.slice(-8).toUpperCase()}</strong> foi cancelado.
+            ${data.motivo ? `<br><br><em>Motivo: ${data.motivo}</em>` : ""}
+          </p>
+          <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px;text-align:center;margin-bottom:24px">
+            <p style="margin:0;font-size:14px;color:#991b1b;">Se tiver dúvidas, contacte o lojista ou o nosso suporte.</p>
+          </div>
+          <p style="margin:0;font-size:13px;color:#94a3b8;text-align:center">
+            Obrigado por comprar em <strong>${data.nomeLoja}</strong>
+          </p>
+        </td></tr>
+        <tr><td style="background:#f8fafc;padding:16px;text-align:center;border-top:1px solid #e2e8f0">
+          <p style="margin:0;font-size:11px;color:#94a3b8">Powered by <strong>LinkCommerce</strong> · Epata Lda</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  await resend.emails.send({
+    from: FROM,
+    to: data.clienteEmail,
+    subject: `❌ Pedido cancelado — ${data.nomeLoja} #${data.pedidoId.slice(-8).toUpperCase()}`,
+    html,
+  }).catch(() => {});
+}
