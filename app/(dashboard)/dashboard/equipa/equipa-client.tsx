@@ -53,16 +53,20 @@ export function EquipaClient({ membros }: { membros: Membro[] }) {
     e.preventDefault();
     setEnviando(true);
     setErroConvite(null);
-    const res = await fetch("/api/equipa", {
+    const res = await fetch("/api/equipa/convidar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, novoRole }),
     });
     const data = await res.json();
     if (!res.ok) {
-      setErroConvite(data.erro ?? "Erro ao adicionar membro");
+      setErroConvite(data.erro ?? "Erro ao convidar membro");
     } else {
       setEmail("");
+      if (data.conviteEnviado) {
+        setErroConvite(null);
+        alert(`Convite enviado para ${email}. O utilizador receberá um email com instruções.`);
+      }
       router.refresh();
     }
     setEnviando(false);
@@ -103,7 +107,7 @@ export function EquipaClient({ membros }: { membros: Membro[] }) {
           <p className="mt-2 text-xs text-red-600">{erroConvite}</p>
         )}
         <p className="mt-2 text-xs text-slate-400">
-          O utilizador tem de ter uma conta LinkCommerce activa.
+          Se o utilizador já tem conta, é adicionado imediatamente. Se não tem conta, receberá um email de convite.
         </p>
       </div>
 

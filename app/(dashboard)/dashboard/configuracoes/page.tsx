@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { MOEDAS } from "@/lib/moeda";
 import { BackButton } from "@/components/ui/back-button";
 import Link from "next/link";
+import { DomainWizard } from "@/components/dashboard/domain-wizard";
 
 export default async function ConfiguracoesPage({
   searchParams,
@@ -276,39 +277,13 @@ export default async function ConfiguracoesPage({
 
             {!permiteDominio ? (
               <div className="rounded-xl bg-slate-50 border border-slate-100 px-4 py-4 text-center">
-                <p className="text-sm text-slate-500 mb-2">Disponível nos planos <strong>Growth</strong> e <strong>Enterprise</strong>.</p>
+                <p className="text-sm text-slate-500 mb-2">Disponível nos planos <strong>Growth</strong> e <strong>Pro</strong>.</p>
                 <a href="/dashboard/configuracoes/planos" className="inline-block text-sm font-semibold text-indigo-600 hover:underline">
                   Ver planos →
                 </a>
               </div>
             ) : (
-              <form action={guardarDominioProprio} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Domínio (sem https://)</label>
-                  <input
-                    name="dominioProprio"
-                    defaultValue={loja.dominioProprio ?? ""}
-                    placeholder="loja.meusite.ao"
-                    className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-mono focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-                  />
-                  <p className="mt-1 text-xs text-slate-400">Deixar vazio remove o domínio próprio.</p>
-                </div>
-
-                {loja.dominioProprio && (
-                  <div className="rounded-xl bg-blue-50 border border-blue-100 p-4 text-xs text-blue-800 space-y-1">
-                    <p className="font-semibold mb-2">Configuração DNS necessária:</p>
-                    <p>Adiciona um registo <strong>CNAME</strong> no teu painel DNS:</p>
-                    <div className="font-mono bg-white rounded-lg px-3 py-2 border border-blue-100 mt-1">
-                      <span className="text-slate-500">{loja.dominioProprio}</span>
-                      <span className="text-slate-400 mx-2">→</span>
-                      <span className="text-indigo-700">cname.vercel-dns.com</span>
-                    </div>
-                    <p className="mt-2 text-blue-600">A propagação DNS pode demorar até 48h. Após propagar, a loja fica disponível no teu domínio.</p>
-                  </div>
-                )}
-
-                <Button type="submit" variant="outline" className="text-sm">Guardar domínio</Button>
-              </form>
+              <DomainWizard dominioActual={loja.dominioProprio ?? null} onSave={guardarDominioProprio} />
             )}
           </div>
         );

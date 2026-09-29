@@ -3,6 +3,38 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 
+function CancelarSubscricaoBtn() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  async function cancelar() {
+    if (!confirm("Tem a certeza que deseja cancelar a subscrição?\n\nSe tiver um plano Stripe, o acesso mantém-se até ao fim do período pago. Para planos AOA, o cancelamento é imediato.")) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/billing/cancelar", { method: "POST" });
+      const data = await res.json();
+      if (data.ok) {
+        router.refresh();
+      } else {
+        alert(data.erro ?? "Erro ao cancelar. Contacte o suporte.");
+      }
+    } catch {
+      alert("Erro de ligação. Tente novamente.");
+    }
+    setLoading(false);
+  }
+
+  return (
+    <button
+      onClick={cancelar}
+      disabled={loading}
+      className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-100 transition-colors disabled:opacity-60"
+    >
+      {loading ? "A cancelar…" : "Cancelar plano"}
+    </button>
+  );
+}
+
 interface Plano {
   id: string;
   nome: string;
@@ -146,22 +178,29 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
   return (
     <div>
       {/* Info subscrição activa */}
-      {temSubscricaoStripe && proximaCobranca && (
-        <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-5 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-semibold text-slate-700">
-              Subscrição activa
-              {statusSubscricao && <span className="ml-2 text-xs font-normal text-slate-400">{statusMap[statusSubscricao] ?? statusSubscricao}</span>}
-            </p>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {inicioSubscricao && <>Início: <span className="text-slate-600 font-medium">{new Date(inicioSubscricao).toLocaleDateString("pt-PT")}</span> · </>}
-              Próxima cobrança: <span className="text-slate-600 font-medium">{new Date(proximaCobranca).toLocaleDateString("pt-PT")}</span>
-            </p>
+      {statusSubscricao === "ATIVA" && (
+        <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <p className="text-sm font-semibold text-slate-700">
+                Subscrição activa
+                <span className="ml-2 text-xs font-bold text-green-600">● ATIVA</span>
+              </p>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {inicioSubscricao && <>Início: <span className="text-slate-600 font-medium">{new Date(inicioSubscricao).toLocaleDateString("pt-PT")}</span>{proximaCobranca ? " · " : ""}</>}
+                {proximaCobranca && <>Próxima cobrança: <span className="text-slate-600 font-medium">{new Date(proximaCobranca).toLocaleDateString("pt-PT")}</span></>}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {temSubscricaoStripe && (
+                <button onClick={handlePortal} disabled={portalLoading}
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-60">
+                  {portalLoading ? "A abrir…" : "Gerir →"}
+                </button>
+              )}
+              <CancelarSubscricaoBtn />
+            </div>
           </div>
-          <button onClick={handlePortal} disabled={portalLoading}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-60">
-            {portalLoading ? "A abrir…" : "Gerir subscrição →"}
-          </button>
         </div>
       )}
 
