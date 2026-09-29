@@ -205,10 +205,23 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
                 )}
               </div>
 
+              {/* Comissão por venda */}
+              <p className="text-xs font-semibold mb-3" style={{ color: plano.comissaoPercentual === 0 ? "#16a34a" : "#64748b" }}>
+                {plano.comissaoPercentual === 0 ? "✦ 0% comissão por venda" : `${plano.comissaoPercentual}% comissão por venda`}
+              </p>
+
               <ul className="flex-1 space-y-2 text-sm text-slate-600 mb-6">
                 <li className="flex items-start gap-2">
                   <span className="text-green-500 font-bold mt-0.5">✓</span>
                   {plano.limiteProdutos ? `Até ${plano.limiteProdutos} produtos` : "Produtos ilimitados"}
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-500 font-bold mt-0.5">✓</span>
+                  Loja online completa
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-500 font-bold mt-0.5">✓</span>
+                  Pagamentos (Multicaixa, KWiK, transferência)
                 </li>
                 <li className={`flex items-start gap-2 ${!plano.permiteDominioProprio ? "text-slate-300" : ""}`}>
                   <span className={plano.permiteDominioProprio ? "text-green-500 font-bold mt-0.5" : "text-slate-300 mt-0.5"}>
