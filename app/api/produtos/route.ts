@@ -38,9 +38,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
   }
 
-  const body = await request.json();
+  const body = await request.json().catch(() => ({}));
+  const titulo = (typeof body.titulo === "string" ? body.titulo : "").trim().slice(0, 200);
+  if (!titulo) return NextResponse.json({ error: "título obrigatório" }, { status: 400 });
+
   const produto = await prisma.produto.create({
-    data: { ...body, lojaId: session.user.lojaId as string },
+    data: {
+      lojaId: session.user.lojaId as string,
+      titulo,
+      descricao: typeof body.descricao === "string" ? body.descricao.slice(0, 5000) : null,
+      preco: typeof body.preco === "number" && body.preco >= 0 ? body.preco : 0,
+      stock: typeof body.stock === "number" && body.stock >= 0 ? Math.floor(body.stock) : 0,
+      imagemUrl: typeof body.imagemUrl === "string" ? body.imagemUrl.slice(0, 2048) : null,
+      ativo: body.ativo !== false,
+    },
   });
 
   return NextResponse.json({ produto }, { status: 201 });

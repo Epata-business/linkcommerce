@@ -22,7 +22,7 @@ function AceitarConviteForm() {
   async function aceitar(e: React.FormEvent) {
     e.preventDefault();
     if (senha !== confirmar) { setMensagemErro("As senhas não coincidem."); return; }
-    if (senha.length < 6) { setMensagemErro("A senha deve ter pelo menos 6 caracteres."); return; }
+    if (senha.length < 8) { setMensagemErro("A senha deve ter pelo menos 8 caracteres."); return; }
     setEstado("loading");
     setMensagemErro("");
 
@@ -99,9 +99,9 @@ function AceitarConviteForm() {
                 type="password"
                 value={senha}
                 onChange={e => setSenha(e.target.value)}
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 8 caracteres"
                 required
-                minLength={6}
+                minLength={8}
                 className="w-full rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-[#153DFC]/50 transition-all"
                 style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
               />
@@ -114,7 +114,7 @@ function AceitarConviteForm() {
                 onChange={e => setConfirmar(e.target.value)}
                 placeholder="Repita a senha"
                 required
-                minLength={6}
+                minLength={8}
                 className="w-full rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-[#153DFC]/50 transition-all"
                 style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
               />

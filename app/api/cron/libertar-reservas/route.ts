@@ -7,13 +7,9 @@ import { criarNotificacao } from "@/lib/notificacoes";
 const TTL_HORAS = 2;
 
 export async function GET(req: NextRequest) {
-  // Autenticação por secret header (definido em Vercel Environment Variables)
   const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret) {
-    const authHeader = req.headers.get("authorization");
-    if (authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ erro: "Não autorizado" }, { status: 401 });
-    }
+  if (!cronSecret || req.headers.get("authorization") !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ erro: "Não autorizado" }, { status: 401 });
   }
 
   const limite = new Date(Date.now() - TTL_HORAS * 60 * 60 * 1000);

@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   const email = (body.email as string)?.toLowerCase().trim();
   const password = body.password;
 
-  if (!nome || !email || !password || password.length < 6) {
+  if (!nome || !email || !password || password.length < 8) {
     return NextResponse.json({ erro: "dados-invalidos" }, { status: 400 });
   }
 

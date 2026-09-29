@@ -63,7 +63,7 @@ export default function RegistoPage({
           )}
           {erro === "dados-invalidos" && (
             <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-              Dados inválidos. A senha deve ter pelo menos 6 caracteres.
+              Dados inválidos. A senha deve ter pelo menos 8 caracteres.
             </div>
           )}
 
@@ -75,7 +75,7 @@ export default function RegistoPage({
               const email = emailRaw.toLowerCase().trim();
               const password = formData.get("password") as string;
 
-              if (!nome || !email || !password || password.length < 6) {
+              if (!nome || !email || !password || password.length < 8) {
                 redirect("/registo?erro=dados-invalidos");
               }
 
@@ -123,9 +123,9 @@ export default function RegistoPage({
               <input
                 name="password"
                 type="password"
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 8 caracteres"
                 required
-                minLength={6}
+                minLength={8}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
               />
             </div>

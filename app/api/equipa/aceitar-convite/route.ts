@@ -6,7 +6,7 @@ import { ROLES_ATRIBUIVEIS } from "@/lib/rbac";
 export async function POST(req: NextRequest) {
   const { token, email, lojaId, role, nome, senha } = await req.json().catch(() => ({}));
 
-  if (!token || !email || !lojaId || !role || !nome || !senha || senha.length < 6) {
+  if (!token || !email || !lojaId || !role || !nome || !senha || senha.length < 8) {
     return NextResponse.json({ erro: "Dados inválidos" }, { status: 400 });
   }
   if (!ROLES_ATRIBUIVEIS.includes(role)) {
