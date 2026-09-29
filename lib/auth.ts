@@ -7,22 +7,26 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
+// Providers OAuth só são registados se AMBAS as variáveis estiverem definidas e não-vazias
+// — NextAuth v5 lança Configuration error se clientId ou clientSecret forem undefined/""
+const oauthProviders = [
+  process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+    ? Google({ clientId: process.env.GOOGLE_CLIENT_ID, clientSecret: process.env.GOOGLE_CLIENT_SECRET })
+    : null,
+  process.env.GITHUB_ID && process.env.GITHUB_SECRET
+    ? GitHub({ clientId: process.env.GITHUB_ID, clientSecret: process.env.GITHUB_SECRET })
+    : null,
+  process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET
+    ? Facebook({ clientId: process.env.FACEBOOK_CLIENT_ID, clientSecret: process.env.FACEBOOK_CLIENT_SECRET })
+    : null,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+].filter(Boolean) as any[];
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
-    GitHub({
-      clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET,
-    }),
-    Facebook({
-      clientId: process.env.FACEBOOK_CLIENT_ID,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-    }),
+    ...oauthProviders,
     Credentials({
       name: "Email e Senha",
       credentials: {
