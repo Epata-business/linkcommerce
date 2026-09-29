@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { BillingCards } from "@/app/(dashboard)/dashboard/configuracoes/planos/billing-cards";
 import Link from "next/link";
 import { SubscreverSucesso } from "./sucesso-client";
+import { VerificarPagamentoBtn } from "./verificar-btn";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2026-06-24.dahlia" });
@@ -100,6 +101,8 @@ export default async function SubscreverPage({
             <p className="text-xs font-semibold text-red-500 uppercase tracking-wider mb-1">Acesso bloqueado</p>
             <h1 className="text-2xl font-bold text-slate-900">Escolha um plano para continuar</h1>
             <p className="text-slate-500 mt-1">Para aceder ao dashboard precisa de ter uma subscrição activa.</p>
+            {/* Botão para utilizadores que já pagaram mas a subscrição não foi activada */}
+            <VerificarPagamentoBtn />
           </div>
         )}
 
