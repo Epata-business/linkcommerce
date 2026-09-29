@@ -8,6 +8,10 @@
     {
       "path": "/api/cron/recuperar-carrinhos",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/expirar-trials",
+      "schedule": "0 6 * * *"
     }
   ]
 }

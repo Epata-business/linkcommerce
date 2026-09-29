@@ -156,6 +156,12 @@ export default function EntrarPage({
               >
                 {t("signin_btn", locale)} →
               </button>
+
+              <div className="text-center mt-3">
+                <Link href="/esqueci-senha" className="text-xs text-white/40 hover:text-white/70 transition-colors">
+                  Esqueceu a senha?
+                </Link>
+              </div>
             </form>
 
             {(process.env.GOOGLE_CLIENT_ID || process.env.GITHUB_ID || process.env.FACEBOOK_CLIENT_ID) && (

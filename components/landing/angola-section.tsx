@@ -144,7 +144,7 @@ export function AngolaSection() {
             {
               icon: "💳",
               titulo: "Paga como Angola paga",
-              desc: "Multicaixa Express, transferências bancárias, KWiK e cartões. Sem fricção, sem barreiras.",
+              desc: "Transferências bancárias e comprovativo digital. Integração Multicaixa em desenvolvimento.",
               cor: "#cc0000",
             },
             {

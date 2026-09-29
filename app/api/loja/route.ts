@@ -38,10 +38,13 @@ export async function POST(request: Request) {
 
   const planoFree = await prisma.plano.findFirst({ where: { slug: "free" } });
 
-  // Moeda padrão com base no idioma escolhido pelo utilizador
+  // Moeda padrão: AOA para Angola, EUR para outros mercados
   const VALID_CURRENCIES = ["EUR", "USD", "AOA"];
   const cookieCur = cookies().get("CUR")?.value ?? "";
-  const moedaPadrao = VALID_CURRENCIES.includes(cookieCur) ? cookieCur : "EUR";
+  const geoCur = cookies().get("GEO_COUNTRY")?.value === "AO" ? "AOA" : null;
+  const moedaPadrao = VALID_CURRENCIES.includes(cookieCur) ? cookieCur : (geoCur ?? "AOA");
+
+  const trialFimEm = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
 
   const loja = await prisma.loja.create({
     data: {
@@ -54,6 +57,18 @@ export async function POST(request: Request) {
       moeda: moedaPadrao,
     },
   });
+
+  // Criar subscrição TRIAL de 7 dias automaticamente
+  if (planoFree?.id) {
+    await prisma.subscricao.create({
+      data: {
+        lojaId: loja.id,
+        planoId: planoFree.id,
+        status: "TRIAL",
+        trialFimEm,
+      },
+    });
+  }
 
   await prisma.user.update({
     where: { email: emailFinal },

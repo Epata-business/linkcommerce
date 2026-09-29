@@ -70,9 +70,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (role === "LOJISTA" && lojaId && !adminOverride) {
     const subscricao = await prisma.subscricao.findUnique({
       where: { lojaId },
-      select: { status: true },
+      select: { status: true, trialFimEm: true },
     });
-    if (subscricao?.status !== "ATIVA") {
+    const agora = new Date();
+    const trialValido = subscricao?.status === "TRIAL" && subscricao.trialFimEm && subscricao.trialFimEm > agora;
+    const acessoPermitido = subscricao?.status === "ATIVA" || trialValido;
+    if (!acessoPermitido) {
       redirect("/subscrever");
     }
   }
@@ -94,7 +97,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         }),
         prisma.subscricao.findUnique({
           where: { lojaId: lojaAtualId },
-          select: { status: true, proximaCobranca: true, plano: { select: { nome: true } } },
+          select: { status: true, proximaCobranca: true, trialFimEm: true, plano: { select: { nome: true } } },
         }),
         Promise.all([
           prisma.notificacao.count({ where: { lojaId: lojaAtualId, lida: false } }),
@@ -168,15 +171,36 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <DashboardLocaleSwitcher currentLang={currentLang} currentMoeda={lojaAtual?.moeda ?? "EUR"} />
           </div>
 
-          {/* Badge do plano */}
-          {subscricaoAtual?.plano && (
-            <div className="mx-3 mb-3 rounded-xl px-3 py-2.5" style={{ background: "rgba(21,61,252,0.15)", border: "1px solid rgba(21,61,252,0.3)" }}>
+          {/* Badge do plano / Trial */}
+          {subscricaoAtual && (
+            <div
+              className="mx-3 mb-3 rounded-xl px-3 py-2.5"
+              style={{
+                background: subscricaoAtual.status === "TRIAL"
+                  ? "rgba(245,158,11,0.12)"
+                  : "rgba(21,61,252,0.15)",
+                border: subscricaoAtual.status === "TRIAL"
+                  ? "1px solid rgba(245,158,11,0.35)"
+                  : "1px solid rgba(21,61,252,0.3)",
+              }}
+            >
               <div className="flex items-center justify-between mb-0.5">
-                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Plano activo</span>
-                <span className="text-[10px] font-bold text-green-400">● ATIVO</span>
+                <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: subscricaoAtual.status === "TRIAL" ? "#f59e0b" : "#818cf8" }}>
+                  {subscricaoAtual.status === "TRIAL" ? "Período de teste" : "Plano activo"}
+                </span>
+                <span className="text-[10px] font-bold" style={{ color: subscricaoAtual.status === "TRIAL" ? "#f59e0b" : "#4ade80" }}>
+                  {subscricaoAtual.status === "TRIAL" ? "⏳ TRIAL" : "● ATIVO"}
+                </span>
               </div>
-              <p className="text-sm font-bold text-white">{subscricaoAtual.plano.nome}</p>
-              {subscricaoAtual.proximaCobranca && (
+              <p className="text-sm font-bold text-white">{subscricaoAtual.plano?.nome ?? "Free"}</p>
+              {subscricaoAtual.status === "TRIAL" && subscricaoAtual.trialFimEm && (
+                <p className="text-[10px] mt-0.5" style={{ color: "#f59e0b" }}>
+                  Expira {new Date((subscricaoAtual as { trialFimEm: Date }).trialFimEm).toLocaleDateString("pt-PT", { day: "numeric", month: "short" })}
+                  {" · "}
+                  <a href="/subscrever" className="underline font-semibold">Subscrever agora</a>
+                </p>
+              )}
+              {subscricaoAtual.status === "ATIVA" && subscricaoAtual.proximaCobranca && (
                 <p className="text-[10px] text-slate-500 mt-0.5">
                   Renova {new Date(subscricaoAtual.proximaCobranca).toLocaleDateString("pt-PT", { day: "numeric", month: "short" })}
                 </p>

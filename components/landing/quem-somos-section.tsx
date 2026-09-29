@@ -12,7 +12,7 @@ const FASES = [
 const PRODUTO = [
   { icon: "🛍️", label: "Loja digital", sub: "Catálogo, fotos, preços, link próprio" },
   { icon: "💬", label: "WhatsApp", sub: "Botão de compra, confirmação automática" },
-  { icon: "💳", label: "Pagamentos", sub: "Multicaixa, transferências, KWiK" },
+  { icon: "💳", label: "Pagamentos", sub: "Transferências bancárias, Multicaixa (em breve)" },
   { icon: "📦", label: "Pedidos", sub: "Novo → Pago → Enviado → Entregue" },
   { icon: "👥", label: "Clientes", sub: "Histórico, contactos, frequência" },
   { icon: "🚗", label: "Entrega", sub: "Zonas, cálculo, acompanhamento" },
