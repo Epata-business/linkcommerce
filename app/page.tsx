@@ -290,7 +290,7 @@ export default async function HomePage() {
                     </div>
                     <div className="rounded-lg py-1.5 text-center text-[9px] font-bold text-white"
                       style={{ background: "linear-gradient(90deg,#153DEC,#8381FB)" }}>
-                      {locale === "en" ? "Confirm" : locale === "fr" ? "Confirmer" : locale === "es" ? "Confirmar" : "Confirmar"}
+                      {locale === "en" ? "Pay" : locale === "fr" ? "Payer" : locale === "es" ? "Pagar" : "Pagar"}
                     </div>
                   </div>
                 </div>
@@ -448,6 +448,8 @@ export default async function HomePage() {
           <div className="flex items-center gap-6 text-xs text-white/25">
             <Link href="/entrar" className="hover:text-white transition-colors">{t("landing_cta_login", locale)}</Link>
             <Link href="/comecar" className="hover:text-white transition-colors">{t("landing_cta_start", locale)}</Link>
+            <Link href="/termos" className="hover:text-white transition-colors">Termos</Link>
+            <Link href="/privacidade" className="hover:text-white transition-colors">Privacidade</Link>
           </div>
           <p className="text-xs text-white/20">© {new Date().getFullYear()} LinkCommerce</p>
         </div>

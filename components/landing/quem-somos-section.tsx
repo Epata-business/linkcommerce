@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 const FASES = [
   { num: "01", titulo: "Cada negócio tem a sua loja", desc: "Catálogo digital, link próprio, QR Code e pagamentos — tudo num só lugar." },
-  { num: "02", titulo: "Todos os negócios descobertos", desc: "Marketplace onde consumidores encontram qualquer loja da LinkCommerce em Angola." },
+  { num: "02", titulo: "Todas as lojas num só marketplace", desc: "Marketplace onde consumidores encontram qualquer loja da LinkCommerce em Angola." },
   { num: "03", titulo: "Consumidor pesquisa produtos", desc: "Motor de busca de produtos angolanos — moda, beleza, alimentação, serviços." },
   { num: "04", titulo: "Infraestrutura de comércio digital", desc: "O sistema operativo do pequeno comércio digital angolano." },
 ];
@@ -62,7 +62,7 @@ export function QuemSomosSection() {
           <div className="rounded-2xl p-7" style={{ background: "rgba(21,61,236,0.06)", border: "1px solid rgba(21,61,236,0.15)" }}>
             <p className="text-xs font-bold text-[#8381FB] uppercase tracking-widest mb-3">Missão</p>
             <p className="text-white font-semibold text-lg leading-relaxed">
-              "Transformar as vendas dispersas pelo WhatsApp e Instagram numa operação digital organizada — loja, pagamentos, pedidos e entregas."
+              "Dar a cada pequeno negócio angolano as ferramentas que antes só as grandes marcas tinham — loja digital, pagamentos, gestão de pedidos e entregas, num só lugar."
             </p>
           </div>
           <div className="rounded-2xl p-7" style={{ background: "rgba(131,129,251,0.06)", border: "1px solid rgba(131,129,251,0.15)" }}>
@@ -107,39 +107,16 @@ export function QuemSomosSection() {
           </div>
         </div>
 
-        {/* Métricas de viabilidade */}
+        {/* Nichos iniciais */}
         <div className={`transition-all duration-700 delay-500 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           <div className="rounded-2xl p-8 text-center" style={{ background: "rgba(21,61,236,0.05)", border: "1px solid rgba(21,61,236,0.12)" }}>
-            <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-6">Avaliação independente de viabilidade</p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8">
-              {[
-                { label: "Necessidade do mercado", stars: 5 },
-                { label: "Momento do mercado", stars: 5 },
-                { label: "Crescimento dos pagamentos", stars: 5 },
-                { label: "Potencial de escala", stars: 5 },
-              ].map((m) => (
-                <div key={m.label}>
-                  <div className="flex justify-center gap-0.5 mb-1">
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-3.5 h-3.5" fill={i < m.stars ? "#153DEC" : "rgba(255,255,255,0.1)"} viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                      </svg>
-                    ))}
-                  </div>
-                  <p className="text-[10px] text-white/40 leading-snug">{m.label}</p>
+            <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-6">Nichos iniciais</p>
+            <div className="flex justify-center gap-8">
+              {["Moda", "Alimentação", "Retalho"].map((nicho) => (
+                <div key={nicho}>
+                  <p className="text-base font-extrabold text-white">{nicho}</p>
                 </div>
               ))}
-            </div>
-            <div className="flex justify-center gap-8">
-              <div>
-                <p className="text-4xl font-extrabold" style={{ color: "#153DEC" }}>8<span className="text-xl text-white/30">/10</span></p>
-                <p className="text-xs text-white/40 mt-1">Viabilidade de mercado</p>
-              </div>
-              <div className="w-px" style={{ background: "rgba(255,255,255,0.08)" }} />
-              <div>
-                <p className="text-4xl font-extrabold text-white">3</p>
-                <p className="text-xs text-white/40 mt-1">Nichos iniciais<br/><span className="text-[10px]">Moda · Alimentação · Retalho</span></p>
-              </div>
             </div>
           </div>
         </div>

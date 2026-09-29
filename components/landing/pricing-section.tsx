@@ -254,17 +254,29 @@ export function PricingSection({ locale, isAngola = false }: Props) {
                   ))}
                 </ul>
 
-                <Link
-                  href="/comecar"
-                  className="block text-center rounded-xl py-3 text-sm font-bold transition-all hover:scale-105 hover:opacity-90"
-                  style={
-                    plan.popular
-                      ? { background: "linear-gradient(135deg,#153DEC,#8381FB)", color: "#fff", boxShadow: "0 0 24px rgba(21,61,236,0.4)" }
-                      : { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.8)", border: "1px solid rgba(255,255,255,0.1)" }
-                  }
-                >
-                  {cta}
-                </Link>
+                {plan.key === "pro" ? (
+                  <a
+                    href="https://wa.me/244939720871"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-center rounded-xl py-3 text-sm font-bold transition-all hover:scale-105 hover:opacity-90"
+                    style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.8)", border: "1px solid rgba(255,255,255,0.1)" }}
+                  >
+                    {cta}
+                  </a>
+                ) : (
+                  <Link
+                    href="/comecar"
+                    className="block text-center rounded-xl py-3 text-sm font-bold transition-all hover:scale-105 hover:opacity-90"
+                    style={
+                      plan.popular
+                        ? { background: "linear-gradient(135deg,#153DEC,#8381FB)", color: "#fff", boxShadow: "0 0 24px rgba(21,61,236,0.4)" }
+                        : { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.8)", border: "1px solid rgba(255,255,255,0.1)" }
+                    }
+                  >
+                    {cta}
+                  </Link>
+                )}
               </div>
             </div>
           );

@@ -3,10 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 
 const STATS = [
-  { valor: "52 mil", unidade: "Milhões Kz", label: "transacionados na Multicaixa em Q1 2026", icon: "💳" },
-  { valor: "+98%", unidade: "crescimento", label: "do e-commerce angolano em 2026 vs 2025", icon: "📈" },
-  { valor: "49.3%", unidade: "do valor total", label: "da Multicaixa já são pagamentos digitais", icon: "📱" },
-  { valor: "8.7M", unidade: "operações", label: "no KWiK só no primeiro semestre de 2026", icon: "⚡" },
+  { valor: "27,8 biliões", unidade: "Kz", label: "total processado pela Multicaixa no 1.º semestre de 2026", icon: "💳" },
+  { valor: "49,3%", unidade: "do valor total", label: "da Multicaixa já são pagamentos digitais (dados 2025)", icon: "📱" },
+  { valor: "8,7 milhões", unidade: "operações", label: "no KWiK no 1.º semestre de 2026", icon: "⚡" },
 ];
 
 const FLOW = [
@@ -78,14 +77,14 @@ export function AngolaSection() {
         {/* Headline principal */}
         <div className={`text-center mb-6 transition-all duration-700 delay-100 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] mb-4">
-            <span className="text-white">Somos a </span>
+            <span className="text-white">A infraestrutura do </span>
             <span style={{
               background: "linear-gradient(135deg, #153DEC, #8381FB, #cc0000)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
             }}>
-              melhor ferramenta do comércio eletrónico angolano.
+              comércio eletrónico angolano.
             </span>
           </h2>
           <p className="text-white/40 text-lg max-w-2xl mx-auto leading-relaxed">
@@ -122,9 +121,9 @@ export function AngolaSection() {
 
         {/* Stats do mercado angolano */}
         <p className={`text-center text-xs font-bold text-white/30 uppercase tracking-widest mb-5 transition-all duration-700 delay-250 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
-          O mercado angolano em números — fontes públicas 2026
+          O mercado angolano em números — fontes públicas 2025/2026
         </p>
-        <div className={`grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10 transition-all duration-700 delay-300 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+        <div className={`grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10 transition-all duration-700 delay-300 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           {STATS.map((s, i) => (
             <div key={i} className="rounded-2xl p-5 text-center group hover:scale-105 transition-transform"
               style={{
@@ -151,13 +150,13 @@ export function AngolaSection() {
             {
               icon: "📍",
               titulo: "Entrega onde Angola vive",
-              desc: "Define zonas de entrega por bairro — Talatona, Viana, Luanda Centro — com preços personalizados.",
+              desc: "Define zonas de entrega — Talatona, Viana, Luanda Centro — com preços personalizados por zona.",
               cor: "#153DEC",
             },
             {
               icon: "📱",
               titulo: "Vende onde Angola está",
-              desc: "Botão WhatsApp integrado, link da loja para o Instagram, QR Code para os teus cartões.",
+              desc: "Botão WhatsApp integrado, link da loja para o Instagram, QR Code para os seus cartões.",
               cor: "#8381FB",
             },
           ].map((r) => (
@@ -176,7 +175,7 @@ export function AngolaSection() {
         {/* Citação final */}
         <div className={`mt-16 text-center transition-all duration-700 delay-500 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           <blockquote className="text-xl sm:text-2xl font-semibold text-white/60 italic max-w-3xl mx-auto leading-relaxed">
-            "Porque com a LinkCommerce o vendedor recebe pedidos automaticamente,
+            "O vendedor recebe pedidos automaticamente,
             cobra digitalmente, controla stock, acompanha entregas e vende novamente
             — <span className="text-white not-italic font-bold">sem precisar de organizar tudo manualmente.</span>"
           </blockquote>

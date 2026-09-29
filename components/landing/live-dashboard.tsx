@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 const ORDERS = [
   { id: "#4831", valor: "+89€",  pais: "🇵🇹", produto: "Camisola Premium" },
-  { id: "#4832", valor: "+124€", pais: "🇦🇴", produto: "Calças Slim" },
+  { id: "#4832", valor: "+148.800 Kz", pais: "🇦🇴", produto: "Calças Slim" },
   { id: "#4833", valor: "+45€",  pais: "🇧🇷", produto: "Acessório Gold" },
   { id: "#4834", valor: "+210€", pais: "🇫🇷", produto: "Pack Exclusivo" },
   { id: "#4835", valor: "+67€",  pais: "🇪🇸", produto: "Edição Limitada" },
