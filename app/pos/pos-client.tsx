@@ -19,7 +19,7 @@ interface Props {
   cor: string;
 }
 
-const METODOS_PAGAMENTO = ["Numerário", "Multicaixa", "Transferência", "Cartão", "Outro"];
+const METODOS_PAGAMENTO = ["Numerário", "Transferência Bancária", "Cartão", "Outro"];
 
 export function PosClient({ lojaId, moeda, nomeLoja, cor }: Props) {
   const [produtos, setProdutos] = useState<ProdutoPos[]>([]);

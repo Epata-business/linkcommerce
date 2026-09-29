@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
 
   const limite = new Date(Date.now() - TTL_HORAS * 60 * 60 * 1000);
 
-  // Pedidos PENDING criados há mais de TTL_HORAS
+  // Pedidos PENDING criados há mais de TTL_HORAS (exclui já cancelados por expirar-reservas)
   const pedidosExpirados = await prisma.pedido.findMany({
     where: {
       status: "PENDING",
@@ -44,11 +44,13 @@ export async function GET(req: NextRequest) {
 
     try {
       await prisma.$transaction(async (tx) => {
-        // Cancela o pedido
-        await tx.pedido.update({
-          where: { id: pedido.id },
+        // Cancela o pedido — where inclui status para evitar duplo-cancelamento se
+        // expirar-reservas já cancelou entretanto; updateMany devolve count sem lançar erro
+        const { count } = await tx.pedido.updateMany({
+          where: { id: pedido.id, status: "PENDING" },
           data: { status: "CANCELLED" },
         });
+        if (count === 0) return; // já cancelado por outro cron — nada a fazer
         // Liberta a reserva de stock
         await libertarReserva(
           tx,
