@@ -1,7 +1,8 @@
 // WhatsApp Business Cloud API integration (Meta)
-// Credenciais por loja guardadas em lojas.waPhoneId + lojas.waToken
+// Credenciais por loja guardadas em lojas.waPhoneId + lojas.waToken (encrypted)
 // Fallback para variáveis de ambiente globais META_WA_TOKEN + META_WA_PHONE_ID
 // Sem credenciais: retorna { enviado: false } sem lançar excepção — integração modular.
+import { decrypt } from "@/lib/crypto";
 
 const META_API_URL = "https://graph.facebook.com/v19.0";
 
@@ -16,10 +17,10 @@ type WaResultado = { enviado: boolean; motivo?: string };
 
 // Resolve credenciais: loja-level tem precedência sobre env global
 export function resolverCredenciaisWA(loja: { waToken?: string | null; waPhoneId?: string | null }): { token: string; phoneId: string } | null {
-  const token = loja.waToken ?? process.env.META_WA_TOKEN;
+  const rawToken = loja.waToken ?? process.env.META_WA_TOKEN;
   const phoneId = loja.waPhoneId ?? process.env.META_WA_PHONE_ID;
-  if (!token || !phoneId) return null;
-  return { token, phoneId };
+  if (!rawToken || !phoneId) return null;
+  return { token: decrypt(rawToken), phoneId };
 }
 
 async function enviarMensagemWA({ para, mensagem, token, phoneId }: WaMensagemTexto): Promise<WaResultado> {

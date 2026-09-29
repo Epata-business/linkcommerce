@@ -411,6 +411,53 @@ export async function enviarEmailPedidoEntregue(data: {
   }).catch(() => {});
 }
 
+export async function enviarEmailPedidoDevolvido(data: {
+  nomeLoja: string;
+  clienteNome: string;
+  clienteEmail: string;
+  pedidoId: string;
+}) {
+  const html = `<!DOCTYPE html>
+<html lang="pt">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#1e293b">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:40px 20px">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+        <tr><td style="background:linear-gradient(135deg,#7c3aed,#6d28d9);padding:32px;text-align:center">
+          <div style="font-size:48px;margin-bottom:8px">↩️</div>
+          <h1 style="margin:0;color:#fff;font-size:20px;font-weight:800">${data.nomeLoja}</h1>
+          <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:14px">Devolução processada</p>
+        </td></tr>
+        <tr><td style="padding:32px">
+          <p style="margin:0 0 16px;font-size:16px">Olá, <strong>${data.clienteNome}</strong>!</p>
+          <p style="margin:0 0 24px;color:#64748b;font-size:14px;line-height:1.6">
+            A devolução do seu pedido <strong>#${data.pedidoId.slice(-8).toUpperCase()}</strong> foi registada e processada com sucesso.
+          </p>
+          <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:16px;text-align:center;margin-bottom:24px">
+            <p style="margin:0;font-size:14px;color:#6b21a8;">O reembolso, se aplicável, será processado pelo lojista. Em caso de dúvidas, contacte <strong>${data.nomeLoja}</strong>.</p>
+          </div>
+          <p style="margin:0;font-size:13px;color:#94a3b8;text-align:center">
+            Obrigado por comprar em <strong>${data.nomeLoja}</strong>
+          </p>
+        </td></tr>
+        <tr><td style="background:#f8fafc;padding:16px;text-align:center;border-top:1px solid #e2e8f0">
+          <p style="margin:0;font-size:11px;color:#94a3b8">Powered by <strong>LinkCommerce</strong> · Epata Lda</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  await resend.emails.send({
+    from: FROM,
+    to: data.clienteEmail,
+    subject: `↩️ Devolução processada — ${data.nomeLoja} #${data.pedidoId.slice(-8).toUpperCase()}`,
+    html,
+  }).catch(() => {});
+}
+
 export async function enviarEmailPedidoCancelado(data: {
   nomeLoja: string;
   clienteNome: string;

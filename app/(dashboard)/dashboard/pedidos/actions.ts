@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
-import { enviarEmailPedidoEnviado, enviarEmailConfirmacaoPedido, enviarEmailPedidoEntregue, enviarEmailPedidoCancelado } from "@/lib/email";
+import { enviarEmailPedidoEnviado, enviarEmailConfirmacaoPedido, enviarEmailPedidoEntregue, enviarEmailPedidoCancelado, enviarEmailPedidoDevolvido } from "@/lib/email";
 import { libertarReserva, confirmarVenda } from "@/lib/inventario";
 import { registarAudit } from "@/lib/audit";
 import { notificarPedidoEnviadoCliente } from "@/lib/whatsapp";
@@ -181,6 +181,22 @@ export async function atualizarStatusPedido(
     });
     if (pedidoCompleto) {
       void enviarEmailPedidoEntregue({
+        nomeLoja: pedidoCompleto.loja.nome,
+        clienteNome: pedidoCompleto.clienteNome ?? "Cliente",
+        clienteEmail: pedidoCompleto.clienteEmail,
+        pedidoId,
+      });
+    }
+  }
+
+  // Email para RETURNED
+  if (statusParsed === "RETURNED" && statusAnterior !== "RETURNED") {
+    const pedidoCompleto = await prisma.pedido.findUnique({
+      where: { id: pedidoId },
+      select: { clienteNome: true, clienteEmail: true, loja: { select: { nome: true } } },
+    });
+    if (pedidoCompleto) {
+      void enviarEmailPedidoDevolvido({
         nomeLoja: pedidoCompleto.loja.nome,
         clienteNome: pedidoCompleto.clienteNome ?? "Cliente",
         clienteEmail: pedidoCompleto.clienteEmail,

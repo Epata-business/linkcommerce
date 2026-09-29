@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { getLojaId } from "@/lib/get-loja-id";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { encrypt } from "@/lib/crypto";
 import { Button } from "@/components/ui/button";
 import { MOEDAS } from "@/lib/moeda";
 import { BackButton } from "@/components/ui/back-button";
@@ -89,7 +90,7 @@ export default async function ConfiguracoesPage({
       where: { id: lojaIdServer },
       data: {
         waPhoneId: (formData.get("waPhoneId") as string) || null,
-        waToken: (formData.get("waToken") as string) || null,
+        waToken: (() => { const v = (formData.get("waToken") as string) || null; return v ? encrypt(v) : null; })(),
       },
     });
     revalidatePath("/dashboard/configuracoes");

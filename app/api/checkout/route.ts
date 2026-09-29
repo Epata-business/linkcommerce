@@ -255,8 +255,8 @@ export async function POST(req: NextRequest) {
     void criarNotificacao({
       lojaId: loja.id,
       tipo: "novo_pedido",
-      titulo: "Novo pedido — Multicaixa",
-      mensagem: `Pedido #${pedido.id.slice(-8).toUpperCase()} de ${clienteNome} aguarda comprovativo Multicaixa.`,
+      titulo: "Novo pedido — Transferência Bancária",
+      mensagem: `Pedido #${pedido.id.slice(-8).toUpperCase()} de ${clienteNome} aguarda comprovativo de transferência.`,
       link: `/dashboard/pedidos/${pedido.id}`,
       pedidoId: pedido.id,
     });
@@ -273,7 +273,7 @@ export async function POST(req: NextRequest) {
       emailLojista,
     });
 
-    void enviarPushParaLoja(loja.id, { title: `💳 Multicaixa pendente — ${loja.nome}`, body: `${clienteNome} · ${total.toFixed(2)} ${moedaLoja} — aguarda comprovativo`, url: `/dashboard/pedidos/${pedido.id}` });
+    void enviarPushParaLoja(loja.id, { title: `🏦 Transferência pendente — ${loja.nome}`, body: `${clienteNome} · ${total.toFixed(2)} ${moedaLoja} — aguarda comprovativo`, url: `/dashboard/pedidos/${pedido.id}` });
     void dispararWebhooks(loja.id, "pedido.criado", { pedidoId: pedido.id, clienteNome, clienteEmail, total, moeda: moedaLoja, canal: "multicaixa" });
     void prisma.carrinhoAbandonado.update({ where: { id: carrinhoAbandonado.id }, data: { status: "CONVERTIDO" } });
     return NextResponse.json({
@@ -287,7 +287,7 @@ export async function POST(req: NextRequest) {
   // AOA não é suportado pelo Stripe
   // --------------------------------------------------------------------------
   if (moedaLoja === "AOA") {
-    return NextResponse.json({ erro: "Lojas AOA só aceitam pagamento Multicaixa" }, { status: 400 });
+    return NextResponse.json({ erro: "Lojas AOA utilizam transferência bancária com comprovativo." }, { status: 400 });
   }
 
   // --------------------------------------------------------------------------
