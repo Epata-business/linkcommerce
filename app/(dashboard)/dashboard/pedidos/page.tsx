@@ -25,7 +25,7 @@ const PAGAMENTO_STATUS_CONFIG: Record<string, { label: string; bg: string; text:
 
 const METODO_LABEL: Record<string, string> = {
   CARTAO: "Cartão", MBWAY: "MB Way", MULTIBANCO: "Multibanco",
-  PAYPAL: "PayPal", MULTICAIXA: "Multicaixa", NA_ENTREGA: "Na entrega",
+  PAYPAL: "PayPal", MULTICAIXA: "Transferência Bancária", NA_ENTREGA: "Na entrega",
   TRANSFERENCIA: "Transferência", DESCONHECIDO: "—",
 };
 

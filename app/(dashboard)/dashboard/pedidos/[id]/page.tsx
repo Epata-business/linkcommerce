@@ -19,7 +19,7 @@ const METODO_LABEL: Record<string, string> = {
   cartao: "Cartão de crédito / débito",
   mbway: "MB WAY",
   multibanco: "Referência Multibanco",
-  multicaixa: "Multicaixa Express",
+  multicaixa: "Transferência Bancária",
   paypal: "PayPal",
 };
 

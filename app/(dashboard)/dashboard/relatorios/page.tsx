@@ -242,7 +242,7 @@ export default async function RelatoriosPage({
 
   const metodoLabels: Record<string, string> = {
     CARTAO: "Cartão", MBWAY: "MB Way", MULTIBANCO: "Multibanco",
-    PAYPAL: "PayPal", MULTICAIXA: "Multicaixa", NA_ENTREGA: "Na entrega",
+    PAYPAL: "PayPal", MULTICAIXA: "Transferência Bancária", NA_ENTREGA: "Na entrega",
     TRANSFERENCIA: "Transferência", DESCONHECIDO: "Outros",
   };
 
