@@ -1,84 +1,169 @@
 import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
-import { enviarEmailConfirmacaoPedido } from "@/lib/email";
+import { enviarEmailConfirmacaoPedido, notificarNovaSubscricao } from "@/lib/email";
 import { confirmarVenda } from "@/lib/inventario";
 import { criarNotificacao } from "@/lib/notificacoes";
 import { criarFatura } from "@/lib/faturas";
 import { enviarPushParaLoja } from "@/lib/push";
 import { atribuirPontos } from "@/lib/fidelidade";
 
+// Endpoint único para todos os eventos Stripe.
+// Registar um único webhook no dashboard Stripe:
+//   URL: https://<dominio>/api/webhook/stripe
+//   Eventos: checkout.session.completed, customer.subscription.updated, customer.subscription.deleted
+// Variável de ambiente: STRIPE_WEBHOOK_SECRET
+
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const sig = req.headers.get("stripe-signature") ?? "";
   const secret = process.env.STRIPE_WEBHOOK_SECRET ?? "";
 
-  let event: ReturnType<typeof stripe.webhooks.constructEvent>;
+  let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(body, sig, secret);
-  } catch {
+  } catch (err) {
+    console.error("[webhook/stripe] assinatura inválida:", String(err).slice(0, 120));
     return NextResponse.json({ erro: "Assinatura inválida" }, { status: 400 });
   }
 
-  if (event.type !== "checkout.session.completed") {
+  // ── checkout.session.completed ──────────────────────────────────────────────
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+
+    // Subscrição de plano (billing)
+    if (session.mode === "subscription") {
+      await handleBillingCheckout(session);
+      return NextResponse.json({ recebido: true });
+    }
+
+    // Pagamento de pedido de loja (checkout de produto)
+    const meta = session.metadata ?? {};
+    const pedidoId = meta.pedidoId;
+    const lojaId = meta.lojaId;
+    if (pedidoId && lojaId) {
+      await handleOrderCheckout(event.id, session, pedidoId, lojaId, meta);
+    }
+
     return NextResponse.json({ recebido: true });
   }
 
-  const session = event.data.object;
-  const eventoId = event.id; // ID único do evento Stripe — garante idempotência
-  const meta = session.metadata ?? {};
-  const pedidoId = meta.pedidoId;
-  const lojaId = meta.lojaId;
+  // ── customer.subscription.updated ──────────────────────────────────────────
+  if (event.type === "customer.subscription.updated") {
+    const sub = event.data.object as Stripe.Subscription & { current_period_end: number };
+    const lojaId = sub.metadata?.lojaId;
+    if (lojaId) {
+      const status =
+        sub.status === "active" ? "ATIVA" : sub.status === "past_due" ? "EM_FALTA" : "CANCELADA";
+      const proximaCobranca = new Date(sub.current_period_end * 1000);
+      await prisma.subscricao.update({ where: { lojaId }, data: { status, proximaCobranca } });
+    }
+    return NextResponse.json({ recebido: true });
+  }
+
+  // ── customer.subscription.deleted ──────────────────────────────────────────
+  if (event.type === "customer.subscription.deleted") {
+    const sub = event.data.object as Stripe.Subscription;
+    const lojaId = sub.metadata?.lojaId;
+    if (lojaId) {
+      const planoFree = await prisma.plano.findFirst({ where: { slug: "free" } });
+      if (planoFree) {
+        await prisma.subscricao.update({
+          where: { lojaId },
+          data: { status: "CANCELADA", planoId: planoFree.id },
+        });
+        await prisma.loja.update({ where: { id: lojaId }, data: { planoId: planoFree.id } });
+      }
+    }
+    return NextResponse.json({ recebido: true });
+  }
+
+  return NextResponse.json({ recebido: true });
+}
+
+// ── Handlers internos ────────────────────────────────────────────────────────
+
+async function handleBillingCheckout(session: Stripe.Checkout.Session) {
+  const lojaId = session.metadata?.lojaId;
+  const planoId = session.metadata?.planoId;
+  const stripeSubscriptionId = session.subscription as string;
+  const stripeCustomerId = session.customer as string;
+
+  if (!lojaId || !planoId) return;
+
+  const sub = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+  const proximaCobranca = new Date((sub as unknown as { current_period_end: number }).current_period_end * 1000);
+
+  await prisma.subscricao.upsert({
+    where: { lojaId },
+    update: { planoId, stripeCustomerId, stripeSubscriptionId, status: "ATIVA", proximaCobranca },
+    create: { lojaId, planoId, stripeCustomerId, stripeSubscriptionId, status: "ATIVA", proximaCobranca },
+  });
+  await prisma.loja.update({ where: { id: lojaId }, data: { planoId } });
+
+  const [loja, plano] = await Promise.all([
+    prisma.loja.findUnique({ where: { id: lojaId }, select: { nome: true } }),
+    prisma.plano.findUnique({ where: { id: planoId }, select: { nome: true, precoMensal: true } }),
+  ]);
+  if (loja && plano) {
+    await notificarNovaSubscricao({
+      nomeLoja: loja.nome,
+      nomePlano: plano.nome,
+      valor: Number(plano.precoMensal),
+      moeda: "EUR",
+      stripeCustomerId,
+    });
+  }
+}
+
+async function handleOrderCheckout(
+  eventoId: string,
+  session: Stripe.Checkout.Session,
+  pedidoId: string,
+  lojaId: string,
+  meta: Record<string, string>,
+) {
   const clienteNome = meta.clienteNome ?? "Cliente";
   const carrinhoId = meta.carrinhoId ?? null;
 
-  if (!pedidoId || !lojaId) return NextResponse.json({ recebido: true });
+  // Idempotência por eventoId
+  const pagamentoExistente = await prisma.pagamento.findUnique({ where: { eventoId } });
+  if (pagamentoExistente?.status === "CONFIRMADO") return;
 
-  // Idempotência: se este evento já foi processado, ignorar silenciosamente
-  const pagamentoExistente = await prisma.pagamento.findUnique({
-    where: { eventoId },
-  });
-  if (pagamentoExistente?.status === "CONFIRMADO") {
-    return NextResponse.json({ recebido: true });
-  }
-
-  const pedidoExiste = await prisma.pedido.findUnique({
+  const pedido = await prisma.pedido.findUnique({
     where: { id: pedidoId },
     include: {
       itens: { include: { produto: true } },
       pagamentos: { where: { provedor: "stripe" }, orderBy: { criadoEm: "desc" }, take: 1 },
     },
   });
-  if (!pedidoExiste) return NextResponse.json({ recebido: true });
+  if (!pedido) return;
 
-  // Pedido já processado e sem pagamento Stripe pendente → idempotência adicional
-  if (pedidoExiste.status === "PROCESSING" && !pagamentoExistente) {
-    return NextResponse.json({ recebido: true });
-  }
+  if (pedido.status === "PROCESSING" && !pagamentoExistente) return;
 
   const loja = await prisma.loja.findUnique({
     where: { id: lojaId },
     include: { utilizadores: { where: { role: "LOJISTA" }, select: { email: true }, take: 1 } },
   });
-  if (!loja) return NextResponse.json({ recebido: true });
+  if (!loja) return;
 
-  const itensReserva = pedidoExiste.itens.map((i) => ({
+  const itensReserva = pedido.itens.map((i) => ({
     produtoId: i.produtoId,
     varianteId: i.varianteId ?? null,
     quantidade: i.quantidade,
   }));
 
-  const pagamentoStripeId = pedidoExiste.pagamentos[0]?.id ?? null;
-  const paymentIntentId = typeof session.payment_intent === "string" ? session.payment_intent : null;
+  const pagamentoStripeId = pedido.pagamentos[0]?.id ?? null;
+  const paymentIntentId =
+    typeof session.payment_intent === "string" ? session.payment_intent : null;
 
   await prisma.$transaction(async (tx) => {
-    // Actualizar estado do pedido
     await tx.pedido.update({
       where: { id: pedidoId },
       data: { status: "PROCESSING", sincronizadoEm: new Date() },
     });
 
-    // Actualizar ou criar o registo de Pagamento com o eventoId
     if (pagamentoStripeId) {
       await tx.pagamento.update({
         where: { id: pagamentoStripeId },
@@ -90,7 +175,6 @@ export async function POST(req: NextRequest) {
         },
       });
     } else {
-      // Fallback: criar pagamento se não existia (ex: checkout criado antes da migração)
       await tx.pagamento.create({
         data: {
           lojaId,
@@ -107,16 +191,13 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Confirmar venda: converte reserva em decremento real de stock
     await confirmarVenda(tx, lojaId, pedidoId, itensReserva);
   });
 
-  // Marcar carrinho como convertido
   if (carrinhoId) {
-    void prisma.carrinhoAbandonado.update({
-      where: { id: carrinhoId },
-      data: { status: "CONVERTIDO" },
-    }).catch(() => {});
+    void prisma.carrinhoAbandonado
+      .update({ where: { id: carrinhoId }, data: { status: "CONVERTIDO" } })
+      .catch(() => {});
   }
 
   void criarNotificacao({
@@ -132,9 +213,15 @@ export async function POST(req: NextRequest) {
     body: `${clienteNome} · Stripe · #${pedidoId.slice(-8).toUpperCase()}`,
     url: `/dashboard/pedidos/${pedidoId}`,
   });
-  void atribuirPontos({ lojaId, clienteEmail: pedidoExiste.clienteEmail, clienteNome, pedidoId, totalCompra: Number(pedidoExiste.total) });
+  void atribuirPontos({
+    lojaId,
+    clienteEmail: pedido.clienteEmail,
+    clienteNome,
+    pedidoId,
+    totalCompra: Number(pedido.total),
+  });
 
-  const itensEmail = pedidoExiste.itens.map((i) => ({
+  const itensEmail = pedido.itens.map((i) => ({
     produtoId: i.produtoId,
     titulo: i.produto?.titulo ?? "Produto",
     precoUnitario: Number(i.precoUnitario),
@@ -144,10 +231,10 @@ export async function POST(req: NextRequest) {
   await enviarEmailConfirmacaoPedido({
     nomeLoja: loja.nome,
     clienteNome,
-    clienteEmail: pedidoExiste.clienteEmail,
+    clienteEmail: pedido.clienteEmail,
     pedidoId,
     itens: itensEmail,
-    total: Number(pedidoExiste.total),
+    total: Number(pedido.total),
     moeda: loja.moeda ?? "EUR",
     emailLojista: loja.utilizadores[0]?.email ?? undefined,
   });
@@ -155,17 +242,15 @@ export async function POST(req: NextRequest) {
   void criarFatura({
     lojaId,
     pedidoId,
-    subtotal: Number(pedidoExiste.subtotal),
-    desconto: Number(pedidoExiste.desconto ?? 0),
-    total: Number(pedidoExiste.total),
+    subtotal: Number(pedido.subtotal),
+    desconto: Number(pedido.desconto ?? 0),
+    total: Number(pedido.total),
     moeda: loja.moeda ?? "EUR",
     taxaIva: (loja.moeda ?? "EUR") === "AOA" ? 14 : 23,
     clienteNome,
-    clienteEmail: pedidoExiste.clienteEmail,
+    clienteEmail: pedido.clienteEmail,
     lojaNome: loja.nome,
     lojaNif: loja.nif,
     lojaMorada: loja.moradaFiscal,
   });
-
-  return NextResponse.json({ recebido: true });
 }
