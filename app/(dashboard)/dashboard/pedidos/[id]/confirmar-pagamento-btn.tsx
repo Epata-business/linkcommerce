@@ -37,7 +37,7 @@ export function ConfirmarPagamentoBtn({ pedidoId, valor, comprovanteUrl }: Props
     <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
       <div className="flex items-start gap-3 flex-wrap">
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-amber-900">💳 Pagamento Multicaixa pendente de confirmação</p>
+          <p className="text-sm font-bold text-amber-900">🏦 Transferência bancária pendente de confirmação</p>
           <p className="text-xs text-amber-700 mt-1">
             Valor: <span className="font-semibold">{valor}</span>
             {comprovanteUrl && (

@@ -446,8 +446,8 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
                       </label>
                       <p className="text-xs text-slate-400 mb-3">
                         {locale === "en"
-                          ? "Upload a photo/screenshot of your bank transfer or Multicaixa confirmation."
-                          : "Carregue foto ou print do talão de transferência bancária ou confirmação Multicaixa Express."}
+                          ? "Upload a photo/screenshot of your bank transfer proof."
+                          : "Carregue foto ou print do comprovativo da transferência bancária."}
                       </p>
                       <input type="file" accept="image/*,application/pdf"
                         onChange={(e) => setComprovanteFile(e.target.files?.[0] ?? null)}

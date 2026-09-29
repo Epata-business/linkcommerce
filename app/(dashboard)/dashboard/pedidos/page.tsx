@@ -9,6 +9,7 @@ const STATUS_CONFIG: Record<string, { label: string; dot: string; bg: string; te
   SHIPPED:    { label: "Enviado",           dot: "bg-purple-400", bg: "bg-purple-50",  text: "text-purple-700" },
   DELIVERED:  { label: "Entregue",          dot: "bg-green-400",  bg: "bg-green-50",   text: "text-green-700"  },
   CANCELLED:  { label: "Cancelado",         dot: "bg-red-400",    bg: "bg-red-50",     text: "text-red-700"    },
+  RETURNED:   { label: "Devolvido",         dot: "bg-orange-400", bg: "bg-orange-50",  text: "text-orange-700" },
 };
 
 const CANAL_LABEL: Record<string, string> = { ONLINE: "Online", POS: "POS" };
