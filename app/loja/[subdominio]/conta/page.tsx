@@ -14,6 +14,7 @@ const STATUS_LABEL: Record<string, { label: string; cor: string }> = {
   SHIPPED:    { label: "Enviado",     cor: "bg-purple-100 text-purple-700" },
   DELIVERED:  { label: "Entregue",    cor: "bg-green-100 text-green-700" },
   CANCELLED:  { label: "Cancelado",   cor: "bg-red-100 text-red-700" },
+  RETURNED:   { label: "Devolvido",   cor: "bg-orange-100 text-orange-700" },
 };
 
 export default async function ContaPage({ params }: Props) {

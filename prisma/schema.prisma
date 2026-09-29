@@ -329,7 +329,8 @@ model Cliente {
 
   pedidos   Pedido[]
 
-  createdAt DateTime @default(now())
+  marketingOptOut Boolean  @default(false)
+  createdAt       DateTime @default(now())
 
   @@unique([lojaId, email])
   @@map("clientes")

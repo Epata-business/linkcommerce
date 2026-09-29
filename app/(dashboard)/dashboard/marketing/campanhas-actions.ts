@@ -38,12 +38,12 @@ export async function enviarCampanha(id: string) {
   if (!camp || camp.status !== "RASCUNHO") return { erro: "Campanha não encontrada ou já enviada." };
   if (!loja) return { erro: "Loja não encontrada." };
 
-  // Buscar todos os clientes com email da loja
+  // Buscar clientes que não fizeram opt-out de marketing
   const clientes = await prisma.cliente.findMany({
-    where: { lojaId },
+    where: { lojaId, marketingOptOut: false },
     select: { email: true, nome: true },
   });
-  if (clientes.length === 0) return { erro: "Nenhum cliente com email registado." };
+  if (clientes.length === 0) return { erro: "Nenhum cliente com email registado (ou todos fizeram opt-out)." };
 
   // Marcar como ENVIANDO
   await prisma.campanha.update({ where: { id }, data: { status: "ENVIANDO" } });
@@ -63,7 +63,8 @@ export async function enviarCampanha(id: string) {
           subject: camp.assunto,
           html: camp.corpo,
           headers: {
-            "List-Unsubscribe": `<https://${loja.subdominio}.linkcommerce.ao/unsubscribe>`,
+            "List-Unsubscribe": `<https://${loja.subdominio}.linkcommerce.cc/unsubscribe?email=${encodeURIComponent(c.email)}>`,
+            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
           },
         })
       )

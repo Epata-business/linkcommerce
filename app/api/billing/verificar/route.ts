@@ -32,10 +32,11 @@ export async function POST() {
   }
 
   // Pesquisar as últimas sessões de checkout pagas na Stripe para este lojaId
+  // Filtrar por customer quando possível (mais eficiente e seguro)
   try {
-    const sessions = await stripe.checkout.sessions.list({
-      limit: 10,
-    });
+    const listParams: Parameters<typeof stripe.checkout.sessions.list>[0] = { limit: 10 };
+    if (subAtual?.stripeCustomerId) listParams.customer = subAtual.stripeCustomerId;
+    const sessions = await stripe.checkout.sessions.list(listParams);
 
     for (const cs of sessions.data) {
       if (
