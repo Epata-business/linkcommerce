@@ -269,7 +269,7 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-green-500 font-bold mt-0.5">✓</span>
-                  Pagamentos (Multicaixa, KWiK, transferência)
+                  Pagamentos (transferência bancária, Stripe)
                 </li>
                 <li className={`flex items-start gap-2 ${!plano.permiteDominioProprio ? "text-slate-300" : ""}`}>
                   <span className={plano.permiteDominioProprio ? "text-green-500 font-bold mt-0.5" : "text-slate-300 mt-0.5"}>
