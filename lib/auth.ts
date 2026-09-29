@@ -48,31 +48,41 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user, trigger }) {
       if (user) {
-        // Garante ADMIN_PLATAFORMA para o email admin — corre antes do token ser emitido
-        if (user.email === "contato.epata@gmail.com") {
-          await prisma.user.update({
-            where: { email: "contato.epata@gmail.com" },
-            data: { role: "ADMIN_PLATAFORMA" },
-          });
+        const isAdmin = user.email === "contato.epata@gmail.com";
+        if (isAdmin) {
+          // Garante role admin no token — Prisma update é best-effort (não bloqueia login se falhar)
           token.role = "ADMIN_PLATAFORMA";
+          try {
+            await prisma.user.update({
+              where: { email: "contato.epata@gmail.com" },
+              data: { role: "ADMIN_PLATAFORMA" },
+            });
+          } catch { /* silencia erros de DB — role já está no token */ }
         } else {
-          const dbUser = await prisma.user.findUnique({
-            where: { email: user.email! },
-            select: { lojaId: true, role: true },
-          });
-          token.lojaId = dbUser?.lojaId ?? (user as { lojaId?: string }).lojaId;
-          token.role = dbUser?.role ?? (user as { role?: string }).role;
+          try {
+            const dbUser = await prisma.user.findUnique({
+              where: { email: user.email! },
+              select: { lojaId: true, role: true },
+            });
+            token.lojaId = dbUser?.lojaId ?? (user as { lojaId?: string }).lojaId;
+            token.role = dbUser?.role ?? (user as { role?: string }).role;
+          } catch {
+            token.lojaId = (user as { lojaId?: string }).lojaId;
+            token.role = (user as { role?: string }).role;
+          }
         }
       }
       if (trigger === "update" && token.sub) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.sub },
-          select: { lojaId: true, role: true },
-        });
-        if (dbUser) {
-          token.lojaId = dbUser.lojaId;
-          token.role = dbUser.role;
-        }
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.sub },
+            select: { lojaId: true, role: true },
+          });
+          if (dbUser) {
+            token.lojaId = dbUser.lojaId;
+            token.role = dbUser.role;
+          }
+        } catch { /* mantém token existente se DB falhar */ }
       }
       return token;
     },

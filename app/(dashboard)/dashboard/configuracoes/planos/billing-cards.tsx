@@ -46,6 +46,15 @@ const PLANO_BADGE: Record<string, { texto: string; cor: string }> = {
   pro: { texto: "Para grandes empresas", cor: "bg-slate-800 text-white" },
 };
 
+// Funcionalidades extra por plano — espelham a landing page (além das flags da BD)
+const PLANO_FEATURES_EXTRA: Record<string, string[]> = {
+  free:    ["Até 10 produtos", "Loja online básica"],
+  starter: ["WhatsApp como CTA", "Suporte por email"],
+  basic:   ["Cupões de desconto", "Relatórios de vendas"],
+  growth:  ["Analytics avançado", "Suporte prioritário"],
+  pro:     ["Suporte VIP dedicado", "Onboarding assistido"],
+};
+
 // Preços em Kz para o mercado angolano — alinhados com a landing page
 const PRECO_AOA: Record<string, number> = {
   free: 0,
@@ -241,6 +250,12 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
                   </span>
                   White-label
                 </li>
+                {(PLANO_FEATURES_EXTRA[plano.slug] ?? []).map((f) => (
+                  <li key={f} className="flex items-start gap-2">
+                    <span className="text-green-500 font-bold mt-0.5">✓</span>
+                    {f}
+                  </li>
+                ))}
               </ul>
 
               {isAtual ? (
