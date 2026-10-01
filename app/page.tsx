@@ -32,19 +32,19 @@ const FEATURES = [
     icon: <IconStore />,
     color: "#153DEC",
     badge: "Loja Online",
-    pt: { title: "Venda em todo o lado", sub: "A sua loja online sincronizada com o ponto de venda físico — num único painel." },
-    en: { title: "Sell everywhere", sub: "Your online store synced with your physical point of sale — in one single panel." },
-    fr: { title: "Vendez partout", sub: "Votre boutique en ligne synchronisée avec votre point de vente physique." },
-    es: { title: "Vende en todas partes", sub: "Tu tienda online sincronizada con tu punto de venta físico." },
+    pt: { title: "A sua loja na internet", sub: "Crie a sua loja com subdomínio próprio, catálogo de produtos, carrinho e pagamentos — tudo pronto a usar." },
+    en: { title: "Your store online", sub: "Launch your store with your own subdomain, product catalogue, cart and payments — ready to use." },
+    fr: { title: "Votre boutique en ligne", sub: "Créez votre boutique avec sous-domaine, catalogue, panier et paiements — prêt à l'emploi." },
+    es: { title: "Tu tienda en internet", sub: "Crea tu tienda con subdominio propio, catálogo de productos, carrito y pagos — todo listo." },
   },
   {
     icon: <IconPos />,
     color: "#8381FB",
     badge: "POS",
-    pt: { title: "Vende sem internet", sub: "Registe vendas offline e sincronize automaticamente quando voltar a ter rede." },
-    en: { title: "Sell without internet", sub: "Log sales offline and sync automatically when you're back online." },
-    fr: { title: "Vendez sans internet", sub: "Enregistrez les ventes hors ligne et synchronisez automatiquement." },
-    es: { title: "Vende sin internet", sub: "Registra ventas offline y sincroniza automáticamente al volver a conectarte." },
+    pt: { title: "Venda presencial", sub: "Registe vendas na loja física e sincronize o stock com a sua loja online a partir do mesmo painel." },
+    en: { title: "In-store sales", sub: "Log sales at your physical store and sync stock with your online store from the same panel." },
+    fr: { title: "Ventes en magasin", sub: "Enregistrez les ventes en boutique et synchronisez le stock avec votre boutique en ligne." },
+    es: { title: "Ventas presenciales", sub: "Registra ventas en tu tienda física y sincroniza el stock con tu tienda online." },
   },
   {
     icon: <IconChart />,
@@ -59,10 +59,10 @@ const FEATURES = [
     icon: <IconAI />,
     color: "#8381FB",
     badge: "Claude AI",
-    pt: { title: "IA que trabalha por si", sub: "Gere descrições de produto, analise tendências e automatize mensagens com Claude." },
-    en: { title: "AI that works for you", sub: "Generate product descriptions, analyse trends and automate messages with Claude." },
-    fr: { title: "IA qui travaille pour vous", sub: "Générez des descriptions, analysez les tendances et automatisez avec Claude." },
-    es: { title: "IA que trabaja por ti", sub: "Genera descripciones, analiza tendencias y automatiza mensajes con Claude." },
+    pt: { title: "IA que trabalha por si", sub: "Gere descrições de produto e sugestões de preço com Claude — directamente no dashboard." },
+    en: { title: "AI that works for you", sub: "Generate product descriptions and price suggestions with Claude — directly in the dashboard." },
+    fr: { title: "IA qui travaille pour vous", sub: "Générez des descriptions de produits et des suggestions de prix avec Claude." },
+    es: { title: "IA que trabaja por ti", sub: "Genera descripciones de producto y sugerencias de precio con Claude — desde el panel." },
   },
 ];
 
@@ -371,7 +371,7 @@ export default async function HomePage() {
                   {locale==="en"?"AI that works for you":locale==="fr"?"IA qui travaille pour vous":"IA integrada"}
                 </h3>
                 <p className="text-xs text-white/40 max-w-xs leading-relaxed">
-                  {locale==="en"?"Generate descriptions, analyse trends and automate messages.":locale==="fr"?"Générez, analysez et automatisez avec Claude.":"Gere descrições de produto, analise tendências e automatize mensagens com Claude."}
+                  {locale==="en"?"Generate product descriptions and price suggestions with Claude.":locale==="fr"?"Générez des descriptions et suggestions de prix avec Claude.":"Gere descrições de produto e sugestões de preço com Claude."}
                 </p>
               </div>
               {/* AI chat bubbles */}
