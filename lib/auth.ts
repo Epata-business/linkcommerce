@@ -52,7 +52,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user, trigger }) {
       if (user) {
-        const isAdmin = user.email === "contato.epata@gmail.com";
+        const ADMIN_EMAILS = ["contato.epata@gmail.com", "aldirpedro10@gmail.com"];
+        const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
         if (isAdmin) {
           // Garante role admin no token — Prisma update é best-effort (não bloqueia login se falhar)
           token.role = "ADMIN_PLATAFORMA";
@@ -100,11 +101,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   events: {
     async signIn({ user }) {
-      if (user.email === "contato.epata@gmail.com") {
-        await prisma.user.update({
-          where: { email: "contato.epata@gmail.com" },
-          data: { role: "ADMIN_PLATAFORMA" },
-        });
+      const ADMIN_EMAILS = ["contato.epata@gmail.com", "aldirpedro10@gmail.com"];
+      if (user.email && ADMIN_EMAILS.includes(user.email)) {
+        try {
+          await prisma.user.update({
+            where: { email: user.email },
+            data: { role: "ADMIN_PLATAFORMA" },
+          });
+        } catch { /* silencia erros */ }
       }
     },
   },
