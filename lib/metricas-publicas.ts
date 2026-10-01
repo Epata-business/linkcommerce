@@ -12,9 +12,9 @@ export function arredondarPublico(n: number): string {
   if (n <= 0) return "0";
   if (n >= 1_000_000) return `+${Math.floor(n / 1_000_000)}M`;
   if (n >= 1_000)     return `+${Math.floor(n / 1_000)}K`;
-  if (n >= 100)       return `+${Math.floor(n / 100) * 100}`;
-  if (n >= 10)        return `+${Math.floor(n / 10) * 10}`;
-  return `${n}`; // exacto quando muito pequeno
+  if (n >= 100)       return `+${Math.floor(n / 10) * 10}`;
+  if (n >= 1)         return `+${n}`; // exacto até 99
+  return `${n}`;
 }
 
 // -----------------------------------------------------------------------------

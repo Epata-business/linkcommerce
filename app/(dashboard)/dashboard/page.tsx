@@ -8,6 +8,7 @@ import { PeriodoSelector } from "@/components/dashboard/periodo-selector";
 import { CentroAtencao } from "@/components/dashboard/centro-atencao";
 import { calcularIntervalo, formatarVariacao } from "@/lib/periodo";
 import { Suspense } from "react";
+import { TEMAS } from "@/lib/temas";
 
 const STATUS_CONFIG: Record<string, { label: string; dot: string; bg: string; text: string }> = {
   PENDING:    { label: "Pendente",         dot: "bg-yellow-400", bg: "bg-yellow-50",  text: "text-yellow-700" },
@@ -24,6 +25,7 @@ export default async function DashboardPage({
 }) {
   const [session, lojaId] = await Promise.all([auth(), getLojaId()]);
   const nomeUtilizador = session?.user?.name ?? session?.user?.email ?? "Lojista";
+  const temaActivo = await prisma.loja.findUnique({ where: { id: lojaId }, select: { tema: true } }).then(l => l?.tema ?? "essencial");
 
   const periodo = searchParams.periodo ?? "30d";
   const { inicio, fim, inicioAnterior, fimAnterior, label: labelPeriodo } = calcularIntervalo(periodo, searchParams.inicio, searchParams.fim);
@@ -403,6 +405,60 @@ export default async function DashboardPage({
             </div>
           </div>
         </div>
+        {/* Temas da Loja */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+            <div>
+              <h2 className="font-bold text-slate-800">Tema da loja</h2>
+              <p className="text-xs text-slate-400 mt-0.5">Escolha o visual da sua loja online</p>
+            </div>
+            <Link href="/dashboard/temas"
+              className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors text-slate-600">
+              Ver todos →
+            </Link>
+          </div>
+          <div className="p-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {TEMAS.slice(0, 8).map((tema) => {
+              const activo = tema.slug === temaActivo;
+              return (
+                <Link key={tema.slug} href="/dashboard/temas"
+                  className={`group relative rounded-xl overflow-hidden border-2 transition-all ${activo ? "border-blue-500 shadow-md" : "border-slate-100 hover:border-slate-300"}`}>
+                  {/* Preview image */}
+                  <div className="aspect-[4/3] relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={tema.previewDesktop} alt={tema.nome}
+                      className="w-full h-full object-cover" loading="lazy" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  </div>
+                  {/* Info */}
+                  <div className="absolute bottom-0 inset-x-0 px-2.5 pb-2">
+                    <p className="text-white text-xs font-bold truncate">{tema.nome}</p>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full ${tema.plano === "gratuito" ? "bg-green-500 text-white" : "bg-yellow-400 text-yellow-900"}`}>
+                        {tema.plano === "gratuito" ? "FREE" : "PRO"}
+                      </span>
+                      {activo && (
+                        <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-blue-500 text-white">
+                          ACTIVO
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+          <div className="px-5 pb-4 text-center">
+            <p className="text-xs text-slate-400">
+              4 temas gratuitos · {TEMAS.filter(t => t.plano === "pro").length} temas Pro
+              {" · "}
+              <Link href="/dashboard/temas" className="text-blue-600 font-semibold hover:underline">
+                Gerir temas
+              </Link>
+            </p>
+          </div>
+        </div>
+
       </div>
     </div>
   );

@@ -172,8 +172,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <DashboardLocaleSwitcher currentLang={currentLang} currentMoeda={lojaAtual?.moeda ?? "EUR"} />
           </div>
 
-          {/* Badge do plano / Trial */}
-          {subscricaoAtual && (
+          {/* Badge do plano / Trial — só ATIVA ou TRIAL */}
+          {subscricaoAtual && (subscricaoAtual.status === "ATIVA" || subscricaoAtual.status === "TRIAL") && (
             <div
               className="mx-3 mb-3 rounded-xl px-3 py-2.5"
               style={{
