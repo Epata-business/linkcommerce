@@ -65,6 +65,7 @@ export async function calcularMetricasPublicas(): Promise<MetricaPublica[]> {
     lojasCriadasMesAnterior,
     viewsMesActual,
     viewsMesAnterior,
+    viewsTotal,
   ] = await Promise.all([
     prisma.loja.count({ where: { publicada: true } }),
     prisma.pedido.count({ where: { status: { not: "CANCELLED" } } }),
@@ -72,39 +73,51 @@ export async function calcularMetricasPublicas(): Promise<MetricaPublica[]> {
     prisma.loja.count({ where: { createdAt: { gte: inicioMesAnterior, lt: inicioMesActual } } }),
     prisma.eventoPlataforma.count({ where: { tipo: "store_view", dia: { gte: inicioMesActual } } }),
     prisma.eventoPlataforma.count({ where: { tipo: "store_view", dia: { gte: inicioMesAnterior, lt: inicioMesActual } } }),
+    prisma.eventoPlataforma.count({ where: { tipo: "store_view" } }),
   ]);
 
   const crescimentoLojas = calcularCrescimento(lojasCriadasMesActual, lojasCriadasMesAnterior);
   const crescimentoViews = calcularCrescimento(viewsMesActual, viewsMesAnterior);
 
+  // Crescimento de lojas: "Em crescimento" mesmo no início do mês se há histórico anterior
+  const crescimentoLabel = crescimentoLojas.tipo === "percentagem"
+    ? crescimentoLojas.label
+    : "Em crescimento";
+  // Mostrar crescimento se houver lojas activas (garante que não fica vazio no dia 1 do mês)
+  const mostrarCrescimento = lojasActivas > 0 && lojasCriadasMesAnterior > 0;
+
   const metricas: MetricaPublica[] = [
-    // 1. Lojas activas (sempre mostrar se > 0)
+    // 1. Lojas activas
     {
       valor: arredondarPublico(lojasActivas),
       label: "LOJAS ACTIVAS",
       sublabel: "Publicadas na plataforma",
       mostrar: lojasActivas > 0,
     },
-    // 2. Pedidos realizados (mostrar se > 0)
+    // 2. Crescimento de lojas (mostra se há histórico, mesmo que actual=0 no início do mês)
+    {
+      valor: crescimentoLabel,
+      label: "CRESCIMENTO DE LOJAS",
+      sublabel: "Este mês vs. mês anterior",
+      mostrar: mostrarCrescimento,
+    },
+    // 3. Pedidos realizados
     {
       valor: arredondarPublico(pedidosValidos),
       label: "PEDIDOS REALIZADOS",
       sublabel: "Status diferente de cancelado",
       mostrar: pedidosValidos > 0,
     },
-    // 3. Crescimento de lojas este mês (só se houver dados suficientes)
+    // 4. Views — usa total histórico se este mês ainda não tem dados
     {
-      valor: crescimentoLojas.tipo === "percentagem" ? crescimentoLojas.label : "Em crescimento",
-      label: "CRESCIMENTO DE LOJAS",
-      sublabel: "Este mês vs. mês anterior",
-      mostrar: crescimentoLojas.tipo !== "insuficiente",
-    },
-    // 4. Views este mês (só se já tiver histórico suficiente)
-    {
-      valor: crescimentoViews.tipo === "percentagem" ? crescimentoViews.label : arredondarPublico(viewsMesActual),
+      valor: crescimentoViews.tipo === "percentagem"
+        ? crescimentoViews.label
+        : arredondarPublico(viewsMesActual > 0 ? viewsMesActual : viewsTotal),
       label: crescimentoViews.tipo === "percentagem" ? "CRESCIMENTO DE VIEWS" : "VISUALIZAÇÕES",
-      sublabel: crescimentoViews.tipo === "percentagem" ? "Este mês vs. mês anterior" : "Lojas LinkCommerce — este mês",
-      mostrar: viewsMesActual > 0,
+      sublabel: crescimentoViews.tipo === "percentagem"
+        ? "Este mês vs. mês anterior"
+        : viewsMesActual > 0 ? "Lojas LinkCommerce — este mês" : "Lojas LinkCommerce — total",
+      mostrar: viewsTotal > 0,
     },
   ];
 

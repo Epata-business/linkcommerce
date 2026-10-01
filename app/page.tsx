@@ -261,37 +261,248 @@ export default async function HomePage() {
       {/* ── TRAÇÃO ── */}
       <TraccaoSection locale={locale} />
 
-      {/* ── FEATURES — 2×2 grid limpa ── */}
+      {/* ── FEATURES — bento grid com mockups ── */}
       <section id="funcionalidades" className="py-24 px-6" style={{ borderTop:"1px solid rgba(255,255,255,0.05)" }}>
         <div className="max-w-6xl mx-auto">
-          <div className="mb-16 max-w-2xl">
+          <div className="mb-14 max-w-2xl">
             <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color:"#8381FB" }}>{featLabel}</p>
             <h2 className="text-4xl sm:text-5xl font-extrabold leading-tight">
               {locale==="en"?"Everything you need to sell":locale==="fr"?"Tout ce dont vous avez besoin":locale==="es"?"Todo lo que necesitas para vender":"Tudo o que precisas para vender"}
             </h2>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {FEATURES.map((f) => {
-              const copy = (f as unknown as Record<string, {title:string;sub:string}>)[locale] ?? f.pt;
-              return (
-                <div key={f.badge} className="rounded-2xl p-7 flex flex-col gap-5 transition-all duration-300 hover:-translate-y-1"
-                  style={{ background:"rgba(255,255,255,0.025)", border:"1px solid rgba(255,255,255,0.07)", boxShadow:"0 4px 24px rgba(0,0,0,0.2)" }}>
-                  {/* Icon */}
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center"
-                    style={{ background:`${f.color}18`, border:`1px solid ${f.color}30`, color:f.color }}>
-                    {f.icon}
+          {/* Bento grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-auto">
+
+            {/* Card 1 — Loja Online (grande) */}
+            <div className="col-span-2 lg:col-span-2 rounded-2xl overflow-hidden relative"
+              style={{ background:"rgba(21,61,236,0.08)", border:"1px solid rgba(21,61,236,0.2)", minHeight:"280px" }}>
+              <div className="p-7 pb-0 relative z-10">
+                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold mb-4"
+                  style={{ background:"rgba(21,61,236,0.2)", border:"1px solid rgba(21,61,236,0.3)", color:"#a5b4fc" }}>
+                  🛍 {locale==="en"?"Online Store":locale==="fr"?"Boutique":"Loja Online"}
+                </span>
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
+                  {locale==="en"?"Sell everywhere":locale==="fr"?"Vendez partout":"Venda em todo o lado"}
+                </h3>
+                <p className="text-sm text-white/40 max-w-xs">
+                  {locale==="en"?"Your online store synced with your physical POS — one panel.":locale==="fr"?"Boutique en ligne synchronisée avec votre point de vente.":"A sua loja online sincronizada com o ponto de venda físico — num único painel."}
+                </p>
+              </div>
+              {/* Mini product list mockup */}
+              <div className="absolute bottom-0 right-0 w-48 sm:w-64 p-4 space-y-2">
+                {[{p:"Camisola Merino", v: cur==="AOA"?`89.000 ${sym}`:`${sym}89`},{p:"Calças Linho", v:cur==="AOA"?`124.000 ${sym}`:`${sym}124`},{p:"Boné Algodão", v:cur==="AOA"?`45.000 ${sym}`:`${sym}45`}].map((i,k)=>(
+                  <div key={k} className="flex items-center gap-2.5 rounded-lg px-3 py-2"
+                    style={{ background:"rgba(10,14,30,0.7)", border:"1px solid rgba(255,255,255,0.06)" }}>
+                    <div className="w-6 h-6 rounded-md flex-shrink-0" style={{ background:"rgba(21,61,236,0.3)" }} />
+                    <span className="text-[10px] text-white/60 flex-1 truncate">{i.p}</span>
+                    <span className="text-[10px] font-bold text-white">{i.v}</span>
                   </div>
-                  {/* Badge */}
-                  <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color:`${f.color}cc` }}>{f.badge}</span>
-                  {/* Text */}
-                  <div>
-                    <h3 className="text-base font-bold text-white mb-2 leading-snug">{copy.title}</h3>
-                    <p className="text-sm text-white/40 leading-relaxed">{copy.sub}</p>
-                  </div>
+                ))}
+                <div className="rounded-lg px-3 py-1.5 text-center text-[10px] font-bold text-white mt-1"
+                  style={{ background:"linear-gradient(135deg,#153DEC,#8381FB)" }}>
+                  linkcommerce.cc/loja
                 </div>
-              );
-            })}
+              </div>
+            </div>
+
+            {/* Card 2 — POS */}
+            <div className="rounded-2xl overflow-hidden relative"
+              style={{ background:"rgba(131,129,251,0.07)", border:"1px solid rgba(131,129,251,0.2)", minHeight:"280px" }}>
+              <div className="p-6 pb-0">
+                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold mb-4"
+                  style={{ background:"rgba(131,129,251,0.15)", border:"1px solid rgba(131,129,251,0.25)", color:"#c4b5fd" }}>
+                  ↗ POS
+                </span>
+                <h3 className="text-lg font-bold text-white mb-2">
+                  {locale==="en"?"Sell without internet":locale==="fr"?"Vendez sans internet":"Venda presencialmente"}
+                </h3>
+                <p className="text-xs text-white/40 leading-relaxed">
+                  {locale==="en"?"Offline POS for physical stores.":locale==="fr"?"POS hors ligne pour les commerces.":"POS offline para lojas físicas. Registe vendas sem internet e sincronize automaticamente."}
+                </p>
+              </div>
+              {/* POS mockup */}
+              <div className="absolute bottom-4 right-4 w-32">
+                <div className="grid grid-cols-2 gap-1.5 mb-2">
+                  {[...Array(4)].map((_,i)=>(
+                    <div key={i} className="aspect-square rounded-lg" style={{ background:"rgba(131,129,251,0.15)", border:"1px solid rgba(131,129,251,0.2)" }} />
+                  ))}
+                </div>
+                <div className="rounded-lg py-1.5 text-center text-[10px] font-bold text-white"
+                  style={{ background:"rgba(131,129,251,0.4)" }}>
+                  {locale==="en"?"Confirm":"Confirmar"}
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3 — Analytics */}
+            <div className="rounded-2xl overflow-hidden relative"
+              style={{ background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.07)", minHeight:"240px" }}>
+              <div className="p-6 pb-0">
+                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold mb-4"
+                  style={{ background:"rgba(21,61,236,0.15)", border:"1px solid rgba(21,61,236,0.25)", color:"#a5b4fc" }}>
+                  📊 Analytics
+                </span>
+                <h3 className="text-lg font-bold text-white mb-2">
+                  {locale==="en"?"Real-time management":locale==="fr"?"Gestion en temps réel":"Gestão completa"}
+                </h3>
+                <p className="text-xs text-white/40 leading-relaxed">
+                  {locale==="en"?"Products, orders, customers and stock.":locale==="fr"?"Produits, commandes, clients et stock.":"Produtos, pedidos, clientes e stock — tudo integrado e acessível em tempo real."}
+                </p>
+              </div>
+              {/* Chart mockup */}
+              <div className="absolute bottom-4 right-4 flex items-end gap-1">
+                {[30,50,35,65,45,80,100].map((h,i)=>(
+                  <div key={i} className="w-4 rounded-t-md"
+                    style={{ height:`${h * 0.7}px`, background: i===6?"linear-gradient(to top,#153DEC,#8381FB)":"rgba(131,129,251,0.2)" }} />
+                ))}
+              </div>
+            </div>
+
+            {/* Card 4 — IA */}
+            <div className="col-span-2 lg:col-span-2 rounded-2xl overflow-hidden relative"
+              style={{ background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.07)", minHeight:"240px" }}>
+              <div className="p-6 relative z-10">
+                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold mb-4"
+                  style={{ background:"rgba(131,129,251,0.15)", border:"1px solid rgba(131,129,251,0.25)", color:"#c4b5fd" }}>
+                  ✦ Claude AI
+                </span>
+                <h3 className="text-lg font-bold text-white mb-2">
+                  {locale==="en"?"AI that works for you":locale==="fr"?"IA qui travaille pour vous":"IA integrada"}
+                </h3>
+                <p className="text-xs text-white/40 max-w-xs leading-relaxed">
+                  {locale==="en"?"Generate descriptions, analyse trends and automate messages.":locale==="fr"?"Générez, analysez et automatisez avec Claude.":"Gere descrições de produto, analise tendências e automatize mensagens com Claude."}
+                </p>
+              </div>
+              {/* AI chat bubbles */}
+              <div className="absolute bottom-4 right-4 sm:right-8 space-y-2 max-w-[200px]">
+                <div className="rounded-xl rounded-tr-none px-3 py-2 text-[10px] text-white/60 text-right"
+                  style={{ background:"rgba(131,129,251,0.15)", border:"1px solid rgba(131,129,251,0.2)" }}>
+                  {locale==="en"?"Generate description for blue shirt":locale==="fr"?"Générer description chemise bleue":"Gera descrição para camisola azul"}
+                </div>
+                <div className="rounded-xl rounded-tl-none px-3 py-2 text-[10px] text-white/70"
+                  style={{ background:"rgba(21,61,236,0.15)", border:"1px solid rgba(21,61,236,0.2)" }}>
+                  ✦ {locale==="en"?"Merino wool shirt, perfect for cold days…":locale==="fr"?"Chemise en laine mérinos, parfaite pour…":"Camisola de lã merino premium, perfeita para os dias frios…"}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── TEMAS DA LOJA ── */}
+      <section className="py-24 px-6" style={{ borderTop:"1px solid rgba(255,255,255,0.05)" }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-14 max-w-2xl">
+            <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color:"#8381FB" }}>
+              {locale==="en"?"Themes":locale==="fr"?"Thèmes":locale==="es"?"Temas":"Temas"}
+            </p>
+            <h2 className="text-4xl sm:text-5xl font-extrabold leading-tight">
+              {locale==="en"?"A theme for every business":locale==="fr"?"Un thème pour chaque commerce":locale==="es"?"Un tema para cada negocio":"Um tema para cada negócio"}
+            </h2>
+            <p className="mt-4 text-white/40 text-lg">
+              {locale==="en"?"Choose the look that fits your niche. Change it anytime.":locale==="fr"?"Choisissez le look qui correspond à votre secteur.":"Escolhe o look que melhor representa o teu negócio. Muda quando quiseres."}
+            </p>
+          </div>
+
+          {/* Bento de temas */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+
+            {/* Tema Moda — grande */}
+            <div className="col-span-2 lg:col-span-1 row-span-2 rounded-2xl overflow-hidden relative group"
+              style={{ background:"#0e0e0e", border:"1px solid rgba(255,255,255,0.08)", minHeight:"380px" }}>
+              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=800&fit=crop&q=80"
+                className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-70 transition-opacity duration-500" alt="Tema Moda" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <span className="inline-block rounded-full px-2.5 py-1 text-[10px] font-bold mb-3"
+                  style={{ background:"rgba(255,255,255,0.15)", color:"#fff" }}>Moda</span>
+                <h3 className="text-xl font-bold text-white mb-1">Tema Moda</h3>
+                <p className="text-xs text-white/50">Hero editorial, lookbook, coleções e variantes de tamanho.</p>
+                <span className="mt-3 inline-block text-[10px] font-bold text-white/30 uppercase tracking-widest">Grátis</span>
+              </div>
+            </div>
+
+            {/* Tema Jóia */}
+            <div className="rounded-2xl overflow-hidden relative group"
+              style={{ background:"#0a0a08", border:"1px solid rgba(197,162,83,0.2)", minHeight:"180px" }}>
+              <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=300&fit=crop&q=80"
+                className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-65 transition-opacity duration-500" alt="Tema Joalharia" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-5">
+                <span className="inline-block rounded-full px-2.5 py-1 text-[10px] font-bold mb-2"
+                  style={{ background:"rgba(197,162,83,0.2)", color:"#C5A253", border:"1px solid rgba(197,162,83,0.3)" }}>Joalharia</span>
+                <h3 className="text-base font-bold text-white">Tema Jóia</h3>
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-[10px] text-white/40">Luxury escuro, configurador</p>
+                  <span className="text-[10px] font-bold rounded-full px-2 py-0.5 bg-amber-400/20 text-amber-400">Pro</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Tema Casa */}
+            <div className="rounded-2xl overflow-hidden relative group"
+              style={{ background:"#0d0a08", border:"1px solid rgba(92,74,58,0.3)", minHeight:"180px" }}>
+              <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop&q=80"
+                className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-65 transition-opacity duration-500" alt="Tema Casa" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-5">
+                <span className="inline-block rounded-full px-2.5 py-1 text-[10px] font-bold mb-2"
+                  style={{ background:"rgba(92,74,58,0.3)", color:"#c8a882", border:"1px solid rgba(92,74,58,0.4)" }}>Mobiliário</span>
+                <h3 className="text-base font-bold text-white">Tema Casa</h3>
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-[10px] text-white/40">Ambiente, configurador</p>
+                  <span className="text-[10px] font-bold rounded-full px-2 py-0.5 bg-amber-400/20 text-amber-400">Pro</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Tema Gourmet */}
+            <div className="rounded-2xl overflow-hidden relative group"
+              style={{ background:"#0f0805", border:"1px solid rgba(139,37,0,0.3)", minHeight:"180px" }}>
+              <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop&q=80"
+                className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-65 transition-opacity duration-500" alt="Tema Gourmet" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-5">
+                <span className="inline-block rounded-full px-2.5 py-1 text-[10px] font-bold mb-2"
+                  style={{ background:"rgba(139,37,0,0.25)", color:"#f87171", border:"1px solid rgba(139,37,0,0.4)" }}>Restaurante</span>
+                <h3 className="text-base font-bold text-white">Tema Gourmet</h3>
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-[10px] text-white/40">Menu visual, reservas</p>
+                  <span className="text-[10px] font-bold rounded-full px-2 py-0.5 bg-amber-400/20 text-amber-400">Pro</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Tema Beleza */}
+            <div className="rounded-2xl overflow-hidden relative group"
+              style={{ background:"#100810", border:"1px solid rgba(196,116,138,0.2)", minHeight:"180px" }}>
+              <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=300&fit=crop&q=80"
+                className="absolute inset-0 w-full h-full object-cover opacity-45 group-hover:opacity-60 transition-opacity duration-500" alt="Tema Beleza" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-5">
+                <span className="inline-block rounded-full px-2.5 py-1 text-[10px] font-bold mb-2"
+                  style={{ background:"rgba(196,116,138,0.2)", color:"#f0abbc", border:"1px solid rgba(196,116,138,0.3)" }}>Beleza</span>
+                <h3 className="text-base font-bold text-white">Tema Beleza</h3>
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-[10px] text-white/40">Editorial, kits, rotinas</p>
+                  <span className="text-[10px] font-bold rounded-full px-2 py-0.5 bg-amber-400/20 text-amber-400">Pro</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* CTA para ver todos */}
+          <div className="mt-8 flex items-center justify-between">
+            <p className="text-sm text-white/30">
+              {locale==="en"?"8 themes available · More coming soon":locale==="fr"?"8 thèmes disponibles · D'autres arrivent bientôt":"8 temas disponíveis · Mais em breve"}
+            </p>
+            <Link href="/comecar"
+              className="text-sm font-semibold text-white/60 hover:text-white transition-colors">
+              {locale==="en"?"See all themes →":locale==="fr"?"Voir tous les thèmes →":"Ver todos os temas →"}
+            </Link>
           </div>
         </div>
       </section>
