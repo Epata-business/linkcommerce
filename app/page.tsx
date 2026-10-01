@@ -139,104 +139,120 @@ export default async function HomePage() {
       </nav>
 
       {/* ── HERO ── */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-28 pb-20 overflow-hidden">
+      <section className="relative px-6 pt-32 pb-0 overflow-hidden">
         <HeroBackground />
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background:"linear-gradient(180deg,rgba(8,10,18,0.3) 0%,rgba(8,10,18,0.05) 40%,rgba(8,10,18,0.7) 100%)" }} />
+          style={{ background:"linear-gradient(180deg,rgba(8,10,18,0.4) 0%,rgba(8,10,18,0.0) 50%,rgba(8,10,18,1) 100%)" }} />
 
-        {/* Badge */}
-        <div className="relative z-10 mb-6">
-          <span className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold"
-            style={{ background:"rgba(21,61,236,0.15)", border:"1px solid rgba(21,61,236,0.3)", color:"#a5b4fc" }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#8381FB] animate-pulse inline-block" />
-            {locale==="en"?"E-commerce platform for Angola":locale==="fr"?"Plateforme e-commerce pour l'Angola":locale==="es"?"Plataforma e-commerce para Angola":"Plataforma de e-commerce para Angola"}
-          </span>
-        </div>
-
-        {/* Title */}
-        <h1 className="relative z-10 text-center text-5xl sm:text-6xl lg:text-[76px] font-extrabold leading-[1.06] mb-6 tracking-tight max-w-4xl">
-          {t("landing_h1a", locale)}<br />
-          <span className="text-gradient">{t("landing_h1b", locale)}</span>
-        </h1>
-
-        <p className="relative z-10 text-center text-lg sm:text-xl text-white/45 max-w-xl mb-10 leading-relaxed">
-          {t("landing_sub", locale)}
-        </p>
-
-        {/* CTAs */}
-        <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3 mb-16">
-          <Link href="/comecar"
-            className="rounded-full px-9 py-3.5 text-base font-semibold text-white transition-all hover:scale-105"
-            style={{ background:"linear-gradient(135deg,#153DEC,#8381FB)", boxShadow:"0 0 36px rgba(21,61,236,0.55)" }}>
-            {ctaBtn}
-          </Link>
-          <Link href="/entrar"
-            className="rounded-full px-9 py-3.5 text-base font-medium text-white/55 border transition-all hover:border-white/25 hover:text-white"
-            style={{ borderColor:"rgba(255,255,255,0.1)" }}>
-            {loginLabel}
-          </Link>
-        </div>
-
-        {/* Clean UI mockup — browser frame */}
-        <div className="relative z-10 w-full max-w-2xl">
-          <div className="rounded-2xl overflow-hidden"
-            style={{ background:"rgba(10,14,30,0.85)", border:"1px solid rgba(255,255,255,0.08)", boxShadow:"0 40px 80px rgba(0,0,0,0.5), 0 0 60px rgba(21,61,236,0.12)" }}>
-            {/* Browser bar */}
-            <div className="flex items-center gap-2 px-4 py-3" style={{ borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
-              <div className="flex gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background:"rgba(255,255,255,0.1)" }} />
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background:"rgba(255,255,255,0.1)" }} />
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background:"rgba(255,255,255,0.1)" }} />
-              </div>
-              <div className="flex-1 mx-4 rounded-md px-3 py-1 text-[11px] text-white/20 text-center"
-                style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.06)" }}>
-                linkcommerce.cc/dashboard
-              </div>
+        <div className="relative z-10 max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-20 items-end">
+          {/* ── Left: Copy ── */}
+          <div className="pb-16 lg:pb-24">
+            {/* Badge */}
+            <div className="mb-7">
+              <span className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold"
+                style={{ background:"rgba(21,61,236,0.15)", border:"1px solid rgba(21,61,236,0.3)", color:"#a5b4fc" }}>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#8381FB] animate-pulse inline-block" />
+                {locale==="en"?"E-commerce platform for Angola":locale==="fr"?"Plateforme e-commerce pour l'Angola":locale==="es"?"Plataforma e-commerce para Angola":"Plataforma de e-commerce para Angola"}
+              </span>
             </div>
-            {/* Dashboard content */}
-            <div className="p-5 grid grid-cols-3 gap-3">
-              {/* KPI cards */}
-              {[
-                { label:locale==="en"?"Revenue":locale==="fr"?"Revenus":"Receita", val:cur==="AOA"?`245.000 ${sym}`:`${sym}245`, up:true },
-                { label:locale==="en"?"Orders":locale==="fr"?"Commandes":"Pedidos", val:"38", up:true },
-                { label:locale==="en"?"Customers":locale==="fr"?"Clients":"Clientes", val:"124", up:true },
-              ].map((k,i) => (
-                <div key={i} className="rounded-xl p-3.5" style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.06)" }}>
-                  <p className="text-[10px] text-white/30 mb-1.5">{k.label}</p>
-                  <p className="text-base font-bold text-white">{k.val}</p>
-                  <p className="text-[10px] text-green-400 mt-1">↑ 12%</p>
-                </div>
+
+            {/* Headline */}
+            <h1 className="text-5xl sm:text-6xl lg:text-[68px] font-extrabold leading-[1.05] mb-6 tracking-tight">
+              {t("landing_h1a", locale)}<br />
+              <span className="text-gradient">{t("landing_h1b", locale)}</span>
+            </h1>
+
+            <p className="text-lg sm:text-xl text-white/45 mb-10 leading-relaxed max-w-lg">
+              {t("landing_sub", locale)}
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row items-start gap-3 mb-12">
+              <Link href="/comecar"
+                className="rounded-full px-9 py-3.5 text-base font-semibold text-white transition-all hover:scale-105"
+                style={{ background:"linear-gradient(135deg,#153DEC,#8381FB)", boxShadow:"0 0 36px rgba(21,61,236,0.55)" }}>
+                {ctaBtn}
+              </Link>
+              <Link href="/entrar"
+                className="rounded-full px-9 py-3.5 text-base font-medium text-white/55 border transition-all hover:border-white/25 hover:text-white"
+                style={{ borderColor:"rgba(255,255,255,0.1)" }}>
+                {loginLabel}
+              </Link>
+            </div>
+
+            {/* Social proof strip */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="text-[11px] text-white/25 font-medium uppercase tracking-widest">
+                {locale==="en"?"Trusted by":"Utilizado por"}
+              </span>
+              {["Luanda", "Benguela", "Huambo", "Cabinda", "Malanje"].map(city => (
+                <span key={city} className="text-[11px] font-semibold text-white/30 px-3 py-1 rounded-full"
+                  style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.07)" }}>
+                  {city}
+                </span>
               ))}
             </div>
-            {/* Mini order list */}
-            <div className="px-5 pb-5 space-y-2">
-              {[
-                { name:"Maria A.", prod:locale==="en"?"Blue Dress":locale==="fr"?"Robe Bleue":"Vestido Azul", val:cur==="AOA"?`8.900 ${sym}`:`${sym}8,90`, status:"delivered" },
-                { name:"João M.", prod:locale==="en"?"Black Sneakers":locale==="fr"?"Baskets Noires":"Ténis Preto", val:cur==="AOA"?`12.500 ${sym}`:`${sym}12,50`, status:"processing" },
-                { name:"Ana S.", prod:locale==="en"?"Handbag":locale==="fr"?"Sac à main":"Mala de mão", val:cur==="AOA"?`6.200 ${sym}`:`${sym}6,20`, status:"pending" },
-              ].map((o,i) => (
-                <div key={i} className="flex items-center justify-between rounded-lg px-3 py-2.5"
-                  style={{ background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.05)" }}>
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold"
-                      style={{ background:"rgba(21,61,236,0.2)", color:"#8381FB" }}>{o.name[0]}</div>
-                    <div>
-                      <p className="text-[11px] font-medium text-white">{o.name}</p>
-                      <p className="text-[10px] text-white/30">{o.prod}</p>
+          </div>
+
+          {/* ── Right: Browser mockup ── */}
+          <div className="lg:translate-y-8">
+            <div className="rounded-t-2xl overflow-hidden"
+              style={{ background:"rgba(10,14,30,0.9)", border:"1px solid rgba(255,255,255,0.08)", borderBottom:"none", boxShadow:"0 -20px 80px rgba(21,61,236,0.08), inset 0 1px 0 rgba(255,255,255,0.05)" }}>
+              {/* Browser bar */}
+              <div className="flex items-center gap-2 px-4 py-3" style={{ borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+                <div className="flex gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ background:"rgba(255,255,255,0.1)" }} />
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ background:"rgba(255,255,255,0.1)" }} />
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ background:"rgba(255,255,255,0.1)" }} />
+                </div>
+                <div className="flex-1 mx-4 rounded-md px-3 py-1 text-[11px] text-white/20 text-center"
+                  style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.06)" }}>
+                  linkcommerce.cc/dashboard
+                </div>
+              </div>
+              {/* Dashboard content */}
+              <div className="p-5 grid grid-cols-3 gap-3">
+                {[
+                  { label:locale==="en"?"Revenue":locale==="fr"?"Revenus":"Receita", val:cur==="AOA"?`245.000 ${sym}`:`${sym}245` },
+                  { label:locale==="en"?"Orders":locale==="fr"?"Commandes":"Pedidos", val:"38" },
+                  { label:locale==="en"?"Customers":locale==="fr"?"Clients":"Clientes", val:"124" },
+                ].map((k,i) => (
+                  <div key={i} className="rounded-xl p-3.5" style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.06)" }}>
+                    <p className="text-[10px] text-white/30 mb-1.5">{k.label}</p>
+                    <p className="text-base font-bold text-white">{k.val}</p>
+                    <p className="text-[10px] text-green-400 mt-1">↑ 12%</p>
+                  </div>
+                ))}
+              </div>
+              <div className="px-5 pb-5 space-y-2">
+                {[
+                  { name:"Maria A.", prod:locale==="en"?"Blue Dress":locale==="fr"?"Robe Bleue":"Vestido Azul", val:cur==="AOA"?`8.900 ${sym}`:`${sym}8,90`, status:"delivered" },
+                  { name:"João M.", prod:locale==="en"?"Black Sneakers":locale==="fr"?"Baskets Noires":"Ténis Preto", val:cur==="AOA"?`12.500 ${sym}`:`${sym}12,50`, status:"processing" },
+                  { name:"Ana S.", prod:locale==="en"?"Handbag":locale==="fr"?"Sac à main":"Mala de mão", val:cur==="AOA"?`6.200 ${sym}`:`${sym}6,20`, status:"pending" },
+                ].map((o,i) => (
+                  <div key={i} className="flex items-center justify-between rounded-lg px-3 py-2.5"
+                    style={{ background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.05)" }}>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold"
+                        style={{ background:"rgba(21,61,236,0.2)", color:"#8381FB" }}>{o.name[0]}</div>
+                      <div>
+                        <p className="text-[11px] font-medium text-white">{o.name}</p>
+                        <p className="text-[10px] text-white/30">{o.prod}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-semibold text-white/70">{o.val}</span>
+                      <span className="text-[9px] font-bold rounded-full px-2 py-0.5"
+                        style={{
+                          background: o.status==="delivered"?"rgba(34,197,94,0.15)":o.status==="processing"?"rgba(21,61,236,0.15)":"rgba(234,179,8,0.15)",
+                          color: o.status==="delivered"?"#4ade80":o.status==="processing"?"#a5b4fc":"#fbbf24"
+                        }}>
+                        {o.status==="delivered"?locale==="en"?"Delivered":locale==="fr"?"Livré":"Entregue":o.status==="processing"?locale==="en"?"Processing":locale==="fr"?"En cours":"Em curso":locale==="en"?"Pending":locale==="fr"?"En attente":"Pendente"}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-semibold text-white/70">{o.val}</span>
-                    <span className="text-[9px] font-bold rounded-full px-2 py-0.5"
-                      style={{
-                        background: o.status==="delivered"?"rgba(34,197,94,0.15)":o.status==="processing"?"rgba(21,61,236,0.15)":"rgba(234,179,8,0.15)",
-                        color: o.status==="delivered"?"#4ade80":o.status==="processing"?"#a5b4fc":"#fbbf24"
-                      }}>
-                      {o.status==="delivered"?locale==="en"?"Delivered":locale==="fr"?"Livré":"Entregue":o.status==="processing"?locale==="en"?"Processing":locale==="fr"?"En cours":"Em curso":locale==="en"?"Pending":locale==="fr"?"En attente":"Pendente"}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -248,7 +264,7 @@ export default async function HomePage() {
       {/* ── FEATURES — 2×2 grid limpa ── */}
       <section id="funcionalidades" className="py-24 px-6" style={{ borderTop:"1px solid rgba(255,255,255,0.05)" }}>
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="mb-16 max-w-2xl">
             <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color:"#8381FB" }}>{featLabel}</p>
             <h2 className="text-4xl sm:text-5xl font-extrabold leading-tight">
               {locale==="en"?"Everything you need to sell":locale==="fr"?"Tout ce dont vous avez besoin":locale==="es"?"Todo lo que necesitas para vender":"Tudo o que precisas para vender"}
@@ -286,12 +302,12 @@ export default async function HomePage() {
       {/* ── COMO FUNCIONA ── */}
       <section className="py-24 px-6 relative overflow-hidden"
         style={{ background:"linear-gradient(180deg,#080A12 0%,#02053D 50%,#080A12 100%)" }}>
-        <div className="max-w-3xl mx-auto text-center mb-14">
+        <div className="max-w-6xl mx-auto mb-14">
           <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color:"#8381FB" }}>{howLabel}</p>
-          <h2 className="text-4xl sm:text-5xl font-extrabold">{howTitle}</h2>
-          <p className="mt-4 text-white/40 text-lg">{howSub}</p>
+          <h2 className="text-4xl sm:text-5xl font-extrabold max-w-xl">{howTitle}</h2>
+          <p className="mt-4 text-white/40 text-lg max-w-lg">{howSub}</p>
         </div>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-0 max-w-2xl mx-auto">
+        <div className="flex flex-col sm:flex-row items-center gap-0 max-w-6xl mx-auto">
           {FLOW.map((step, i) => (
             <div key={step.pt} className="flex items-center">
               <div className="flex flex-col items-center gap-3 group cursor-default">
