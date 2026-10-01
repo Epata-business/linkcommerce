@@ -1,402 +1,314 @@
 import { headers } from "next/headers";
 import Link from "next/link";
 import { getLocale, getLocaleCurrency, localeCurrencySymbol, t } from "@/lib/i18n";
-import { LiveDashboard } from "@/components/landing/live-dashboard";
 import { LanguageSwitcher } from "@/components/landing/language-switcher";
 import { PricingSection } from "@/components/landing/pricing-section";
 import dynamic from "next/dynamic";
 
-const HeroBackground  = dynamic(() => import("@/components/landing/HeroBackground"), { ssr: false });
-const FlowingMenu     = dynamic(() => import("@/components/landing/FlowingMenu"),     { ssr: false });
-const GlobalNetwork   = dynamic(() => import("@/components/landing/GlobalNetwork"),   { ssr: false });
+const HeroBackground = dynamic(() => import("@/components/landing/HeroBackground"), { ssr: false });
+const FlowingMenu    = dynamic(() => import("@/components/landing/FlowingMenu"),    { ssr: false });
+
 import { AngolaSection } from "@/components/landing/angola-section";
 import { QuemSomosSection } from "@/components/landing/quem-somos-section";
 import { TraccaoSection } from "@/components/landing/traccao-section";
 
-/* ── Textos por secção (fallback inline para não sobrecarregar i18n) ── */
-const COPY = {
-  pt: {
-    feat_sell_title: "Venda em todo o lado",
-    feat_sell_sub: "A sua loja online sincronizada com o ponto de venda físico — num único painel.",
-    feat_pos_title: "Venda presencialmente",
-    feat_pos_sub: "POS offline para lojas físicas. Registe vendas sem internet e sincronize automaticamente.",
-    feat_manage_title: "Gestão completa",
-    feat_manage_sub: "Produtos, pedidos, clientes e stock — tudo integrado e acessível em tempo real.",
-    feat_ai_title: "IA integrada",
-    feat_ai_sub: "Gere descrições de produto, analise tendências e automatize mensagens com Claude.",
-    stats_stores: "Lojas criadas",
-    stats_orders: "Pedidos processados",
-    stats_countries: "Países",
-    stats_uptime: "Disponibilidade",
-    how_title: "Do produto ao cliente",
-    how_sub: "Cada passo do seu negócio, integrado e automatizado.",
-    plans_title: "Planos simples, sem surpresas",
-    plans_sub: "Sem surpresas. Mude de plano quando quiser.",
-    plans_popular: "POPULAR",
-    plans_btn: "Começar",
-    cta_title: "Pronto para abrir a sua loja?",
-    cta_sub: "Crie a sua loja angolana em minutos. Sem comissões escondidas.",
-    cta_btn: "Criar a minha loja →",
-  },
-  en: {
-    feat_sell_title: "Sell everywhere",
-    feat_sell_sub: "Your online store synced with your physical point of sale — in one single panel.",
-    feat_pos_title: "Sell in person",
-    feat_pos_sub: "Offline POS for physical stores. Log sales without internet and sync automatically.",
-    feat_manage_title: "Complete management",
-    feat_manage_sub: "Products, orders, customers and stock — all integrated and accessible in real time.",
-    feat_ai_title: "Built-in AI",
-    feat_ai_sub: "Generate product descriptions, analyse trends and automate messages with Claude.",
-    stats_stores: "Stores created",
-    stats_orders: "Orders processed",
-    stats_countries: "Countries",
-    stats_uptime: "Uptime",
-    how_title: "From product to customer",
-    how_sub: "Every step of your business, integrated and automated.",
-    plans_title: "Simple plans, no surprises",
-    plans_sub: "No surprises. Change plans whenever you want.",
-    plans_popular: "POPULAR",
-    plans_btn: "Get started",
-    cta_title: "Ready to open your store?",
-    cta_sub: "Create your store in minutes. No hidden commissions.",
-    cta_btn: "Create my store →",
-  },
-  fr: {
-    feat_sell_title: "Vendez partout",
-    feat_sell_sub: "Votre boutique en ligne synchronisée avec votre point de vente physique.",
-    feat_pos_title: "Vente en personne",
-    feat_pos_sub: "Caisse hors ligne pour boutiques physiques. Enregistrez les ventes sans internet.",
-    feat_manage_title: "Gestion complète",
-    feat_manage_sub: "Produits, commandes, clients et stock — tout intégré et accessible en temps réel.",
-    feat_ai_title: "IA intégrée",
-    feat_ai_sub: "Générez des descriptions de produits, analysez les tendances avec Claude.",
-    stats_stores: "Boutiques créées",
-    stats_orders: "Commandes traitées",
-    stats_countries: "Pays",
-    stats_uptime: "Disponibilité",
-    how_title: "Du produit au client",
-    how_sub: "Chaque étape de votre entreprise, intégrée et automatisée.",
-    plans_title: "Des forfaits simples, sans surprises",
-    plans_sub: "Sans surprises. Changez de forfait quand vous voulez.",
-    plans_popular: "POPULAIRE",
-    plans_btn: "Commencer",
-    cta_title: "Prêt à ouvrir votre boutique?",
-    cta_sub: "Créez votre boutique en minutes. Sans commissions cachées.",
-    cta_btn: "Créer ma boutique →",
-  },
-  es: {
-    feat_sell_title: "Vende en todas partes",
-    feat_sell_sub: "Tu tienda online sincronizada con tu punto de venta físico — en un único panel.",
-    feat_pos_title: "Vende en persona",
-    feat_pos_sub: "TPV sin conexión para tiendas físicas. Registra ventas sin internet.",
-    feat_manage_title: "Gestión completa",
-    feat_manage_sub: "Productos, pedidos, clientes y stock — todo integrado y accesible en tiempo real.",
-    feat_ai_title: "IA integrada",
-    feat_ai_sub: "Genera descripciones de productos, analiza tendencias y automatiza mensajes con Claude.",
-    stats_stores: "Tiendas creadas",
-    stats_orders: "Pedidos procesados",
-    stats_countries: "Países",
-    stats_uptime: "Disponibilidad",
-    how_title: "Del producto al cliente",
-    how_sub: "Cada paso de tu negocio, integrado y automatizado.",
-    plans_title: "Planes simples, sin sorpresas",
-    plans_sub: "Sin sorpresas. Cambia de plan cuando quieras.",
-    plans_popular: "POPULAR",
-    plans_btn: "Empezar",
-    cta_title: "¿Listo para abrir tu tienda?",
-    cta_sub: "Crea tu tienda en minutos. Sin comisiones ocultas.",
-    cta_btn: "Crear mi tienda →",
-  },
-} as const;
+export const revalidate = 3600;
 
+/* ── SVG Icons (Lucide-style outline) ── */
+const IconStore  = () => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" x2="21" y1="6" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>;
+const IconPos    = () => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="8" x2="16" y1="10" y2="10"/><line x1="8" x2="12" y1="14" y2="14"/></svg>;
+const IconChart  = () => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/><line x1="2" x2="22" y1="20" y2="20"/></svg>;
+const IconAI     = () => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a5 5 0 1 0 5 5"/><path d="M12 2v3"/><path d="M12 22v-3"/><path d="m4.22 4.22 2.12 2.12"/><path d="m17.66 17.66 2.12 2.12"/><path d="M2 12h3"/><path d="M19 12h3"/><path d="m4.22 19.78 2.12-2.12"/><path d="m17.66 6.34 2.12-2.12"/></svg>;
 
-const FLOW = [
-  { icon: "📦", pt: "Produto",   en: "Product",  fr: "Produit",  es: "Producto"  },
-  { icon: "🛒", pt: "Carrinho",  en: "Cart",     fr: "Panier",   es: "Carrito"   },
-  { icon: "💳", pt: "Pagamento", en: "Payment",  fr: "Paiement", es: "Pago"      },
-  { icon: "📬", pt: "Pedido",    en: "Order",    fr: "Commande", es: "Pedido"    },
-  { icon: "🚚", pt: "Entrega",   en: "Delivery", fr: "Livraison",es: "Entrega"   },
+/* Flow step icons */
+const IconBox    = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>;
+const IconCart   = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>;
+const IconCard   = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>;
+const IconClip   = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/></svg>;
+const IconTruck  = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/><rect width="7" height="7" x="14" y="11" rx="1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>;
+
+const FEATURES = [
+  {
+    icon: <IconStore />,
+    color: "#153DEC",
+    badge: "Loja Online",
+    pt: { title: "Venda em todo o lado", sub: "A sua loja online sincronizada com o ponto de venda físico — num único painel." },
+    en: { title: "Sell everywhere", sub: "Your online store synced with your physical point of sale — in one single panel." },
+    fr: { title: "Vendez partout", sub: "Votre boutique en ligne synchronisée avec votre point de vente physique." },
+    es: { title: "Vende en todas partes", sub: "Tu tienda online sincronizada con tu punto de venta físico." },
+  },
+  {
+    icon: <IconPos />,
+    color: "#8381FB",
+    badge: "POS",
+    pt: { title: "Vende sem internet", sub: "Registe vendas offline e sincronize automaticamente quando voltar a ter rede." },
+    en: { title: "Sell without internet", sub: "Log sales offline and sync automatically when you're back online." },
+    fr: { title: "Vendez sans internet", sub: "Enregistrez les ventes hors ligne et synchronisez automatiquement." },
+    es: { title: "Vende sin internet", sub: "Registra ventas offline y sincroniza automáticamente al volver a conectarte." },
+  },
+  {
+    icon: <IconChart />,
+    color: "#153DEC",
+    badge: "Analytics",
+    pt: { title: "Gestão em tempo real", sub: "Produtos, pedidos, clientes e stock — tudo integrado e acessível a qualquer hora." },
+    en: { title: "Real-time management", sub: "Products, orders, customers and stock — all integrated and accessible anytime." },
+    fr: { title: "Gestion en temps réel", sub: "Produits, commandes, clients et stock — tout intégré et accessible à tout moment." },
+    es: { title: "Gestión en tiempo real", sub: "Productos, pedidos, clientes y stock — todo integrado y accesible en cualquier momento." },
+  },
+  {
+    icon: <IconAI />,
+    color: "#8381FB",
+    badge: "Claude AI",
+    pt: { title: "IA que trabalha por si", sub: "Gere descrições de produto, analise tendências e automatize mensagens com Claude." },
+    en: { title: "AI that works for you", sub: "Generate product descriptions, analyse trends and automate messages with Claude." },
+    fr: { title: "IA qui travaille pour vous", sub: "Générez des descriptions, analysez les tendances et automatisez avec Claude." },
+    es: { title: "IA que trabaja por ti", sub: "Genera descripciones, analiza tendencias y automatiza mensajes con Claude." },
+  },
 ];
 
-// Revalida a landing page a cada hora — mantém as métricas actualizadas sem queries excessivas
-export const revalidate = 3600;
+const FLOW = [
+  { icon: <IconBox />,   pt: "Produto",   en: "Product",  fr: "Produit",  es: "Producto"  },
+  { icon: <IconCart />,  pt: "Carrinho",  en: "Cart",     fr: "Panier",   es: "Carrito"   },
+  { icon: <IconCard />,  pt: "Pagamento", en: "Payment",  fr: "Paiement", es: "Pago"      },
+  { icon: <IconClip />,  pt: "Pedido",    en: "Order",    fr: "Commande", es: "Pedido"    },
+  { icon: <IconTruck />, pt: "Entrega",   en: "Delivery", fr: "Livraison",es: "Entrega"   },
+];
 
 export default async function HomePage() {
   const locale = getLocale();
-  const c = COPY[locale] ?? COPY.pt;
-  const sym = localeCurrencySymbol(locale); // €, $, Kz
-  const cur = getLocaleCurrency(locale);    // EUR, USD, AOA
+  const sym = localeCurrencySymbol(locale);
+  const cur = getLocaleCurrency(locale);
 
-  // Geo-detecção via Vercel; em dev ?_geo=AO (via middleware) simula Angola
   const hdrs = await headers();
   const geoOverride = hdrs.get("x-geo-override");
   const country = geoOverride ?? hdrs.get("x-vercel-ip-country") ?? (cur === "AOA" ? "AO" : "XX");
   const isAngola = country === "AO";
 
   const flowItems = [
-    { link:"/comecar", text: locale==="en"?"Online Store":locale==="fr"?"Boutique en ligne":locale==="es"?"Tienda online":"Loja Online",        image:"https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=200&fit=crop" },
-    { link:"/comecar", text: locale==="en"?"Point of Sale":locale==="fr"?"Point de vente":locale==="es"?"Punto de venta":"Ponto de Venda",       image:"https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=200&fit=crop" },
-    { link:"/comecar", text: locale==="en"?"Analytics":locale==="fr"?"Analytique":locale==="es"?"Análisis":"Analytics",                          image:"https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=200&fit=crop" },
+    { link:"/comecar", text: locale==="en"?"Online Store":locale==="fr"?"Boutique en ligne":locale==="es"?"Tienda online":"Loja Online",   image:"https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=200&fit=crop" },
+    { link:"/comecar", text: locale==="en"?"Point of Sale":locale==="fr"?"Point de vente":locale==="es"?"Punto de venta":"Ponto de Venda", image:"https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=200&fit=crop" },
+    { link:"/comecar", text: locale==="en"?"Analytics":locale==="fr"?"Analytique":locale==="es"?"Análisis":"Analytics",                    image:"https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=200&fit=crop" },
   ];
+
+  const howLabel = locale==="en"?"How it works":locale==="fr"?"Comment ça marche":locale==="es"?"Cómo funciona":"Como funciona";
+  const howTitle = locale==="en"?"From product to customer":locale==="fr"?"Du produit au client":locale==="es"?"Del producto al cliente":"Do produto ao cliente";
+  const howSub   = locale==="en"?"Every step of your business, integrated and automated.":locale==="fr"?"Chaque étape de votre entreprise, intégrée et automatisée.":locale==="es"?"Cada paso de tu negocio, integrado y automatizado.":"Cada passo do seu negócio, integrado e automatizado.";
+  const ctaTitle = locale==="en"?"Ready to open your store?":locale==="fr"?"Prêt à ouvrir votre boutique ?":locale==="es"?"¿Listo para abrir tu tienda?":"Pronto para abrir a sua loja?";
+  const ctaSub   = locale==="en"?"Create your store in minutes. No hidden commissions.":locale==="fr"?"Créez votre boutique en minutes. Sans commissions cachées.":locale==="es"?"Crea tu tienda en minutos. Sin comisiones ocultas.":"Crie a sua loja em minutos. Sem comissões escondidas.";
+  const ctaBtn   = locale==="en"?"Create my store →":locale==="fr"?"Créer ma boutique →":locale==="es"?"Crear mi tienda →":"Criar a minha loja →";
+  const featLabel= locale==="en"?"Features":locale==="fr"?"Fonctionnalités":locale==="es"?"Funciones":"Funcionalidades";
+  const pricLabel= locale==="en"?"Pricing":locale==="fr"?"Tarifs":locale==="es"?"Precios":"Preços";
+  const aboutLabel=locale==="en"?"About Us":locale==="fr"?"À propos":locale==="es"?"Quiénes somos":"Quem Somos";
+  const loginLabel=t("landing_cta_login", locale);
+  const startLabel=t("landing_cta_start", locale);
 
   return (
     <div className="bg-[#080A12] text-white font-montserrat overflow-x-hidden">
 
-      {/* ── FLUID CURSOR ── */}
-
       {/* ── NAV ── */}
-      <nav className="fixed top-0 inset-x-0 z-50 px-6 py-4" style={{ background: "rgba(8,10,18,0.85)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+      <nav className="fixed top-0 inset-x-0 z-50 px-6 py-4"
+        style={{ background:"rgba(8,10,18,0.88)", backdropFilter:"blur(20px)", borderBottom:"1px solid rgba(255,255,255,0.05)" }}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="text-xl font-bold tracking-tight text-white">
             Link<span className="text-gradient">Commerce</span>
           </Link>
-
-          {/* Links de secção — desktop */}
           <div className="hidden md:flex items-center gap-1 text-sm">
-            <a href="#funcionalidades" className="px-3 py-2 text-white/55 hover:text-white transition-colors rounded-lg hover:bg-white/5">
-              {locale === "en" ? "Features" : locale === "fr" ? "Fonctionnalités" : locale === "es" ? "Funciones" : "Funcionalidades"}
-            </a>
-            <a href="#angola" className="px-3 py-2 text-white/55 hover:text-white transition-colors rounded-lg hover:bg-white/5">
-              Angola
-            </a>
-            <a href="#precos" className="px-3 py-2 text-white/55 hover:text-white transition-colors rounded-lg hover:bg-white/5">
-              {locale === "en" ? "Pricing" : locale === "fr" ? "Tarifs" : locale === "es" ? "Precios" : "Preços"}
-            </a>
-            <a href="#quem-somos" className="px-3 py-2 text-white/55 hover:text-white transition-colors rounded-lg hover:bg-white/5">
-              {locale === "en" ? "About Us" : locale === "fr" ? "À propos" : locale === "es" ? "Quiénes somos" : "Quem Somos"}
-            </a>
+            {[
+              { href:"#funcionalidades", label:featLabel },
+              { href:"#angola", label:"Angola" },
+              { href:"#precos", label:pricLabel },
+              { href:"#quem-somos", label:aboutLabel },
+            ].map(l => (
+              <a key={l.href} href={l.href} className="px-3 py-2 text-white/50 hover:text-white transition-colors rounded-lg hover:bg-white/5">
+                {l.label}
+              </a>
+            ))}
           </div>
-
           <div className="flex items-center gap-3">
             <LanguageSwitcher current={locale} />
-            <Link href="/entrar" className="text-sm font-medium text-white/60 hover:text-white transition-colors px-3 py-2">
-              {t("landing_cta_login", locale)}
+            <Link href="/entrar" className="text-sm font-medium text-white/55 hover:text-white transition-colors px-3 py-2">
+              {loginLabel}
             </Link>
             <Link href="/comecar"
               className="rounded-full px-5 py-2 text-sm font-semibold text-white transition-all hover:scale-105 hover:opacity-90"
-              style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)", boxShadow: "0 0 20px rgba(21,61,236,0.4)" }}>
-              {t("landing_cta_start", locale)}
+              style={{ background:"linear-gradient(135deg,#153DEC,#8381FB)", boxShadow:"0 0 20px rgba(21,61,236,0.4)" }}>
+              {startLabel}
             </Link>
           </div>
         </div>
       </nav>
 
       {/* ── HERO ── */}
-      <section data-hero className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-12 overflow-hidden">
-        {/* Custom canvas hero background — brand blue/violet particles + aurora */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-28 pb-20 overflow-hidden">
         <HeroBackground />
-        {/* Gradient overlay — keeps text crisp */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background:"linear-gradient(180deg,rgba(8,10,18,0.35) 0%,rgba(8,10,18,0.1) 40%,rgba(8,10,18,0.65) 100%)" }} />
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background:"linear-gradient(180deg,rgba(8,10,18,0.3) 0%,rgba(8,10,18,0.05) 40%,rgba(8,10,18,0.7) 100%)" }} />
 
+        {/* Badge */}
+        <div className="relative z-10 mb-6">
+          <span className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold"
+            style={{ background:"rgba(21,61,236,0.15)", border:"1px solid rgba(21,61,236,0.3)", color:"#a5b4fc" }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#8381FB] animate-pulse inline-block" />
+            {locale==="en"?"E-commerce platform for Angola":locale==="fr"?"Plateforme e-commerce pour l'Angola":locale==="es"?"Plataforma e-commerce para Angola":"Plataforma de e-commerce para Angola"}
+          </span>
+        </div>
 
         {/* Title */}
-        <h1 className="relative z-10 text-center text-5xl sm:text-6xl lg:text-[72px] font-extrabold leading-[1.08] mb-5 tracking-tight">
+        <h1 className="relative z-10 text-center text-5xl sm:text-6xl lg:text-[76px] font-extrabold leading-[1.06] mb-6 tracking-tight max-w-4xl">
           {t("landing_h1a", locale)}<br />
           <span className="text-gradient">{t("landing_h1b", locale)}</span>
         </h1>
 
-        <p className="relative z-10 text-center text-lg text-white/45 max-w-lg mb-10 leading-relaxed">
+        <p className="relative z-10 text-center text-lg sm:text-xl text-white/45 max-w-xl mb-10 leading-relaxed">
           {t("landing_sub", locale)}
         </p>
 
         {/* CTAs */}
-        <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3 mb-12">
+        <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3 mb-16">
           <Link href="/comecar"
-            className="rounded-full px-8 py-3.5 text-base font-semibold text-white transition-all hover:scale-105"
-            style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)", boxShadow: "0 0 32px rgba(21,61,236,0.55)" }}>
-            {locale === "en" ? "Create my store →" : locale === "fr" ? "Créer ma boutique →" : locale === "es" ? "Crear mi tienda →" : "Criar a minha loja →"}
+            className="rounded-full px-9 py-3.5 text-base font-semibold text-white transition-all hover:scale-105"
+            style={{ background:"linear-gradient(135deg,#153DEC,#8381FB)", boxShadow:"0 0 36px rgba(21,61,236,0.55)" }}>
+            {ctaBtn}
           </Link>
           <Link href="/entrar"
-            className="rounded-full px-8 py-3.5 text-base font-medium text-white/60 border transition-all hover:border-white/30 hover:text-white"
-            style={{ borderColor: "rgba(255,255,255,0.1)" }}>
-            {t("landing_cta_login", locale)}
+            className="rounded-full px-9 py-3.5 text-base font-medium text-white/55 border transition-all hover:border-white/25 hover:text-white"
+            style={{ borderColor:"rgba(255,255,255,0.1)" }}>
+            {loginLabel}
           </Link>
         </div>
 
-        {/* Live Dashboard */}
-        <div className="relative z-10 w-full max-w-3xl">
-          <LiveDashboard />
+        {/* Clean UI mockup — browser frame */}
+        <div className="relative z-10 w-full max-w-2xl">
+          <div className="rounded-2xl overflow-hidden"
+            style={{ background:"rgba(10,14,30,0.85)", border:"1px solid rgba(255,255,255,0.08)", boxShadow:"0 40px 80px rgba(0,0,0,0.5), 0 0 60px rgba(21,61,236,0.12)" }}>
+            {/* Browser bar */}
+            <div className="flex items-center gap-2 px-4 py-3" style={{ borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+              <div className="flex gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background:"rgba(255,255,255,0.1)" }} />
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background:"rgba(255,255,255,0.1)" }} />
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background:"rgba(255,255,255,0.1)" }} />
+              </div>
+              <div className="flex-1 mx-4 rounded-md px-3 py-1 text-[11px] text-white/20 text-center"
+                style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.06)" }}>
+                linkcommerce.cc/dashboard
+              </div>
+            </div>
+            {/* Dashboard content */}
+            <div className="p-5 grid grid-cols-3 gap-3">
+              {/* KPI cards */}
+              {[
+                { label:locale==="en"?"Revenue":locale==="fr"?"Revenus":"Receita", val:cur==="AOA"?`245.000 ${sym}`:`${sym}245`, up:true },
+                { label:locale==="en"?"Orders":locale==="fr"?"Commandes":"Pedidos", val:"38", up:true },
+                { label:locale==="en"?"Customers":locale==="fr"?"Clients":"Clientes", val:"124", up:true },
+              ].map((k,i) => (
+                <div key={i} className="rounded-xl p-3.5" style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.06)" }}>
+                  <p className="text-[10px] text-white/30 mb-1.5">{k.label}</p>
+                  <p className="text-base font-bold text-white">{k.val}</p>
+                  <p className="text-[10px] text-green-400 mt-1">↑ 12%</p>
+                </div>
+              ))}
+            </div>
+            {/* Mini order list */}
+            <div className="px-5 pb-5 space-y-2">
+              {[
+                { name:"Maria A.", prod:locale==="en"?"Blue Dress":locale==="fr"?"Robe Bleue":"Vestido Azul", val:cur==="AOA"?`8.900 ${sym}`:`${sym}8,90`, status:"delivered" },
+                { name:"João M.", prod:locale==="en"?"Black Sneakers":locale==="fr"?"Baskets Noires":"Ténis Preto", val:cur==="AOA"?`12.500 ${sym}`:`${sym}12,50`, status:"processing" },
+                { name:"Ana S.", prod:locale==="en"?"Handbag":locale==="fr"?"Sac à main":"Mala de mão", val:cur==="AOA"?`6.200 ${sym}`:`${sym}6,20`, status:"pending" },
+              ].map((o,i) => (
+                <div key={i} className="flex items-center justify-between rounded-lg px-3 py-2.5"
+                  style={{ background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.05)" }}>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold"
+                      style={{ background:"rgba(21,61,236,0.2)", color:"#8381FB" }}>{o.name[0]}</div>
+                    <div>
+                      <p className="text-[11px] font-medium text-white">{o.name}</p>
+                      <p className="text-[10px] text-white/30">{o.prod}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-semibold text-white/70">{o.val}</span>
+                    <span className="text-[9px] font-bold rounded-full px-2 py-0.5"
+                      style={{
+                        background: o.status==="delivered"?"rgba(34,197,94,0.15)":o.status==="processing"?"rgba(21,61,236,0.15)":"rgba(234,179,8,0.15)",
+                        color: o.status==="delivered"?"#4ade80":o.status==="processing"?"#a5b4fc":"#fbbf24"
+                      }}>
+                      {o.status==="delivered"?locale==="en"?"Delivered":locale==="fr"?"Livré":"Entregue":o.status==="processing"?locale==="en"?"Processing":locale==="fr"?"En cours":"Em curso":locale==="en"?"Pending":locale==="fr"?"En attente":"Pendente"}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ── TRAÇÃO REAL ── */}
+      {/* ── TRAÇÃO ── */}
       <TraccaoSection locale={locale} />
 
-      {/* ── FEATURE CARDS (Shopify style) ── */}
-      <section id="funcionalidades" className="py-14 px-6">
-        <div className="max-w-6xl mx-auto space-y-5">
-
-          {/* Row 1: Sell everywhere (wide) + POS (narrow) */}
-          <div className="grid md:grid-cols-3 gap-5">
-            {/* Vender em todo o lado — 2/3 */}
-            <div className="md:col-span-2 rounded-3xl overflow-hidden relative min-h-[340px] flex flex-col justify-between p-8"
-              style={{ background: "linear-gradient(135deg, #0a1230 0%, #02053D 100%)", border: "1px solid rgba(21,61,236,0.2)" }}>
-              {/* Mockup da loja dentro do card */}
-              <div className="absolute bottom-0 right-0 w-64 h-52 rounded-tl-2xl overflow-hidden opacity-80"
-                style={{ background: "rgba(21,61,236,0.08)", border: "1px solid rgba(21,61,236,0.15)", borderRight: "none", borderBottom: "none" }}>
-                <div className="p-3 space-y-2">
-                  <div className="flex gap-2 items-center">
-                    <div className="w-10 h-10 rounded-lg" style={{ background: "rgba(131,129,251,0.3)" }} />
-                    <div className="flex-1 space-y-1">
-                      <div className="h-2 rounded-full w-24" style={{ background: "rgba(255,255,255,0.12)" }} />
-                      <div className="h-1.5 rounded-full w-16" style={{ background: "rgba(255,255,255,0.07)" }} />
-                    </div>
-                    <span className="text-xs font-bold text-green-400">{cur === "AOA" ? `89 ${sym}` : `${sym}89`}</span>
-                  </div>
-                  <div className="flex gap-2 items-center">
-                    <div className="w-10 h-10 rounded-lg" style={{ background: "rgba(21,61,236,0.3)" }} />
-                    <div className="flex-1 space-y-1">
-                      <div className="h-2 rounded-full w-20" style={{ background: "rgba(255,255,255,0.12)" }} />
-                      <div className="h-1.5 rounded-full w-12" style={{ background: "rgba(255,255,255,0.07)" }} />
-                    </div>
-                    <span className="text-xs font-bold text-green-400">{cur === "AOA" ? `124 ${sym}` : `${sym}124`}</span>
-                  </div>
-                  <div className="flex gap-2 items-center">
-                    <div className="w-10 h-10 rounded-lg" style={{ background: "rgba(131,129,251,0.2)" }} />
-                    <div className="flex-1 space-y-1">
-                      <div className="h-2 rounded-full w-28" style={{ background: "rgba(255,255,255,0.12)" }} />
-                      <div className="h-1.5 rounded-full w-14" style={{ background: "rgba(255,255,255,0.07)" }} />
-                    </div>
-                    <span className="text-xs font-bold text-green-400">{cur === "AOA" ? `45 ${sym}` : `${sym}45`}</span>
-                  </div>
-                  <div className="mt-3 rounded-lg py-2 text-center text-[10px] font-bold text-white"
-                    style={{ background: "linear-gradient(90deg,#153DEC,#8381FB)" }}>
-                    linkcommerce.cc/loja
-                  </div>
-                </div>
-              </div>
-              <div className="relative z-10 max-w-xs">
-                <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold mb-4"
-                  style={{ background: "rgba(21,61,236,0.2)", color: "#a5b4fc", border: "1px solid rgba(21,61,236,0.3)" }}>
-                  🛍️ {locale === "en" ? "Online Store" : locale === "fr" ? "Boutique en ligne" : locale === "es" ? "Tienda online" : "Loja Online"}
-                </div>
-                <h3 className="text-2xl font-extrabold leading-snug mb-3">{c.feat_sell_title}</h3>
-                <p className="text-sm text-white/45 leading-relaxed">{c.feat_sell_sub}</p>
-              </div>
-            </div>
-
-            {/* POS — 1/3 */}
-            <div className="rounded-3xl overflow-hidden relative min-h-[340px] flex flex-col justify-between p-8"
-              style={{ background: "linear-gradient(160deg, #0d0f1f 0%, #1a0a2e 100%)", border: "1px solid rgba(131,129,251,0.2)" }}>
-              {/* Mockup tablet POS */}
-              <div className="absolute bottom-0 right-0 left-0 flex justify-center">
-                <div className="w-40 h-36 rounded-t-2xl mx-auto overflow-hidden opacity-70"
-                  style={{ background: "rgba(131,129,251,0.08)", border: "1px solid rgba(131,129,251,0.15)", borderBottom: "none" }}>
-                  <div className="p-2.5 space-y-1.5">
-                    <div className="grid grid-cols-2 gap-1">
-                      {[...Array(4)].map((_, i) => (
-                        <div key={i} className="rounded-lg h-8" style={{ background: i === 0 ? "rgba(131,129,251,0.35)" : "rgba(255,255,255,0.06)" }} />
-                      ))}
-                    </div>
-                    <div className="rounded-lg py-1.5 text-center text-[9px] font-bold text-white"
-                      style={{ background: "linear-gradient(90deg,#153DEC,#8381FB)" }}>
-                      {locale === "en" ? "Pay" : locale === "fr" ? "Payer" : locale === "es" ? "Pagar" : "Pagar"}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="relative z-10">
-                <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold mb-4"
-                  style={{ background: "rgba(131,129,251,0.15)", color: "#c4b5fd", border: "1px solid rgba(131,129,251,0.3)" }}>
-                  📲 POS
-                </div>
-                <h3 className="text-xl font-extrabold leading-snug mb-3">{c.feat_pos_title}</h3>
-                <p className="text-sm text-white/45 leading-relaxed">{c.feat_pos_sub}</p>
-              </div>
-            </div>
+      {/* ── FEATURES — 2×2 grid limpa ── */}
+      <section id="funcionalidades" className="py-24 px-6" style={{ borderTop:"1px solid rgba(255,255,255,0.05)" }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color:"#8381FB" }}>{featLabel}</p>
+            <h2 className="text-4xl sm:text-5xl font-extrabold leading-tight">
+              {locale==="en"?"Everything you need to sell":locale==="fr"?"Tout ce dont vous avez besoin":locale==="es"?"Todo lo que necesitas para vender":"Tudo o que precisas para vender"}
+            </h2>
           </div>
 
-          {/* Row 2: Management + AI */}
-          <div className="grid md:grid-cols-2 gap-5">
-            {/* Gestão */}
-            <div className="rounded-3xl overflow-hidden relative min-h-[280px] flex flex-col justify-between p-8"
-              style={{ background: "linear-gradient(135deg, #080c1a 0%, #0d1535 100%)", border: "1px solid rgba(21,61,236,0.15)" }}>
-              <div className="absolute bottom-0 right-6 flex gap-2 items-end">
-                {[55, 72, 60, 88, 75, 95, 100].map((h, i) => (
-                  <div key={i} className="w-5 rounded-t-md transition-all"
-                    style={{
-                      height: `${h * 0.85}px`,
-                      background: i === 6 ? "linear-gradient(180deg,#153DEC,#8381FB)" : "rgba(131,129,251,0.18)",
-                      opacity: i === 6 ? 1 : 0.6 + i * 0.05,
-                    }} />
-                ))}
-              </div>
-              <div className="relative z-10 max-w-xs">
-                <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold mb-4"
-                  style={{ background: "rgba(21,61,236,0.15)", color: "#a5b4fc", border: "1px solid rgba(21,61,236,0.25)" }}>
-                  📊 {locale === "en" ? "Analytics" : locale === "fr" ? "Analytique" : locale === "es" ? "Análisis" : "Analytics"}
-                </div>
-                <h3 className="text-xl font-extrabold leading-snug mb-3">{c.feat_manage_title}</h3>
-                <p className="text-sm text-white/45 leading-relaxed">{c.feat_manage_sub}</p>
-              </div>
-            </div>
-
-            {/* IA */}
-            <div className="rounded-3xl overflow-hidden relative min-h-[280px] flex flex-col justify-between p-8"
-              style={{ background: "linear-gradient(135deg, #0a0a1a 0%, #1a1040 100%)", border: "1px solid rgba(131,129,251,0.2)" }}>
-              {/* Fake AI chat bubble */}
-              <div className="absolute bottom-6 right-6 left-6 space-y-2 opacity-70">
-                <div className="flex justify-end">
-                  <div className="rounded-2xl rounded-tr-sm px-3 py-2 text-[10px] text-white/60 max-w-[160px]"
-                    style={{ background: "rgba(21,61,236,0.25)", border: "1px solid rgba(21,61,236,0.2)" }}>
-                    {locale === "en" ? "Generate description for blue sweater" : "Gera descrição para camisola azul"}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {FEATURES.map((f) => {
+              const copy = (f as unknown as Record<string, {title:string;sub:string}>)[locale] ?? f.pt;
+              return (
+                <div key={f.badge} className="rounded-2xl p-7 flex flex-col gap-5 transition-all duration-300 hover:-translate-y-1"
+                  style={{ background:"rgba(255,255,255,0.025)", border:"1px solid rgba(255,255,255,0.07)", boxShadow:"0 4px 24px rgba(0,0,0,0.2)" }}>
+                  {/* Icon */}
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{ background:`${f.color}18`, border:`1px solid ${f.color}30`, color:f.color }}>
+                    {f.icon}
+                  </div>
+                  {/* Badge */}
+                  <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color:`${f.color}cc` }}>{f.badge}</span>
+                  {/* Text */}
+                  <div>
+                    <h3 className="text-base font-bold text-white mb-2 leading-snug">{copy.title}</h3>
+                    <p className="text-sm text-white/40 leading-relaxed">{copy.sub}</p>
                   </div>
                 </div>
-                <div className="flex justify-start">
-                  <div className="rounded-2xl rounded-tl-sm px-3 py-2 text-[10px] text-white/70 max-w-[200px]"
-                    style={{ background: "rgba(131,129,251,0.15)", border: "1px solid rgba(131,129,251,0.2)" }}>
-                    {locale === "en" ? "✨ Premium merino wool sweater, perfect for cold days..." : "✨ Camisola de lã merino premium, perfeita para os dias frios..."}
-                  </div>
-                </div>
-              </div>
-              <div className="relative z-10">
-                <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold mb-4"
-                  style={{ background: "rgba(131,129,251,0.15)", color: "#c4b5fd", border: "1px solid rgba(131,129,251,0.25)" }}>
-                  ✨ Claude AI
-                </div>
-                <h3 className="text-xl font-extrabold leading-snug mb-3">{c.feat_ai_title}</h3>
-                <p className="text-sm text-white/45 leading-relaxed">{c.feat_ai_sub}</p>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
       </section>
-
-      {/* ── GLOBAL NETWORK ── */}
-      <GlobalNetwork locale={locale} />
 
       {/* ── ANGOLA ── */}
       <div id="angola"><AngolaSection /></div>
 
-      {/* ── FLOW ── */}
-      <section className="py-14 px-6 relative overflow-hidden"
-        style={{ background: "linear-gradient(180deg,#080A12 0%,#02053D 50%,#080A12 100%)" }}>
-        <div className="max-w-3xl mx-auto text-center mb-10">
-          <p className="text-xs font-semibold tracking-widest text-[#8381FB] uppercase mb-3">
-            {locale === "en" ? "How it works" : locale === "fr" ? "Comment ça marche" : locale === "es" ? "Cómo funciona" : "Como funciona"}
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold">{c.how_title}</h2>
-          <p className="mt-3 text-white/40">{c.how_sub}</p>
+      {/* ── COMO FUNCIONA ── */}
+      <section className="py-24 px-6 relative overflow-hidden"
+        style={{ background:"linear-gradient(180deg,#080A12 0%,#02053D 50%,#080A12 100%)" }}>
+        <div className="max-w-3xl mx-auto text-center mb-14">
+          <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color:"#8381FB" }}>{howLabel}</p>
+          <h2 className="text-4xl sm:text-5xl font-extrabold">{howTitle}</h2>
+          <p className="mt-4 text-white/40 text-lg">{howSub}</p>
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-0 max-w-2xl mx-auto">
           {FLOW.map((step, i) => (
             <div key={step.pt} className="flex items-center">
-              <div className="flex flex-col items-center gap-2 group cursor-default">
-                <div className="h-16 w-16 rounded-2xl flex items-center justify-center text-2xl transition-all duration-300 group-hover:scale-110"
-                  style={{ background: "rgba(21,61,236,0.1)", border: "1px solid rgba(21,61,236,0.3)", boxShadow: "0 0 20px rgba(21,61,236,0.1)" }}>
+              <div className="flex flex-col items-center gap-3 group cursor-default">
+                <div className="h-14 w-14 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                  style={{ background:"rgba(21,61,236,0.1)", border:"1px solid rgba(21,61,236,0.25)", color:"#8381FB", boxShadow:"0 0 16px rgba(21,61,236,0.1)" }}>
                   {step.icon}
                 </div>
-                <span className="text-xs font-semibold text-white/40 group-hover:text-white transition-colors">
-                  {locale === "en" ? step.en : locale === "fr" ? step.fr : locale === "es" ? step.es : step.pt}
+                <span className="text-[11px] font-semibold text-white/35 group-hover:text-white transition-colors">
+                  {(step as unknown as Record<string, string>)[locale] ?? step.pt}
                 </span>
               </div>
               {i < FLOW.length - 1 && (
-                <div className="hidden sm:flex items-center mx-3 gap-1">
-                  <div className="h-px w-10 rounded-full" style={{ background: "rgba(131,129,251,0.25)" }}>
-                    <div className="h-full w-1/2 rounded-full animate-glow-pulse"
-                      style={{ background: "linear-gradient(90deg,#153DEC,#8381FB)", animationDelay: `${i*0.4}s` }} />
-                  </div>
-                  <span className="text-[#8381FB] text-xs">→</span>
+                <div className="hidden sm:flex items-center mx-4">
+                  <svg width="32" height="2" viewBox="0 0 32 2">
+                    <line x1="0" y1="1" x2="26" y2="1" stroke="rgba(131,129,251,0.25)" strokeWidth="1.5" strokeDasharray="3 2" />
+                    <polyline points="24,−3 30,1 24,5" fill="none" stroke="rgba(131,129,251,0.4)" strokeWidth="1.2" />
+                  </svg>
                 </div>
               )}
             </div>
@@ -404,8 +316,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── FLOWING MENU (features showcase) ── */}
-      <div style={{ height: "340px" }}>
+      {/* ── FLOWING MENU ── */}
+      <div style={{ height:"320px" }}>
         <FlowingMenu items={flowItems}
           bgColor="#080A12"
           marqueeBgColor="#153DFC"
@@ -416,25 +328,24 @@ export default async function HomePage() {
       </div>
 
       {/* ── PLANOS ── */}
-      <section id="precos" className="py-14 px-6">
+      <section id="precos" className="py-24 px-6">
         <PricingSection locale={locale} isAngola={isAngola} />
       </section>
 
       {/* ── CTA FINAL ── */}
-      <section className="py-16 px-6 text-center relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(21,61,236,0.12) 0%, transparent 70%)" }} />
-        </div>
+      <section className="py-24 px-6 text-center relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background:"radial-gradient(ellipse at 50% 50%, rgba(21,61,236,0.1) 0%, transparent 65%)" }} />
         <div className="relative z-10 max-w-2xl mx-auto">
-          <h2 className="text-4xl sm:text-5xl font-extrabold mb-4 leading-tight">
-            {c.cta_title.split("?")[0]}?<br />
-            <span className="text-gradient">{locale === "en" ? "Start today." : locale === "fr" ? "Commencez aujourd'hui." : locale === "es" ? "Empieza hoy." : "Comece hoje."}</span>
+          <h2 className="text-4xl sm:text-5xl font-extrabold mb-5 leading-tight">
+            {ctaTitle.split("?")[0]}?<br />
+            <span className="text-gradient">{locale==="en"?"Start today.":locale==="fr"?"Commencez aujourd'hui.":locale==="es"?"Empieza hoy.":"Comece hoje."}</span>
           </h2>
-          <p className="text-white/40 text-lg mb-10">{c.cta_sub}</p>
+          <p className="text-white/40 text-lg mb-10">{ctaSub}</p>
           <Link href="/comecar"
             className="inline-flex rounded-full px-10 py-4 text-base font-semibold text-white transition-all hover:scale-105"
-            style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)", boxShadow: "0 0 50px rgba(21,61,236,0.5)" }}>
-            {c.cta_btn}
+            style={{ background:"linear-gradient(135deg,#153DEC,#8381FB)", boxShadow:"0 0 50px rgba(21,61,236,0.45)" }}>
+            {ctaBtn}
           </Link>
         </div>
       </section>
@@ -442,14 +353,17 @@ export default async function HomePage() {
       <div id="quem-somos"><QuemSomosSection /></div>
 
       {/* ── FOOTER ── */}
-      <footer className="px-6 py-8" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+      <footer className="px-6 py-10" style={{ borderTop:"1px solid rgba(255,255,255,0.06)" }}>
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <span className="text-sm font-bold">Link<span className="text-gradient">Commerce</span></span>
           <div className="flex items-center gap-6 text-xs text-white/25">
-            <Link href="/entrar" className="hover:text-white transition-colors">{t("landing_cta_login", locale)}</Link>
-            <Link href="/comecar" className="hover:text-white transition-colors">{t("landing_cta_start", locale)}</Link>
+            <Link href="/entrar" className="hover:text-white transition-colors">{loginLabel}</Link>
+            <Link href="/comecar" className="hover:text-white transition-colors">{startLabel}</Link>
             <Link href="/termos" className="hover:text-white transition-colors">Termos</Link>
             <Link href="/privacidade" className="hover:text-white transition-colors">Privacidade</Link>
+            <a href="mailto:suporte@linkcommerce.cc" className="hover:text-white transition-colors">
+              {locale==="en"?"Contact":locale==="fr"?"Contact":"Contacto"}
+            </a>
           </div>
           <p className="text-xs text-white/20">© {new Date().getFullYear()} LinkCommerce</p>
         </div>
