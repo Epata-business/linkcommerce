@@ -3,15 +3,15 @@
   "crons": [
     {
       "path": "/api/cron/expirar-reservas",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 2 * * *"
     },
     {
       "path": "/api/cron/libertar-reservas",
-      "schedule": "*/10 * * * *"
+      "schedule": "0 3 * * *"
     },
     {
       "path": "/api/cron/recuperar-carrinhos",
-      "schedule": "0 * * * *"
+      "schedule": "0 8 * * *"
     },
     {
       "path": "/api/cron/expirar-trials",
