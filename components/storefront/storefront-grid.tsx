@@ -29,6 +29,9 @@ interface Props {
   subdominio: string;
   moeda: string;
   corPrimaria: string;
+  tema?: string;
+  cardBg?: string;
+  cardText?: string;
   initialQuery: string;
   locale: string;
   outOfStockLabel: string;
@@ -52,7 +55,7 @@ function isDirectImageUrl(url: string | null) {
 }
 
 export function StorefrontGrid({
-  produtos, subdominio, moeda, corPrimaria, initialQuery, outOfStockLabel, lastUnitsLabel,
+  produtos, subdominio, moeda, corPrimaria, tema, cardBg, cardText, initialQuery, outOfStockLabel, lastUnitsLabel,
 }: Props) {
   const [filtered, setFiltered] = useState<Produto[]>(() => {
     if (!initialQuery) return produtos;
@@ -84,7 +87,7 @@ export function StorefrontGrid({
             return (
               <article
                 key={produto.id}
-                className="group relative rounded-3xl overflow-hidden bg-white transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl"
+                className={`group relative rounded-3xl overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl ${cardBg ?? "bg-white"} ${cardText ?? "text-slate-900"}`}
                 style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06)" }}
               >
                 <Link href={`/loja/${subdominio}/produto/${produto.id}`} className="block">
@@ -134,13 +137,13 @@ export function StorefrontGrid({
 
                   <div className="px-4 pt-4 pb-2">
                     <h3
-                      className="font-semibold text-slate-900 text-sm leading-snug line-clamp-2 group-hover:underline underline-offset-2"
+                      className={`font-semibold text-sm leading-snug line-clamp-2 group-hover:underline underline-offset-2 ${cardText ?? "text-slate-900"}`}
                       style={{ textDecorationColor: corPrimaria }}
                     >
                       {produto.titulo}
                     </h3>
                     {produto.descricao && (
-                      <p className="mt-1 text-xs text-slate-400 line-clamp-2 leading-relaxed">{produto.descricao}</p>
+                      <p className={`mt-1 text-xs line-clamp-2 leading-relaxed opacity-50 ${cardText ?? "text-slate-400"}`}>{produto.descricao}</p>
                     )}
                     <p className="mt-3 text-xl font-black" style={{ color: corPrimaria }}>
                       {formatarPreco(produto.preco, moeda)}
