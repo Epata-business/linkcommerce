@@ -33,7 +33,8 @@ export type ResultadoCrescimento =
   | { tipo: "insuficiente" };                                // esconder
 
 function calcularCrescimento(actual: number, anterior: number): ResultadoCrescimento {
-  if (anterior < THRESHOLD_MINIMO) {
+  // Amostra insuficiente em qualquer dos períodos — não mostrar percentagem
+  if (anterior < THRESHOLD_MINIMO || actual < THRESHOLD_MINIMO) {
     return actual > 0 ? { tipo: "novo" } : { tipo: "insuficiente" };
   }
   const pct = ((actual - anterior) / anterior) * 100;
