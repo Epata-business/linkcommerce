@@ -283,10 +283,10 @@ export default async function HomePage() {
                   🛍 {locale==="en"?"Online Store":locale==="fr"?"Boutique":"Loja Online"}
                 </span>
                 <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
-                  {locale==="en"?"Sell everywhere":locale==="fr"?"Vendez partout":"Venda em todo o lado"}
+                  {locale==="en"?"Your store online":locale==="fr"?"Votre boutique en ligne":"A sua loja na internet"}
                 </h3>
                 <p className="text-sm text-white/40 max-w-xs">
-                  {locale==="en"?"Your online store synced with your physical POS — one panel.":locale==="fr"?"Boutique en ligne synchronisée avec votre point de vente.":"A sua loja online sincronizada com o ponto de venda físico — num único painel."}
+                  {locale==="en"?"Subdomain, product catalogue, cart and payments — ready to use.":locale==="fr"?"Sous-domaine, catalogue, panier et paiements — prêt à l'emploi.":"Subdomínio próprio, catálogo de produtos, carrinho e pagamentos — tudo pronto a usar."}
                 </p>
               </div>
               {/* Mini product list mockup */}
@@ -315,10 +315,10 @@ export default async function HomePage() {
                   ↗ POS
                 </span>
                 <h3 className="text-lg font-bold text-white mb-2">
-                  {locale==="en"?"Sell without internet":locale==="fr"?"Vendez sans internet":"Venda presencialmente"}
+                  {locale==="en"?"In-store sales":locale==="fr"?"Ventes en magasin":"Venda presencialmente"}
                 </h3>
                 <p className="text-xs text-white/40 leading-relaxed">
-                  {locale==="en"?"Offline POS for physical stores.":locale==="fr"?"POS hors ligne pour les commerces.":"POS offline para lojas físicas. Registe vendas sem internet e sincronize automaticamente."}
+                  {locale==="en"?"POS for physical stores. Sync stock with your online store.":locale==="fr"?"POS pour les commerces physiques. Synchronisez le stock avec votre boutique.":"POS para lojas físicas. Registe vendas presenciais e sincronize o stock com a loja online."}
                 </p>
               </div>
               {/* POS mockup */}
