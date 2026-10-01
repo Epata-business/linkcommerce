@@ -162,6 +162,7 @@ model Loja {
   logotipoUrl   String?
   tipoNegocio   String? // ex: "moda feminina" — usado pela sugestão de IA no onboarding
   templateBase  String   @default("produtos_fisicos") // 'produtos_fisicos' | 'produtos_digitais'
+  tema          String   @default("essencial")        // slug do tema activo — ver lib/temas.ts
   publicada     Boolean  @default(true) // loja fica pública imediatamente após config
   moeda         String   @default("EUR") // EUR | USD | AOA
   nif           String?  // Número de Identificação Fiscal da loja

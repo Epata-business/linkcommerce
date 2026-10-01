@@ -32,6 +32,7 @@ const ALL_NAV_LINKS: { href: string; label: string; recurso: Recurso }[] = [
   { href: "/dashboard/avaliacoes",    label: "Avaliações",     recurso: "avaliacoes"     },
   { href: "/dashboard/notificacoes",  label: "Notificações",   recurso: "notificacoes"   },
   { href: "/dashboard/api",           label: "API",            recurso: "api"            },
+  { href: "/dashboard/temas",         label: "Temas",          recurso: "temas"          },
   { href: "/dashboard/configuracoes", label: "Configurações",  recurso: "configuracoes"  },
 ];
 
