@@ -18,6 +18,10 @@ export default async function SubscreverPage({
   const session = await auth();
   if (!session?.user) redirect("/entrar");
 
+  // Admin nunca precisa de subscrição
+  const role = (session.user as { role?: string }).role;
+  if (role === "ADMIN_PLATAFORMA") redirect("/admin");
+
   const hdrs = await headers();
   const geoOverride = hdrs.get("x-geo-override");
   const country = geoOverride ?? hdrs.get("x-vercel-ip-country") ?? "XX";

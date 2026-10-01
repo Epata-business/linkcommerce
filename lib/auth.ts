@@ -11,7 +11,7 @@ import { prisma } from "@/lib/prisma";
 // — NextAuth v5 lança Configuration error se clientId ou clientSecret forem undefined/""
 const oauthProviders = [
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
-    ? Google({ clientId: process.env.GOOGLE_CLIENT_ID, clientSecret: process.env.GOOGLE_CLIENT_SECRET })
+    ? Google({ clientId: process.env.GOOGLE_CLIENT_ID, clientSecret: process.env.GOOGLE_CLIENT_SECRET, allowDangerousEmailAccountLinking: true })
     : null,
   process.env.GITHUB_ID && process.env.GITHUB_SECRET
     ? GitHub({ clientId: process.env.GITHUB_ID, clientSecret: process.env.GITHUB_SECRET })
