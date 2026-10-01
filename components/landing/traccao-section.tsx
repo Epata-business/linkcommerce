@@ -44,16 +44,16 @@ export async function TraccaoSection({ locale }: { locale: string }) {
         >
           {metricas.map((m, i) => (
             <div
-              key={m.label}
+              key={`${m.label}-${i}`}
               className="py-10 pr-10"
               style={{
                 borderRight: i < metricas.length - 1 ? "1px solid rgba(255,255,255,0.08)" : "none",
                 paddingLeft: i === 0 ? "0" : "2.5rem",
               }}
             >
-              {/* Valor principal */}
+              {/* Valor principal — texto longo (ex: "Em crescimento") usa tamanho menor */}
               <p
-                className="text-5xl sm:text-6xl font-extrabold mb-3 leading-none"
+                className={`font-extrabold mb-3 leading-none ${m.valor.length > 6 ? "text-3xl sm:text-4xl" : "text-5xl sm:text-6xl"}`}
                 style={{
                   background: "linear-gradient(135deg,#153DEC,#8381FB)",
                   WebkitBackgroundClip: "text",
