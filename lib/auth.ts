@@ -7,6 +7,15 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
+// Lê admins do env — formato CSV: "email1@x.com,email2@x.com"
+// Definido em .env.local e nas variáveis de ambiente do Vercel (nunca hardcoded)
+function getAdminEmails(): string[] {
+  return (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map(e => e.trim().toLowerCase())
+    .filter(Boolean);
+}
+
 // Providers OAuth só são registados se AMBAS as variáveis estiverem definidas e não-vazias
 // — NextAuth v5 lança Configuration error se clientId ou clientSecret forem undefined/""
 const oauthProviders = [
@@ -52,14 +61,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user, trigger }) {
       if (user) {
-        const ADMIN_EMAILS = ["contato.epata@gmail.com", "aldirpedro10@gmail.com"];
-        const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
+        const adminEmails = getAdminEmails();
+        const isAdmin = adminEmails.includes((user.email ?? "").toLowerCase());
         if (isAdmin) {
           // Garante role admin no token — Prisma update é best-effort (não bloqueia login se falhar)
           token.role = "ADMIN_PLATAFORMA";
           try {
             await prisma.user.update({
-              where: { email: "contato.epata@gmail.com" },
+              where: { email: user.email! },
               data: { role: "ADMIN_PLATAFORMA" },
             });
           } catch { /* silencia erros de DB — role já está no token */ }
@@ -101,8 +110,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   events: {
     async signIn({ user }) {
-      const ADMIN_EMAILS = ["contato.epata@gmail.com", "aldirpedro10@gmail.com"];
-      if (user.email && ADMIN_EMAILS.includes(user.email)) {
+      const adminEmails = getAdminEmails();
+      if (user.email && adminEmails.includes(user.email.toLowerCase())) {
         try {
           await prisma.user.update({
             where: { email: user.email },
