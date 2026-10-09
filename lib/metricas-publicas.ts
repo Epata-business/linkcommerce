@@ -108,16 +108,16 @@ export async function calcularMetricasPublicas(): Promise<MetricaPublica[]> {
       sublabel: "Status diferente de cancelado",
       mostrar: pedidosValidos > 0,
     },
-    // 4. Views — usa total histórico se este mês ainda não tem dados
+    // 4. Views — usa total histórico se este mês < threshold mínimo (evita "+1" público)
     {
       valor: crescimentoViews.tipo === "percentagem"
         ? crescimentoViews.label
-        : arredondarPublico(viewsMesActual > 0 ? viewsMesActual : viewsTotal),
+        : arredondarPublico(viewsMesActual >= THRESHOLD_MINIMO ? viewsMesActual : viewsTotal),
       label: crescimentoViews.tipo === "percentagem" ? "CRESCIMENTO DE VIEWS" : "VISUALIZAÇÕES",
       sublabel: crescimentoViews.tipo === "percentagem"
         ? "Este mês vs. mês anterior"
-        : viewsMesActual > 0 ? "Lojas LinkCommerce — este mês" : "Lojas LinkCommerce — total",
-      mostrar: viewsTotal > 0,
+        : viewsMesActual >= THRESHOLD_MINIMO ? "Lojas LinkCommerce — este mês" : "Lojas LinkCommerce — total",
+      mostrar: viewsTotal >= THRESHOLD_MINIMO,
     },
   ];
 
