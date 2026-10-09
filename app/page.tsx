@@ -11,6 +11,7 @@ const FlowingMenu    = dynamic(() => import("@/components/landing/FlowingMenu"),
 import { AngolaSection } from "@/components/landing/angola-section";
 import { QuemSomosSection } from "@/components/landing/quem-somos-section";
 import { TraccaoSection } from "@/components/landing/traccao-section";
+import { PhoneDemoSection } from "@/components/landing/PhoneDemoSection";
 
 export const revalidate = 3600;
 
@@ -257,6 +258,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── PHONE DEMO ── */}
+      <PhoneDemoSection locale={locale} />
 
       {/* ── TRAÇÃO ── */}
       <TraccaoSection locale={locale} />
