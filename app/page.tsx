@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import Link from "next/link";
 import { getLocale, getLocaleCurrency, localeCurrencySymbol, t } from "@/lib/i18n";
+import { TEMAS } from "@/lib/temas";
 import { LanguageSwitcher } from "@/components/landing/language-switcher";
 import { PricingSection } from "@/components/landing/pricing-section";
 import dynamic from "next/dynamic";
@@ -410,98 +411,54 @@ export default async function HomePage() {
             </p>
           </div>
 
-          {/* Bento de temas */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Bento de temas — usa catálogo real de lib/temas.ts */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Tema grande: primeiro gratuito */}
+            {(() => {
+              const t0 = TEMAS[0];
+              return (
+                <div key={t0.slug} className="col-span-2 row-span-2 rounded-2xl overflow-hidden relative group"
+                  style={{ background:"#0e0e0e", border:`1px solid ${t0.cor}30`, minHeight:"360px" }}>
+                  <img src={t0.previewDesktop} className="absolute inset-0 w-full h-full object-cover opacity-55 group-hover:opacity-70 transition-opacity duration-500" alt={t0.nome} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <span className="inline-block rounded-full px-2.5 py-1 text-[10px] font-bold mb-3"
+                      style={{ background:`${t0.cor}25`, color:"#fff", border:`1px solid ${t0.cor}50` }}>{t0.nichoLabel}</span>
+                    <h3 className="text-xl font-bold text-white mb-1">Tema {t0.nome}</h3>
+                    <p className="text-xs text-white/50">{t0.descricao.split(".")[0]}.</p>
+                    <span className="mt-3 inline-block text-[10px] font-bold rounded-full px-2.5 py-1" style={{ background:"rgba(74,222,128,0.15)", color:"#4ade80" }}>
+                      {locale==="en"?"Free":"Grátis"}
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
 
-            {/* Tema Moda — grande */}
-            <div className="col-span-2 lg:col-span-1 row-span-2 rounded-2xl overflow-hidden relative group"
-              style={{ background:"#0e0e0e", border:"1px solid rgba(255,255,255,0.08)", minHeight:"380px" }}>
-              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=800&fit=crop&q=80"
-                className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-70 transition-opacity duration-500" alt="Tema Moda" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <span className="inline-block rounded-full px-2.5 py-1 text-[10px] font-bold mb-3"
-                  style={{ background:"rgba(255,255,255,0.15)", color:"#fff" }}>Moda</span>
-                <h3 className="text-xl font-bold text-white mb-1">Tema Moda</h3>
-                <p className="text-xs text-white/50">Hero editorial, lookbook, coleções e variantes de tamanho.</p>
-                <span className="mt-3 inline-block text-[10px] font-bold text-white/30 uppercase tracking-widest">Grátis</span>
-              </div>
-            </div>
-
-            {/* Tema Jóia */}
-            <div className="rounded-2xl overflow-hidden relative group"
-              style={{ background:"#0a0a08", border:"1px solid rgba(197,162,83,0.2)", minHeight:"180px" }}>
-              <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=300&fit=crop&q=80"
-                className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-65 transition-opacity duration-500" alt="Tema Joalharia" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                <span className="inline-block rounded-full px-2.5 py-1 text-[10px] font-bold mb-2"
-                  style={{ background:"rgba(197,162,83,0.2)", color:"#C5A253", border:"1px solid rgba(197,162,83,0.3)" }}>Joalharia</span>
-                <h3 className="text-base font-bold text-white">Tema Jóia</h3>
-                <div className="flex items-center justify-between mt-2">
-                  <p className="text-[10px] text-white/40">Luxury escuro, configurador</p>
-                  <span className="text-[10px] font-bold rounded-full px-2 py-0.5 bg-amber-400/20 text-amber-400">Pro</span>
+            {/* Restantes 7 temas em cards pequenos */}
+            {TEMAS.slice(1).map(tema => (
+              <div key={tema.slug} className="rounded-2xl overflow-hidden relative group"
+                style={{ background:"#0e0e0e", border:`1px solid ${tema.cor}25`, minHeight:"170px" }}>
+                <img src={tema.previewDesktop} className="absolute inset-0 w-full h-full object-cover opacity-45 group-hover:opacity-60 transition-opacity duration-500" alt={tema.nome} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <span className="inline-block rounded-full px-2 py-0.5 text-[9px] font-bold mb-1.5"
+                    style={{ background:`${tema.cor}25`, color:"#fff", border:`1px solid ${tema.cor}40` }}>{tema.nichoLabel}</span>
+                  <h3 className="text-sm font-bold text-white">Tema {tema.nome}</h3>
+                  <div className="flex items-center justify-between mt-1.5">
+                    <p className="text-[9px] text-white/40 truncate max-w-[70%]">{tema.caracteristicas[0]}</p>
+                    <span className={`text-[9px] font-bold rounded-full px-2 py-0.5 ${tema.plano==="gratuito"?"bg-green-400/15 text-green-400":"bg-amber-400/15 text-amber-400"}`}>
+                      {tema.plano==="gratuito"?(locale==="en"?"Free":"Grátis"):"Pro"}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            {/* Tema Casa */}
-            <div className="rounded-2xl overflow-hidden relative group"
-              style={{ background:"#0d0a08", border:"1px solid rgba(92,74,58,0.3)", minHeight:"180px" }}>
-              <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop&q=80"
-                className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-65 transition-opacity duration-500" alt="Tema Casa" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                <span className="inline-block rounded-full px-2.5 py-1 text-[10px] font-bold mb-2"
-                  style={{ background:"rgba(92,74,58,0.3)", color:"#c8a882", border:"1px solid rgba(92,74,58,0.4)" }}>Mobiliário</span>
-                <h3 className="text-base font-bold text-white">Tema Casa</h3>
-                <div className="flex items-center justify-between mt-2">
-                  <p className="text-[10px] text-white/40">Ambiente, configurador</p>
-                  <span className="text-[10px] font-bold rounded-full px-2 py-0.5 bg-amber-400/20 text-amber-400">Pro</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Tema Gourmet */}
-            <div className="rounded-2xl overflow-hidden relative group"
-              style={{ background:"#0f0805", border:"1px solid rgba(139,37,0,0.3)", minHeight:"180px" }}>
-              <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop&q=80"
-                className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-65 transition-opacity duration-500" alt="Tema Gourmet" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                <span className="inline-block rounded-full px-2.5 py-1 text-[10px] font-bold mb-2"
-                  style={{ background:"rgba(139,37,0,0.25)", color:"#f87171", border:"1px solid rgba(139,37,0,0.4)" }}>Restaurante</span>
-                <h3 className="text-base font-bold text-white">Tema Gourmet</h3>
-                <div className="flex items-center justify-between mt-2">
-                  <p className="text-[10px] text-white/40">Menu visual, reservas</p>
-                  <span className="text-[10px] font-bold rounded-full px-2 py-0.5 bg-amber-400/20 text-amber-400">Pro</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Tema Beleza */}
-            <div className="rounded-2xl overflow-hidden relative group"
-              style={{ background:"#100810", border:"1px solid rgba(196,116,138,0.2)", minHeight:"180px" }}>
-              <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=300&fit=crop&q=80"
-                className="absolute inset-0 w-full h-full object-cover opacity-45 group-hover:opacity-60 transition-opacity duration-500" alt="Tema Beleza" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                <span className="inline-block rounded-full px-2.5 py-1 text-[10px] font-bold mb-2"
-                  style={{ background:"rgba(196,116,138,0.2)", color:"#f0abbc", border:"1px solid rgba(196,116,138,0.3)" }}>Beleza</span>
-                <h3 className="text-base font-bold text-white">Tema Beleza</h3>
-                <div className="flex items-center justify-between mt-2">
-                  <p className="text-[10px] text-white/40">Editorial, kits, rotinas</p>
-                  <span className="text-[10px] font-bold rounded-full px-2 py-0.5 bg-amber-400/20 text-amber-400">Pro</span>
-                </div>
-              </div>
-            </div>
-
+            ))}
           </div>
 
           {/* CTA para ver todos */}
           <div className="mt-8 flex items-center justify-between">
             <p className="text-sm text-white/30">
-              {locale==="en"?"8 themes available · More coming soon":locale==="fr"?"8 thèmes disponibles · D'autres arrivent bientôt":"8 temas disponíveis · Mais em breve"}
+              {locale==="en"?"8 themes · 4 free, 4 Pro":locale==="fr"?"8 thèmes · 4 gratuits, 4 Pro":locale==="es"?"8 temas · 4 gratis, 4 Pro":"8 temas · 4 gratuitos, 4 Pro"}
             </p>
             <Link href="/comecar"
               className="text-sm font-semibold text-white/60 hover:text-white transition-colors">
