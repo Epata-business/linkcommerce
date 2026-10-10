@@ -1,5 +1,5 @@
 "use client";
-
+// v2 — sem label pré-visualização, temas reais, IA honesta
 import { useEffect, useState } from "react";
 
 const SCREENS = [
