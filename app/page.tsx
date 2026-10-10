@@ -267,7 +267,7 @@ export default async function HomePage() {
       <TraccaoSection locale={locale} />
 
       {/* ── FEATURES — bento grid com mockups ── */}
-      <section id="funcionalidades" className="py-24 px-6" style={{ borderTop:"1px solid rgba(255,255,255,0.05)" }}>
+      {false && <section id="funcionalidades" className="py-24 px-6" style={{ borderTop:"1px solid rgba(255,255,255,0.05)" }}>
         <div className="max-w-6xl mx-auto">
           <div className="mb-14 max-w-2xl">
             <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color:"#8381FB" }}>{featLabel}</p>
@@ -394,7 +394,7 @@ export default async function HomePage() {
 
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* ── TEMAS DA LOJA ── */}
       <section className="py-24 px-6" style={{ borderTop:"1px solid rgba(255,255,255,0.05)" }}>
