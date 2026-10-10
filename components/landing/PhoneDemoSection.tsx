@@ -35,7 +35,7 @@ const SCREENS = [
   },
   {
     id: "ia-produtos",
-    label: "IA para Produtos",
+    label: "Edição de produtos",
     sublabel: "Descrição, título e sugestão de preço — com Claude, no formulário do produto",
     content: <DescricoesScreen />,
   },
