@@ -22,12 +22,6 @@ const SCREENS = [
     content: <ProdutosScreen />,
   },
   {
-    id: "pos",
-    label: "Ponto de venda",
-    sublabel: "Registe vendas presenciais e sincronize o stock",
-    content: <PosScreen />,
-  },
-  {
     id: "temas",
     label: "Temas da loja",
     sublabel: "Visual personalizado para cada nicho de negócio",
