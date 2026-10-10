@@ -504,17 +504,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── FLOWING MENU ── */}
-      <div style={{ height:"320px" }}>
-        <FlowingMenu items={flowItems}
-          bgColor="#080A12"
-          marqueeBgColor="#153DFC"
-          marqueeTextColor="#ffffff"
-          textColor="rgba(255,255,255,0.35)"
-          borderColor="rgba(21,61,236,0.15)"
-          speed={12} />
-      </div>
-
       {/* ── PLANOS ── */}
       <section id="precos" className="py-24 px-6">
         <PricingSection locale={locale} isAngola={isAngola} />
