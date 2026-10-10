@@ -398,142 +398,78 @@ function PosScreen() {
   );
 }
 
-// Temas — mini-mockups reais de loja pública por nicho
+// Temas — galeria de seleção de temas como no dashboard real
 function TemasScreen() {
-  const [selected, setSelected] = useState("essencial");
+  const [selected, setSelected] = useState("moda");
 
   const temas = [
-    {
-      slug: "essencial",
-      label: "Essencial",
-      free: true,
-      heroBg: "linear-gradient(135deg,#153DEC18,#8381FB08)",
-      heroText: "#1e293b",
-      cardBg: "#f8fafc",
-      accent: "#153DEC",
-      prodBg: "#f1f5f9",
-    },
-    {
-      slug: "moda",
-      label: "Moda",
-      free: true,
-      heroBg: "linear-gradient(135deg,#1a1a1a,#2d2d2d)",
-      heroText: "#fff",
-      cardBg: "#1a1a1a",
-      accent: "#fff",
-      prodBg: "#111",
-    },
-    {
-      slug: "beleza",
-      label: "Beleza",
-      free: true,
-      heroBg: "linear-gradient(135deg,#fff5f7,#fce4ea)",
-      heroText: "#881337",
-      cardBg: "#fff",
-      accent: "#C4748A",
-      prodBg: "#fff8fa",
-    },
-    {
-      slug: "gourmet",
-      label: "Gourmet",
-      free: true,
-      heroBg: "linear-gradient(135deg,#fff8f0,#fde8d8)",
-      heroText: "#7c2d12",
-      cardBg: "#fff",
-      accent: "#8B2500",
-      prodBg: "#fdf5ee",
-    },
-    {
-      slug: "calcado",
-      label: "Calçado",
-      free: false,
-      heroBg: "linear-gradient(135deg,#1C2B3A,#2e3f52)",
-      heroText: "#e2e8f0",
-      cardBg: "#1C2B3A",
-      accent: "#94a3b8",
-      prodBg: "#141f2a",
-    },
-    {
-      slug: "electronica",
-      label: "Eletrónica",
-      free: false,
-      heroBg: "linear-gradient(135deg,#001833,#002a5c)",
-      heroText: "#bfdbfe",
-      cardBg: "#001223",
-      accent: "#3b82f6",
-      prodBg: "#000d1a",
-    },
+    { slug: "essencial", nome: "Essencial", nicho: "Geral", cor: "#153DEC", free: true,  preview: "linear-gradient(135deg,#EEF2FF,#E0E7FF)" },
+    { slug: "moda",      nome: "Moda",      nicho: "Roupa & Moda",        cor: "#1a1a1a", free: true,  preview: "linear-gradient(135deg,#1a1a1a,#2d2d2d)" },
+    { slug: "beleza",    nome: "Beleza",    nicho: "Cosméticos",           cor: "#C4748A", free: true,  preview: "linear-gradient(135deg,#fce4ea,#fbcfe8)" },
+    { slug: "gourmet",   nome: "Gourmet",   nicho: "Alimentação",          cor: "#8B2500", free: true,  preview: "linear-gradient(135deg,#fde8d8,#fed7aa)" },
+    { slug: "calcado",   nome: "Calçado",   nicho: "Calçado",              cor: "#1C2B3A", free: false, preview: "linear-gradient(135deg,#1C2B3A,#2e3f52)" },
+    { slug: "electronica",nome:"Eletrónica",nicho: "Eletrónica",           cor: "#0066CC", free: false, preview: "linear-gradient(135deg,#001833,#002a5c)" },
+    { slug: "artesanato",nome: "Artesanato",nicho: "Artesanato",           cor: "#7C5C3A", free: false, preview: "linear-gradient(135deg,#f5e6d3,#e8c99a)" },
+    { slug: "servicos",  nome: "Serviços",  nicho: "Serviços",             cor: "#2D4A7A", free: false, preview: "linear-gradient(135deg,#1e3a5f,#2d4a7a)" },
   ];
 
-  const t = temas.find(x => x.slug === selected) ?? temas[0];
+  const sel = temas.find(t => t.slug === selected) ?? temas[0];
 
   return (
-    <div className="h-full flex flex-col" style={{ background: "#0f1020" }}>
-      <div className="px-3 pt-3 pb-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-        <p className="text-[10px] font-bold text-white mb-2">Temas da Loja</p>
-        {/* Tabs */}
-        <div className="flex gap-1 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-          {temas.map(x => (
-            <button key={x.slug} onClick={() => setSelected(x.slug)}
-              className="flex-shrink-0 rounded-full px-2 py-0.5 text-[8px] font-bold transition-all"
-              style={x.slug === selected
-                ? { background: "rgba(21,61,236,0.3)", color: "#a5b4fc", border: "1px solid rgba(21,61,236,0.5)" }
-                : { background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.3)", border: "1px solid rgba(255,255,255,0.07)" }
-              }>
-              {x.label}
-              {!x.free && <span className="ml-1 opacity-70">Pro</span>}
+    <div className="h-full flex flex-col" style={{ background: "#0a0d1e" }}>
+      {/* Header */}
+      <div className="px-4 pt-4 pb-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <p className="text-[10px] font-bold text-white">Temas da Loja</p>
+        <p className="text-[8px] text-white/30 mt-0.5">Escolhe o visual do teu negócio</p>
+      </div>
+
+      {/* Grid de temas */}
+      <div className="flex-1 px-3 pt-2 pb-1 overflow-hidden">
+        <div className="grid grid-cols-2 gap-1.5">
+          {temas.map(t => (
+            <button key={t.slug} onClick={() => setSelected(t.slug)}
+              className="rounded-xl overflow-hidden text-left transition-all"
+              style={{
+                border: t.slug === selected ? `2px solid ${t.cor}` : "2px solid rgba(255,255,255,0.06)",
+                background: "rgba(255,255,255,0.02)",
+                boxShadow: t.slug === selected ? `0 0 12px ${t.cor}40` : "none",
+              }}>
+              {/* Faixa de cor do tema */}
+              <div className="h-10 w-full relative" style={{ background: t.preview }}>
+                {/* Barra de acento */}
+                <div className="absolute bottom-0 left-0 right-0 h-1" style={{ background: t.cor }} />
+                {t.slug === selected && (
+                  <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center"
+                    style={{ background: t.cor }}>
+                    <svg width="7" height="7" viewBox="0 0 10 10" fill="none">
+                      <path d="M2 5l2 2 4-4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                )}
+              </div>
+              {/* Info */}
+              <div className="px-2 py-1.5">
+                <p className="text-[8px] font-bold text-white">{t.nome}</p>
+                <p className="text-[7px] text-white/30 truncate">{t.nicho}</p>
+                <span className="inline-block mt-0.5 text-[6px] font-bold rounded-full px-1.5 py-0.5"
+                  style={t.free
+                    ? { background: "rgba(74,222,128,0.12)", color: "#4ade80" }
+                    : { background: "rgba(251,191,36,0.12)", color: "#fbbf24" }
+                  }>
+                  {t.free ? "Grátis" : "Pro"}
+                </span>
+              </div>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Mini storefront preview */}
-      <div className="flex-1 mx-3 my-2 rounded-xl overflow-hidden" style={{ background: t.prodBg }}>
-        {/* Mini hero */}
-        <div className="px-3 py-3 text-center" style={{ background: t.heroBg }}>
-          <div className="w-6 h-6 rounded-lg mx-auto mb-1 flex items-center justify-center text-[9px] font-black"
-            style={{ background: t.accent, color: t.heroBg.includes("fff") || t.heroBg.includes("f0") ? "#fff" : t.heroText }}>
-            M
-          </div>
-          <p className="text-[9px] font-bold" style={{ color: t.heroText }}>Minha Loja</p>
-          <p className="text-[7px] opacity-50" style={{ color: t.heroText }}>12 produtos</p>
+      {/* Botão aplicar */}
+      <div className="px-4 pb-3 pt-1">
+        <div className="rounded-xl py-2 text-center text-[9px] font-bold text-white"
+          style={{ background: `linear-gradient(135deg,${sel.cor},${sel.cor}bb)` }}>
+          Aplicar tema {sel.nome}
         </div>
-
-        {/* Mini products */}
-        <div className="grid grid-cols-2 gap-1.5 p-2">
-          {[
-            { name: "Camisola", price: "89K Kz", emoji: "🧥" },
-            { name: "Calças", price: "124K Kz", emoji: "👖" },
-            { name: "Boné", price: "45K Kz", emoji: "🧢" },
-            { name: "Ténis", price: "215K Kz", emoji: "👟" },
-          ].map((p, i) => (
-            <div key={i} className="rounded-lg overflow-hidden" style={{ background: t.cardBg, border: "1px solid rgba(0,0,0,0.06)" }}>
-              <div className="h-10 flex items-center justify-center text-lg" style={{ background: `${t.accent}12` }}>
-                {p.emoji}
-              </div>
-              <div className="p-1.5">
-                <p className="text-[7px] font-semibold truncate" style={{ color: t.heroText }}>{p.name}</p>
-                <p className="text-[7px] font-black" style={{ color: t.accent }}>{p.price}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Badge plano */}
-        <div className="mx-2 mb-2 text-center">
-          <span className="text-[7px] font-bold rounded-full px-2 py-0.5"
-            style={t.free
-              ? { background: "rgba(74,222,128,0.15)", color: "#4ade80" }
-              : { background: "rgba(251,191,36,0.15)", color: "#fbbf24" }
-            }>
-            {t.free ? "Grátis" : "Pro"}
-          </span>
-        </div>
-      </div>
-
-      <div className="mx-3 mb-3 rounded-xl py-2 text-center text-[9px] font-bold text-white"
-        style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)" }}>
-        Aplicar tema {t.label}
       </div>
     </div>
   );
@@ -615,47 +551,64 @@ function DescricoesScreen() {
   );
 }
 
+// Loja pública — vista do cliente (tema Gourmet para ser distinto da secção de temas)
 function LojaScreen() {
   return (
-    <div className="h-full flex flex-col overflow-hidden" style={{ background: "#fff" }}>
-      <div className="px-4 pt-4 pb-3 text-center" style={{ background: "linear-gradient(135deg,#153DEC18,#8381FB08)" }}>
-        <div className="w-10 h-10 rounded-xl mx-auto mb-2 flex items-center justify-center font-black text-white text-sm"
-          style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)" }}>M</div>
-        <p className="text-xs font-bold text-slate-800">Minha Loja</p>
-        <p className="text-[8px] text-slate-400">12 produtos disponíveis</p>
-        <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 mt-1 text-[7px] font-bold"
-          style={{ background: "rgba(21,61,236,0.08)", color: "#153DEC" }}>
-          <span className="w-1 h-1 rounded-full animate-pulse bg-[#153DEC]" /> Loja aberta
-        </span>
+    <div className="h-full flex flex-col overflow-hidden" style={{ background: "#fdf5ee" }}>
+      {/* Hero da loja */}
+      <div className="px-4 pt-4 pb-3" style={{ background: "linear-gradient(135deg,#8B2500,#c03a00)" }}>
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-white text-[10px]"
+            style={{ background: "rgba(255,255,255,0.2)" }}>S</div>
+          <div>
+            <p className="text-[9px] font-bold text-white">Sabor da Terra</p>
+            <p className="text-[7px] text-white/60">Comida artesanal · Luanda</p>
+          </div>
+          <span className="ml-auto inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[6px] font-bold"
+            style={{ background: "rgba(255,255,255,0.15)", color: "#fff" }}>
+            <span className="w-1 h-1 rounded-full animate-pulse bg-green-400" /> Aberta
+          </span>
+        </div>
+        <p className="text-[8px] text-white/50">Entrega hoje · Pedido mínimo: 3.000 Kz</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 px-3 pt-2 flex-1 overflow-hidden">
+      {/* Categorias */}
+      <div className="flex gap-1.5 px-3 py-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+        {["🍲 Pratos","🥗 Entradas","🍰 Sobremesas","🥤 Bebidas"].map((cat, i) => (
+          <span key={i} className="flex-shrink-0 rounded-full px-2 py-0.5 text-[7px] font-bold"
+            style={i === 0
+              ? { background: "#8B2500", color: "#fff" }
+              : { background: "rgba(139,37,0,0.08)", color: "#8B2500" }
+            }>{cat}</span>
+        ))}
+      </div>
+
+      {/* Produtos */}
+      <div className="flex-1 px-3 space-y-2 overflow-hidden">
         {[
-          { name: "Camisola Merino", price: "89.000 Kz", emoji: "🧥" },
-          { name: "Calças Linho", price: "124.000 Kz", emoji: "👖" },
-          { name: "Boné Algodão", price: "45.000 Kz", emoji: "🧢" },
-          { name: "Ténis Running", price: "215.000 Kz", emoji: "👟" },
+          { nome: "Calulu de Peixe", desc: "Peixe fresco, quiabos e fuba", preco: "4.500 Kz", emoji: "🍲" },
+          { nome: "Funge com Muamba", desc: "Frango, gindungo e dendê", preco: "5.200 Kz", emoji: "🍛" },
+          { nome: "Cocada Amarela", desc: "Doce tradicional angolano", preco: "1.800 Kz", emoji: "🍮" },
         ].map((p, i) => (
-          <div key={i} className="rounded-xl overflow-hidden" style={{ background: "#f8f9ff", border: "1px solid #eee" }}>
-            <div className="h-14 flex items-center justify-center text-2xl" style={{ background: "linear-gradient(135deg,#153DEC10,#8381FB08)" }}>
-              {p.emoji}
+          <div key={i} className="flex items-center gap-2 rounded-xl px-2.5 py-2"
+            style={{ background: "#fff", border: "1px solid rgba(139,37,0,0.08)" }}>
+            <span className="text-2xl flex-shrink-0">{p.emoji}</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-[8px] font-bold truncate" style={{ color: "#4a1500" }}>{p.nome}</p>
+              <p className="text-[7px] text-stone-400 truncate">{p.desc}</p>
+              <p className="text-[8px] font-black mt-0.5" style={{ color: "#8B2500" }}>{p.preco}</p>
             </div>
-            <div className="p-2">
-              <p className="text-[8px] font-semibold text-slate-800 truncate">{p.name}</p>
-              <p className="text-[8px] font-black mt-0.5" style={{ color: "#153DEC" }}>{p.price}</p>
-              <div className="mt-1 rounded-md py-0.5 text-center text-[7px] font-bold text-white"
-                style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)" }}>
-                Adicionar
-              </div>
-            </div>
+            <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-sm flex-shrink-0"
+              style={{ background: "#8B2500" }}>+</div>
           </div>
         ))}
       </div>
 
+      {/* Carrinho */}
       <div className="mx-3 mb-2 mt-1 rounded-xl px-3 py-2 flex items-center justify-between"
-        style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)" }}>
-        <span className="text-[9px] font-bold text-white">🛒 Carrinho (2)</span>
-        <span className="text-[9px] font-bold text-white/80">89.000 Kz</span>
+        style={{ background: "#8B2500" }}>
+        <span className="text-[8px] font-bold text-white">🛒 Carrinho (1 item)</span>
+        <span className="text-[8px] font-bold text-white/80">4.500 Kz →</span>
       </div>
     </div>
   );
