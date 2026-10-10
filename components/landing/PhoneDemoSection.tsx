@@ -18,36 +18,36 @@ const SCREENS = [
   {
     id: "produtos",
     label: "Gestão de produtos",
-    sublabel: "Adicione, edite e gerencie o catálogo",
+    sublabel: "Catálogo, stock e variantes num só lugar",
     content: <ProdutosScreen />,
   },
   {
     id: "pos",
     label: "Ponto de venda",
-    sublabel: "Venda presencialmente com sincronização",
+    sublabel: "Registe vendas presenciais e sincronize o stock",
     content: <PosScreen />,
   },
   {
     id: "temas",
     label: "Temas da loja",
-    sublabel: "Escolha o visual que representa o seu negócio",
+    sublabel: "Visual personalizado para cada nicho de negócio",
     content: <TemasScreen />,
   },
   {
-    id: "ai",
-    label: "IA integrada",
-    sublabel: "Gere descrições com Claude AI",
-    content: <AiScreen />,
+    id: "descricoes",
+    label: "Descrições com IA",
+    sublabel: "Gera descrições de produto com Claude — no formulário",
+    content: <DescricoesScreen />,
   },
   {
     id: "loja",
     label: "Loja pública",
-    sublabel: "O que o seu cliente vê",
+    sublabel: "O que o seu cliente vê ao entrar na loja",
     content: <LojaScreen />,
   },
 ];
 
-const INTERVAL = 3200;
+const INTERVAL = 3400;
 
 export function PhoneDemoSection({ locale }: { locale: string }) {
   const [active, setActive] = useState(0);
@@ -66,12 +66,6 @@ export function PhoneDemoSection({ locale }: { locale: string }) {
 
   const screen = SCREENS[active];
 
-  const sectionLabel =
-    locale === "en" ? "Platform Preview" :
-    locale === "fr" ? "Aperçu de la plateforme" :
-    locale === "es" ? "Vista previa" :
-    "Pré-visualização";
-
   const sectionTitle =
     locale === "en" ? "Everything in the palm of your hand" :
     locale === "fr" ? "Tout dans la paume de votre main" :
@@ -79,20 +73,17 @@ export function PhoneDemoSection({ locale }: { locale: string }) {
     "Tudo na palma da mão";
 
   const sectionSub =
-    locale === "en" ? "From login to your public store — the complete experience, optimised for mobile." :
-    locale === "fr" ? "Du login à votre boutique — l'expérience complète, optimisée mobile." :
-    locale === "es" ? "Del login a tu tienda — la experiencia completa, optimizada para móvil." :
-    "Do login à loja pública — a experiência completa, optimizada para telemóvel.";
+    locale === "en" ? "From login to your public store — the complete experience, built for mobile." :
+    locale === "fr" ? "Du login à votre boutique — l'expérience complète, pensée mobile." :
+    locale === "es" ? "Del login a tu tienda — la experiencia completa, pensada para móvil." :
+    "Do login à loja pública — a experiência completa da plataforma.";
 
   return (
     <section className="py-24 px-6 overflow-hidden" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
       <div className="max-w-6xl mx-auto">
 
-        {/* Header */}
+        {/* Header — sem label "pré-visualização" */}
         <div className="text-center mb-16">
-          <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "#8381FB" }}>
-            {sectionLabel}
-          </p>
           <h2 className="text-4xl sm:text-5xl font-extrabold leading-tight mb-4">{sectionTitle}</h2>
           <p className="text-white/40 text-lg max-w-xl mx-auto">{sectionSub}</p>
         </div>
@@ -182,7 +173,6 @@ export function PhoneDemoSection({ locale }: { locale: string }) {
                   background: i === active ? "rgba(21,61,236,0.12)" : "rgba(255,255,255,0.02)",
                   border: `1px solid ${i === active ? "rgba(21,61,236,0.35)" : "rgba(255,255,255,0.05)"}`,
                 }}>
-                {/* Progress dot */}
                 <div className="flex-shrink-0 w-2 h-2 rounded-full transition-all duration-300"
                   style={{ background: i === active ? "#153DEC" : "rgba(255,255,255,0.1)", boxShadow: i === active ? "0 0 8px rgba(21,61,236,0.6)" : "none" }} />
                 <span className={`text-sm font-medium transition-colors ${i === active ? "text-white" : "text-white/30"}`}>
@@ -190,7 +180,6 @@ export function PhoneDemoSection({ locale }: { locale: string }) {
                 </span>
                 {i === active && (
                   <div className="ml-auto">
-                    {/* Countdown bar */}
                     <div className="w-12 h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
                       <div className="h-full rounded-full" style={{
                         background: "linear-gradient(90deg,#153DEC,#8381FB)",
@@ -256,7 +245,6 @@ function LoginScreen() {
 function DashboardScreen() {
   return (
     <div className="h-full flex flex-col" style={{ background: "#0f1020" }}>
-      {/* Header */}
       <div className="flex items-center justify-between px-4 pt-4 pb-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <div>
           <p className="text-[10px] text-white/30">Boa tarde 👋</p>
@@ -266,7 +254,6 @@ function DashboardScreen() {
           style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)" }}>M</div>
       </div>
 
-      {/* KPIs */}
       <div className="grid grid-cols-3 gap-2 px-4 py-3">
         {[
           { label: "Receita", val: "245K", up: "+18%" },
@@ -281,7 +268,6 @@ function DashboardScreen() {
         ))}
       </div>
 
-      {/* Chart */}
       <div className="px-4 pb-2">
         <p className="text-[9px] text-white/30 mb-2">Vendas — últimos 7 dias</p>
         <div className="flex items-end gap-1 h-16">
@@ -292,7 +278,6 @@ function DashboardScreen() {
         </div>
       </div>
 
-      {/* Recent orders */}
       <div className="px-4 flex-1">
         <p className="text-[9px] text-white/30 mb-2">Pedidos recentes</p>
         <div className="space-y-1.5">
@@ -369,7 +354,6 @@ function PosScreen() {
         <p className="text-[9px] text-white/30 mt-0.5">Venda presencial</p>
       </div>
 
-      {/* Product grid */}
       <div className="grid grid-cols-2 gap-2 px-4 pt-3 pb-2">
         {[
           { name: "Camisola", price: "89K", emoji: "🧥" },
@@ -377,16 +361,15 @@ function PosScreen() {
           { name: "Boné", price: "45K", emoji: "🧢" },
           { name: "Ténis", price: "215K", emoji: "👟" },
         ].map((p, i) => (
-          <div key={i} className="rounded-xl p-2.5 flex flex-col items-center gap-1 cursor-pointer"
+          <div key={i} className="rounded-xl p-2.5 flex flex-col items-center gap-1"
             style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
             <span className="text-xl">{p.emoji}</span>
             <p className="text-[9px] text-white/60">{p.name}</p>
-            <p className="text-[9px] font-bold text-white">{p.price}</p>
+            <p className="text-[9px] font-bold text-white">{p.price} Kz</p>
           </div>
         ))}
       </div>
 
-      {/* Cart */}
       <div className="mx-4 rounded-xl p-3" style={{ background: "rgba(21,61,236,0.08)", border: "1px solid rgba(21,61,236,0.2)" }}>
         <div className="flex justify-between mb-2">
           <p className="text-[9px] text-white/40">Carrinho</p>
@@ -415,106 +398,218 @@ function PosScreen() {
   );
 }
 
+// Temas — mini-mockups reais de loja pública por nicho
 function TemasScreen() {
-  const [selected, setSelected] = useState("moda");
+  const [selected, setSelected] = useState("essencial");
+
   const temas = [
-    { slug: "essencial", label: "Essencial", cor: "#153DEC", free: true },
-    { slug: "moda", label: "Moda", cor: "#1a1a1a", free: true },
-    { slug: "beleza", label: "Beleza", cor: "#C4748A", free: true },
-    { slug: "gourmet", label: "Gourmet", cor: "#8B2500", free: true },
-    { slug: "calcado", label: "Calçado", cor: "#1C2B3A", free: false },
-    { slug: "electronica", label: "Eletrónica", cor: "#0066CC", free: false },
+    {
+      slug: "essencial",
+      label: "Essencial",
+      free: true,
+      heroBg: "linear-gradient(135deg,#153DEC18,#8381FB08)",
+      heroText: "#1e293b",
+      cardBg: "#f8fafc",
+      accent: "#153DEC",
+      prodBg: "#f1f5f9",
+    },
+    {
+      slug: "moda",
+      label: "Moda",
+      free: true,
+      heroBg: "linear-gradient(135deg,#1a1a1a,#2d2d2d)",
+      heroText: "#fff",
+      cardBg: "#1a1a1a",
+      accent: "#fff",
+      prodBg: "#111",
+    },
+    {
+      slug: "beleza",
+      label: "Beleza",
+      free: true,
+      heroBg: "linear-gradient(135deg,#fff5f7,#fce4ea)",
+      heroText: "#881337",
+      cardBg: "#fff",
+      accent: "#C4748A",
+      prodBg: "#fff8fa",
+    },
+    {
+      slug: "gourmet",
+      label: "Gourmet",
+      free: true,
+      heroBg: "linear-gradient(135deg,#fff8f0,#fde8d8)",
+      heroText: "#7c2d12",
+      cardBg: "#fff",
+      accent: "#8B2500",
+      prodBg: "#fdf5ee",
+    },
+    {
+      slug: "calcado",
+      label: "Calçado",
+      free: false,
+      heroBg: "linear-gradient(135deg,#1C2B3A,#2e3f52)",
+      heroText: "#e2e8f0",
+      cardBg: "#1C2B3A",
+      accent: "#94a3b8",
+      prodBg: "#141f2a",
+    },
+    {
+      slug: "electronica",
+      label: "Eletrónica",
+      free: false,
+      heroBg: "linear-gradient(135deg,#001833,#002a5c)",
+      heroText: "#bfdbfe",
+      cardBg: "#001223",
+      accent: "#3b82f6",
+      prodBg: "#000d1a",
+    },
   ];
+
+  const t = temas.find(x => x.slug === selected) ?? temas[0];
 
   return (
     <div className="h-full flex flex-col" style={{ background: "#0f1020" }}>
-      <div className="px-4 pt-4 pb-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-        <p className="text-xs font-bold text-white">Temas da Loja</p>
-        <p className="text-[9px] text-white/30 mt-0.5">Escolhe o visual do teu negócio</p>
+      <div className="px-3 pt-3 pb-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <p className="text-[10px] font-bold text-white mb-2">Temas da Loja</p>
+        {/* Tabs */}
+        <div className="flex gap-1 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+          {temas.map(x => (
+            <button key={x.slug} onClick={() => setSelected(x.slug)}
+              className="flex-shrink-0 rounded-full px-2 py-0.5 text-[8px] font-bold transition-all"
+              style={x.slug === selected
+                ? { background: "rgba(21,61,236,0.3)", color: "#a5b4fc", border: "1px solid rgba(21,61,236,0.5)" }
+                : { background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.3)", border: "1px solid rgba(255,255,255,0.07)" }
+              }>
+              {x.label}
+              {!x.free && <span className="ml-1 opacity-70">Pro</span>}
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="grid grid-cols-2 gap-2 px-4 pt-3 flex-1">
-        {temas.map(t => (
-          <button key={t.slug} onClick={() => setSelected(t.slug)}
-            className="rounded-xl p-3 text-left transition-all"
-            style={{
-              background: selected === t.slug ? `${t.cor}25` : "rgba(255,255,255,0.03)",
-              border: `1px solid ${selected === t.slug ? t.cor + "80" : "rgba(255,255,255,0.07)"}`,
-            }}>
-            <div className="w-8 h-8 rounded-lg mb-2" style={{ background: t.cor }} />
-            <p className="text-[9px] font-semibold text-white">{t.label}</p>
-            <span className="text-[7px] font-bold rounded-full px-1.5 py-0.5 mt-1 inline-block"
-              style={t.free ? { background: "rgba(74,222,128,0.15)", color: "#4ade80" } : { background: "rgba(251,191,36,0.15)", color: "#fbbf24" }}>
-              {t.free ? "Grátis" : "Pro"}
-            </span>
-          </button>
-        ))}
+
+      {/* Mini storefront preview */}
+      <div className="flex-1 mx-3 my-2 rounded-xl overflow-hidden" style={{ background: t.prodBg }}>
+        {/* Mini hero */}
+        <div className="px-3 py-3 text-center" style={{ background: t.heroBg }}>
+          <div className="w-6 h-6 rounded-lg mx-auto mb-1 flex items-center justify-center text-[9px] font-black"
+            style={{ background: t.accent, color: t.heroBg.includes("fff") || t.heroBg.includes("f0") ? "#fff" : t.heroText }}>
+            M
+          </div>
+          <p className="text-[9px] font-bold" style={{ color: t.heroText }}>Minha Loja</p>
+          <p className="text-[7px] opacity-50" style={{ color: t.heroText }}>12 produtos</p>
+        </div>
+
+        {/* Mini products */}
+        <div className="grid grid-cols-2 gap-1.5 p-2">
+          {[
+            { name: "Camisola", price: "89K Kz", emoji: "🧥" },
+            { name: "Calças", price: "124K Kz", emoji: "👖" },
+            { name: "Boné", price: "45K Kz", emoji: "🧢" },
+            { name: "Ténis", price: "215K Kz", emoji: "👟" },
+          ].map((p, i) => (
+            <div key={i} className="rounded-lg overflow-hidden" style={{ background: t.cardBg, border: "1px solid rgba(0,0,0,0.06)" }}>
+              <div className="h-10 flex items-center justify-center text-lg" style={{ background: `${t.accent}12` }}>
+                {p.emoji}
+              </div>
+              <div className="p-1.5">
+                <p className="text-[7px] font-semibold truncate" style={{ color: t.heroText }}>{p.name}</p>
+                <p className="text-[7px] font-black" style={{ color: t.accent }}>{p.price}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Badge plano */}
+        <div className="mx-2 mb-2 text-center">
+          <span className="text-[7px] font-bold rounded-full px-2 py-0.5"
+            style={t.free
+              ? { background: "rgba(74,222,128,0.15)", color: "#4ade80" }
+              : { background: "rgba(251,191,36,0.15)", color: "#fbbf24" }
+            }>
+            {t.free ? "Grátis" : "Pro"}
+          </span>
+        </div>
       </div>
-      <div className="mx-4 mb-4 mt-2 rounded-xl py-2.5 text-center text-[10px] font-bold text-white"
+
+      <div className="mx-3 mb-3 rounded-xl py-2 text-center text-[9px] font-bold text-white"
         style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)" }}>
-        Aplicar tema
+        Aplicar tema {t.label}
       </div>
     </div>
   );
 }
 
-function AiScreen() {
+// Descrições com IA — mostra o que existe de facto: gerador no formulário de produto
+function DescricoesScreen() {
+  const [generated, setGenerated] = useState(false);
+
   return (
-    <div className="h-full flex flex-col" style={{ background: "#0a0d1e" }}>
+    <div className="h-full flex flex-col" style={{ background: "#0f1020" }}>
       <div className="px-4 pt-4 pb-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-md flex items-center justify-center text-[10px]"
-            style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)" }}>✦</div>
-          <p className="text-xs font-bold text-white">Claude AI</p>
-        </div>
-        <p className="text-[9px] text-white/30 mt-0.5">Assistente integrado</p>
+        <p className="text-xs font-bold text-white">Editar Produto</p>
+        <p className="text-[9px] text-white/30 mt-0.5">Camisola Merino Premium</p>
       </div>
 
       <div className="flex-1 px-4 pt-3 flex flex-col gap-2 overflow-hidden">
-        {/* Context */}
-        <div className="rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-          <p className="text-[8px] text-white/30 mb-1">Produto seleccionado</p>
-          <p className="text-[9px] font-semibold text-white">Camisola Merino Premium — 89.000 Kz</p>
+        {/* Campo título */}
+        <div>
+          <p className="text-[8px] text-white/40 mb-1">Título</p>
+          <div className="rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <p className="text-[9px] text-white">Camisola Merino Premium</p>
+          </div>
         </div>
 
-        {/* Chat */}
-        <div className="flex-1 space-y-2 overflow-hidden">
-          <div className="flex justify-end">
-            <div className="rounded-xl rounded-tr-none px-3 py-2 max-w-[85%]"
-              style={{ background: "rgba(21,61,236,0.2)", border: "1px solid rgba(21,61,236,0.3)" }}>
-              <p className="text-[9px] text-white/70">Gera uma descrição para este produto</p>
+        {/* Campo preço */}
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <p className="text-[8px] text-white/40 mb-1">Preço</p>
+            <div className="rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <p className="text-[9px] text-white">89.000 Kz</p>
             </div>
           </div>
-          <div className="flex justify-start">
-            <div className="rounded-xl rounded-tl-none px-3 py-2 max-w-[90%]"
-              style={{ background: "rgba(131,129,251,0.12)", border: "1px solid rgba(131,129,251,0.2)" }}>
-              <p className="text-[8px] font-bold mb-1" style={{ color: "#8381FB" }}>✦ Claude</p>
-              <p className="text-[9px] text-white/70 leading-relaxed">Camisola de lã merino premium, suave ao toque e perfeita para os dias mais frios. Com design elegante e versatilidade…</p>
-            </div>
-          </div>
-          <div className="flex justify-end">
-            <div className="rounded-xl rounded-tr-none px-3 py-2"
-              style={{ background: "rgba(21,61,236,0.2)", border: "1px solid rgba(21,61,236,0.3)" }}>
-              <p className="text-[9px] text-white/70">Sugere um preço competitivo</p>
-            </div>
-          </div>
-          <div className="flex justify-start">
-            <div className="rounded-xl rounded-tl-none px-3 py-2 max-w-[85%]"
-              style={{ background: "rgba(131,129,251,0.12)", border: "1px solid rgba(131,129,251,0.2)" }}>
-              <p className="text-[8px] font-bold mb-1" style={{ color: "#8381FB" }}>✦ Claude</p>
-              <p className="text-[9px] text-white/70">Para Angola, 89–95K Kz é competitivo. Considera 89.900 Kz.</p>
+          <div>
+            <p className="text-[8px] text-white/40 mb-1">Stock</p>
+            <div className="rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <p className="text-[9px] text-white">24</p>
             </div>
           </div>
         </div>
 
-        {/* Input */}
-        <div className="flex items-center gap-2 rounded-xl px-3 py-2 mb-1"
-          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-          <p className="text-[9px] text-white/25 flex-1">Pergunta ao Claude…</p>
-          <div className="w-5 h-5 rounded-lg flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)" }}>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        {/* Campo descrição com botão IA */}
+        <div className="flex-1">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-[8px] text-white/40">Descrição</p>
+            <button onClick={() => setGenerated(true)}
+              className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[8px] font-bold transition-all"
+              style={{ background: "rgba(131,129,251,0.15)", color: "#a5b4fc", border: "1px solid rgba(131,129,251,0.25)" }}>
+              ✦ Gerar com Claude
+            </button>
           </div>
+          <div className="rounded-lg px-3 py-2 min-h-[70px]"
+            style={{ background: "rgba(255,255,255,0.04)", border: generated ? "1px solid rgba(131,129,251,0.3)" : "1px solid rgba(255,255,255,0.08)" }}>
+            {generated ? (
+              <p className="text-[8px] text-white/70 leading-relaxed">
+                Camisola de lã merino premium, suave ao toque e ideal para os dias mais frios. Design elegante e versátil, disponível em vários tamanhos.
+              </p>
+            ) : (
+              <p className="text-[8px] text-white/20">Escreve uma descrição ou clica em "Gerar com Claude"…</p>
+            )}
+          </div>
+          {generated && (
+            <p className="text-[7px] mt-1" style={{ color: "#8381FB" }}>✦ Gerado por Claude · Podes editar antes de guardar</p>
+          )}
         </div>
+
+        {/* Aviso de transparência */}
+        <div className="rounded-lg px-3 py-2 flex gap-2" style={{ background: "rgba(21,61,236,0.08)", border: "1px solid rgba(21,61,236,0.15)" }}>
+          <span className="text-[8px]">ℹ️</span>
+          <p className="text-[7px] text-white/40 leading-relaxed">Geração de descrições disponível no plano Starter e acima.</p>
+        </div>
+      </div>
+
+      <div className="mx-4 mb-3 mt-1 rounded-xl py-2.5 text-center text-[10px] font-bold text-white"
+        style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)" }}>
+        Guardar produto
       </div>
     </div>
   );
@@ -523,7 +618,6 @@ function AiScreen() {
 function LojaScreen() {
   return (
     <div className="h-full flex flex-col overflow-hidden" style={{ background: "#fff" }}>
-      {/* Store header */}
       <div className="px-4 pt-4 pb-3 text-center" style={{ background: "linear-gradient(135deg,#153DEC18,#8381FB08)" }}>
         <div className="w-10 h-10 rounded-xl mx-auto mb-2 flex items-center justify-center font-black text-white text-sm"
           style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)" }}>M</div>
@@ -535,13 +629,12 @@ function LojaScreen() {
         </span>
       </div>
 
-      {/* Products grid */}
       <div className="grid grid-cols-2 gap-2 px-3 pt-2 flex-1 overflow-hidden">
         {[
-          { name: "Camisola Merino", price: "89.000 Kz", emoji: "🧥", stock: 24 },
-          { name: "Calças Linho", price: "124.000 Kz", emoji: "👖", stock: 8 },
-          { name: "Boné Algodão", price: "45.000 Kz", emoji: "🧢", stock: 32 },
-          { name: "Ténis Running", price: "215.000 Kz", emoji: "👟", stock: 5 },
+          { name: "Camisola Merino", price: "89.000 Kz", emoji: "🧥" },
+          { name: "Calças Linho", price: "124.000 Kz", emoji: "👖" },
+          { name: "Boné Algodão", price: "45.000 Kz", emoji: "🧢" },
+          { name: "Ténis Running", price: "215.000 Kz", emoji: "👟" },
         ].map((p, i) => (
           <div key={i} className="rounded-xl overflow-hidden" style={{ background: "#f8f9ff", border: "1px solid #eee" }}>
             <div className="h-14 flex items-center justify-center text-2xl" style={{ background: "linear-gradient(135deg,#153DEC10,#8381FB08)" }}>
@@ -559,7 +652,6 @@ function LojaScreen() {
         ))}
       </div>
 
-      {/* Cart badge */}
       <div className="mx-3 mb-2 mt-1 rounded-xl px-3 py-2 flex items-center justify-between"
         style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)" }}>
         <span className="text-[9px] font-bold text-white">🛒 Carrinho (2)</span>
