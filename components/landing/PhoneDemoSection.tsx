@@ -11,8 +11,8 @@ const SCREENS = [
   },
   {
     id: "dashboard",
-    label: "Dashboard em tempo real",
-    sublabel: "Receita, pedidos e clientes num só lugar",
+    label: "Dashboard",
+    sublabel: "Receita, pedidos pendentes e produtos — vista geral da loja",
     content: <DashboardScreen />,
   },
   {
@@ -34,9 +34,9 @@ const SCREENS = [
     content: <TemasScreen />,
   },
   {
-    id: "descricoes",
-    label: "Descrições com IA",
-    sublabel: "Gera descrições de produto com Claude — no formulário",
+    id: "ia-produtos",
+    label: "IA para Produtos",
+    sublabel: "Descrição, título e sugestão de preço — com Claude, no formulário do produto",
     content: <DescricoesScreen />,
   },
   {
@@ -244,59 +244,64 @@ function LoginScreen() {
 
 function DashboardScreen() {
   return (
-    <div className="h-full flex flex-col" style={{ background: "#0f1020" }}>
-      <div className="flex items-center justify-between px-4 pt-4 pb-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-        <div>
-          <p className="text-[10px] text-white/30">Boa tarde 👋</p>
-          <p className="text-xs font-bold text-white">Dashboard</p>
+    <div className="h-full flex flex-col" style={{ background: "#f8fafc" }}>
+      {/* Header — igual ao real: saudação + data */}
+      <div className="px-4 pt-4 pb-3" style={{ borderBottom: "1px solid #e2e8f0" }}>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-[10px] font-black text-slate-900">Boa tarde, Maria 👋</p>
+            <p className="text-[8px] text-slate-400">sábado, 11 de outubro</p>
+          </div>
+          {/* Selector de período */}
+          <div className="rounded-lg px-2 py-1 flex items-center gap-1 text-[8px] font-semibold text-slate-500"
+            style={{ background: "#fff", border: "1px solid #e2e8f0" }}>
+            Últimos 30 dias ▾
+          </div>
         </div>
-        <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
-          style={{ background: "linear-gradient(135deg,#153DEC,#8381FB)" }}>M</div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 px-4 py-3">
+      {/* Alerta Centro de Atenção */}
+      <div className="mx-4 mt-2 rounded-lg px-2.5 py-1.5 flex items-center gap-2"
+        style={{ background: "#fefce8", border: "1px solid #fde047" }}>
+        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-yellow-400" />
+        <p className="text-[7px] font-semibold text-yellow-800">2 pedidos pendentes requerem atenção</p>
+      </div>
+
+      {/* 4 tiles reais: Receita, Pedidos, Pendentes, Produtos */}
+      <div className="grid grid-cols-2 gap-2 px-4 pt-2">
         {[
-          { label: "Receita", val: "245K", up: "+18%" },
-          { label: "Pedidos", val: "38", up: "+12%" },
-          { label: "Clientes", val: "124", up: "+9%" },
+          { label: "Receita — 30 dias", val: "245.000 Kz", sub: "+18% vs mês anterior", pos: true },
+          { label: "Pedidos — 30 dias", val: "38",          sub: "+12% vs mês anterior", pos: true },
+          { label: "Pendentes agora",   val: "2",           sub: "Requerem atenção",     pos: false },
+          { label: "Produtos ativos",   val: "14/50",       sub: "12 clientes únicos",   pos: null  },
         ].map((k, i) => (
-          <div key={i} className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-            <p className="text-[8px] text-white/30 mb-1">{k.label}</p>
-            <p className="text-sm font-black text-white">{k.val}</p>
-            <p className="text-[8px] text-green-400">{k.up}</p>
+          <div key={i} className="rounded-xl p-2.5" style={{ background: "#fff", border: "1px solid #e2e8f0" }}>
+            <p className="text-[7px] text-slate-400 mb-1 leading-tight">{k.label}</p>
+            <p className="text-sm font-black text-slate-900 leading-none">{k.val}</p>
+            <p className={`text-[7px] font-medium mt-1 ${k.pos === true ? "text-green-600" : k.pos === false ? "text-red-500" : "text-slate-400"}`}>{k.sub}</p>
           </div>
         ))}
       </div>
 
-      <div className="px-4 pb-2">
-        <p className="text-[9px] text-white/30 mb-2">Vendas — últimos 7 dias</p>
-        <div className="flex items-end gap-1 h-16">
-          {[30, 55, 40, 70, 50, 85, 100].map((h, i) => (
-            <div key={i} className="flex-1 rounded-t-sm"
-              style={{ height: `${h * 0.64}px`, background: i === 6 ? "linear-gradient(to top,#153DEC,#8381FB)" : "rgba(131,129,251,0.15)" }} />
-          ))}
+      {/* Últimos pedidos — estrutura real: #ID, badge status, produto, total */}
+      <div className="flex-1 px-4 mt-2 overflow-hidden">
+        <div className="flex items-center justify-between mb-1.5">
+          <p className="text-[8px] font-bold text-slate-700">Últimos pedidos</p>
+          <p className="text-[7px] font-semibold" style={{ color: "#153DEC" }}>Ver todos →</p>
         </div>
-      </div>
-
-      <div className="px-4 flex-1">
-        <p className="text-[9px] text-white/30 mb-2">Pedidos recentes</p>
         <div className="space-y-1.5">
           {[
-            { n: "Maria A.", p: "Vestido Azul", s: "Entregue", c: "#4ade80" },
-            { n: "João M.", p: "Ténis Preto", s: "Em curso", c: "#a5b4fc" },
-            { n: "Ana S.", p: "Mala de mão", s: "Pendente", c: "#fbbf24" },
+            { id: "A3F9C2", prod: "Camisola Merino", total: "89.000 Kz", s: "Entregue",  sc: "#16a34a", sb: "#f0fdf4" },
+            { id: "B7D1E5", prod: "Calças de Linho",  total: "124.000 Kz", s: "Enviado",  sc: "#7c3aed", sb: "#f5f3ff" },
+            { id: "C2A8F0", prod: "Boné Algodão",     total: "45.000 Kz",  s: "Pendente", sc: "#d97706", sb: "#fffbeb" },
           ].map((o, i) => (
-            <div key={i} className="flex items-center justify-between rounded-lg px-2.5 py-2"
-              style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold text-white"
-                  style={{ background: "rgba(21,61,236,0.25)" }}>{o.n[0]}</div>
-                <div>
-                  <p className="text-[9px] font-medium text-white">{o.n}</p>
-                  <p className="text-[8px] text-white/30">{o.p}</p>
-                </div>
-              </div>
-              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full" style={{ color: o.c, background: `${o.c}18` }}>{o.s}</span>
+            <div key={i} className="flex items-center gap-2 rounded-lg px-2.5 py-1.5"
+              style={{ background: "#fff", border: "1px solid #f1f5f9" }}>
+              <p className="text-[7px] font-mono font-bold text-slate-400 flex-shrink-0">#{o.id}</p>
+              <p className="text-[8px] font-medium text-slate-700 flex-1 truncate">{o.prod}</p>
+              <p className="text-[7px] font-black text-slate-800 flex-shrink-0">{o.total}</p>
+              <span className="text-[6px] font-bold rounded-full px-1.5 py-0.5 flex-shrink-0"
+                style={{ color: o.sc, background: o.sb }}>{o.s}</span>
             </div>
           ))}
         </div>
@@ -477,69 +482,75 @@ function TemasScreen() {
 
 // Descrições com IA — mostra o que existe de facto: gerador no formulário de produto
 function DescricoesScreen() {
-  const [generated, setGenerated] = useState(false);
+  const [titleImproved, setTitleImproved] = useState(false);
+  const [descGenerated, setDescGenerated] = useState(false);
+  const [priceGenerated, setPriceGenerated] = useState(false);
 
   return (
     <div className="h-full flex flex-col" style={{ background: "#0f1020" }}>
       <div className="px-4 pt-4 pb-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <p className="text-xs font-bold text-white">Editar Produto</p>
-        <p className="text-[9px] text-white/30 mt-0.5">Camisola Merino Premium</p>
+        <p className="text-[9px] text-white/30 mt-0.5">Ferramentas de IA disponíveis no formulário</p>
       </div>
 
-      <div className="flex-1 px-4 pt-3 flex flex-col gap-2 overflow-hidden">
-        {/* Campo título */}
+      <div className="flex-1 px-4 pt-3 flex flex-col gap-2.5 overflow-hidden">
+        {/* 1. Melhorar título com IA */}
         <div>
-          <p className="text-[8px] text-white/40 mb-1">Título</p>
-          <div className="rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-            <p className="text-[9px] text-white">Camisola Merino Premium</p>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-[8px] text-white/40">Título do produto</p>
+            <button onClick={() => setTitleImproved(true)}
+              className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[7px] font-bold"
+              style={{ background: "rgba(131,129,251,0.15)", color: "#a5b4fc", border: "1px solid rgba(131,129,251,0.25)" }}>
+              ✦ Melhorar título
+            </button>
           </div>
+          <div className="rounded-lg px-3 py-2"
+            style={{ background: "rgba(255,255,255,0.04)", border: titleImproved ? "1px solid rgba(131,129,251,0.3)" : "1px solid rgba(255,255,255,0.08)" }}>
+            <p className="text-[9px] text-white">
+              {titleImproved ? "Camisola de Lã Merino Premium — Conforto Natural" : "camisola merino"}
+            </p>
+          </div>
+          {titleImproved && <p className="text-[6.5px] mt-0.5" style={{ color: "#8381FB" }}>✦ Título melhorado por Claude</p>}
         </div>
 
-        {/* Campo preço */}
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <p className="text-[8px] text-white/40 mb-1">Preço</p>
-            <div className="rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <p className="text-[9px] text-white">89.000 Kz</p>
-            </div>
+        {/* 2. Sugerir preço com IA */}
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-[8px] text-white/40">Preço sugerido</p>
+            <button onClick={() => setPriceGenerated(true)}
+              className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[7px] font-bold"
+              style={{ background: "rgba(131,129,251,0.15)", color: "#a5b4fc", border: "1px solid rgba(131,129,251,0.25)" }}>
+              ✦ Sugerir preço
+            </button>
           </div>
-          <div>
-            <p className="text-[8px] text-white/40 mb-1">Stock</p>
-            <div className="rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <p className="text-[9px] text-white">24</p>
-            </div>
+          <div className="rounded-lg px-3 py-2"
+            style={{ background: "rgba(255,255,255,0.04)", border: priceGenerated ? "1px solid rgba(131,129,251,0.3)" : "1px solid rgba(255,255,255,0.08)" }}>
+            <p className="text-[9px] text-white">{priceGenerated ? "89.000 Kz" : "—"}</p>
           </div>
+          {priceGenerated && <p className="text-[6.5px] mt-0.5" style={{ color: "#8381FB" }}>✦ Preço sugerido por Claude · Ajusta conforme a tua margem</p>}
         </div>
 
-        {/* Campo descrição com botão IA */}
+        {/* 3. Gerar descrição com IA */}
         <div className="flex-1">
           <div className="flex items-center justify-between mb-1">
             <p className="text-[8px] text-white/40">Descrição</p>
-            <button onClick={() => setGenerated(true)}
-              className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[8px] font-bold transition-all"
+            <button onClick={() => setDescGenerated(true)}
+              className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[7px] font-bold"
               style={{ background: "rgba(131,129,251,0.15)", color: "#a5b4fc", border: "1px solid rgba(131,129,251,0.25)" }}>
-              ✦ Gerar com Claude
+              ✦ Gerar descrição
             </button>
           </div>
-          <div className="rounded-lg px-3 py-2 min-h-[70px]"
-            style={{ background: "rgba(255,255,255,0.04)", border: generated ? "1px solid rgba(131,129,251,0.3)" : "1px solid rgba(255,255,255,0.08)" }}>
-            {generated ? (
-              <p className="text-[8px] text-white/70 leading-relaxed">
-                Camisola de lã merino premium, suave ao toque e ideal para os dias mais frios. Design elegante e versátil, disponível em vários tamanhos.
+          <div className="rounded-lg px-3 py-2 min-h-[52px]"
+            style={{ background: "rgba(255,255,255,0.04)", border: descGenerated ? "1px solid rgba(131,129,251,0.3)" : "1px solid rgba(255,255,255,0.08)" }}>
+            {descGenerated ? (
+              <p className="text-[7.5px] text-white/70 leading-relaxed">
+                Camisola de lã merino premium, suave ao toque e ideal para os dias mais frios. Design elegante, disponível em vários tamanhos.
               </p>
             ) : (
-              <p className="text-[8px] text-white/20">Escreve uma descrição ou clica em "Gerar com Claude"…</p>
+              <p className="text-[8px] text-white/20">Sem descrição ainda…</p>
             )}
           </div>
-          {generated && (
-            <p className="text-[7px] mt-1" style={{ color: "#8381FB" }}>✦ Gerado por Claude · Podes editar antes de guardar</p>
-          )}
-        </div>
-
-        {/* Aviso de transparência */}
-        <div className="rounded-lg px-3 py-2 flex gap-2" style={{ background: "rgba(21,61,236,0.08)", border: "1px solid rgba(21,61,236,0.15)" }}>
-          <span className="text-[8px]">ℹ️</span>
-          <p className="text-[7px] text-white/40 leading-relaxed">Geração de descrições disponível no plano Starter e acima.</p>
+          {descGenerated && <p className="text-[6.5px] mt-0.5" style={{ color: "#8381FB" }}>✦ Descrição gerada por Claude · Podes editar antes de guardar</p>}
         </div>
       </div>
 
