@@ -104,8 +104,36 @@ export default async function HomePage() {
   const loginLabel=t("landing_cta_login", locale);
   const startLabel=t("landing_cta_start", locale);
 
+  // JSON-LD structured data for the landing page
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "LinkCommerce",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    url: "https://linkcommerce.cc",
+    description:
+      "Plataforma de e-commerce feita para Angola. Cria a tua loja online, gere pedidos, recebe com Multicaixa Express.",
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "AOA",
+      price: "0",
+      description: "Plano gratuito disponível",
+    },
+    provider: {
+      "@type": "Organization",
+      name: "LinkCommerce",
+      url: "https://linkcommerce.cc",
+      areaServed: "AO",
+    },
+  };
+
   return (
     <div className="bg-[#080A12] text-white font-montserrat overflow-x-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* ── NAV ── */}
       <nav className="fixed top-0 inset-x-0 z-50 px-6 py-4"
