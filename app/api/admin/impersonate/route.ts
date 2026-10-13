@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
   jar.set("admin_loja_override", lojaId, {
     path: "/",
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 60 * 60, // 1 hora
   });

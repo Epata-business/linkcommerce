@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { z } from "zod";
 
 // -----------------------------------------------------------------------------
@@ -30,8 +31,27 @@ const vendaSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const session = await auth();
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  if (!session?.user || !["LOJISTA", "ADMIN_PLATAFORMA"].includes(role ?? "")) {
+    return NextResponse.json({ erro: "Não autorizado" }, { status: 401 });
+  }
+
   const body = await request.json();
   const { vendas } = z.object({ vendas: z.array(vendaSchema) }).parse(body);
+
+  // Verificar que o lojista só pode sincronizar vendas da sua própria loja
+  if (role === "LOJISTA") {
+    const utilizador = await prisma.user.findUnique({
+      where: { email: session.user.email! },
+      select: { lojaId: true },
+    });
+    if (!utilizador?.lojaId) return NextResponse.json({ erro: "Loja não encontrada" }, { status: 403 });
+    const lojaId = utilizador.lojaId;
+    if (vendas.some((v) => v.lojaId !== lojaId)) {
+      return NextResponse.json({ erro: "Não autorizado para esta loja" }, { status: 403 });
+    }
+  }
 
   const sincronizadas: string[] = [];
 

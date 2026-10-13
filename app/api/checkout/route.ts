@@ -79,7 +79,30 @@ export async function POST(req: NextRequest) {
   const moedaLoja = loja.moeda ?? "AOA";
   const moedaStripe = moedaLoja.toLowerCase();
   const clientUuid = randomUUID();
-  const subtotalCalc = itens.reduce((s, i) => s + i.precoUnitario * i.quantidade, 0);
+
+  // Verificar preços reais na BD — nunca confiar no precoUnitario do cliente
+  const produtoIds = [...new Set(itens.map((i) => i.produtoId))];
+  const varianteIds = itens.map((i) => i.varianteId).filter(Boolean) as string[];
+  const [produtosDB, variantesDB] = await Promise.all([
+    prisma.produto.findMany({ where: { id: { in: produtoIds }, lojaId: loja.id, ativo: true }, select: { id: true, preco: true, titulo: true } }),
+    varianteIds.length > 0 ? prisma.variante.findMany({ where: { id: { in: varianteIds } }, select: { id: true, precoExtra: true } }) : Promise.resolve([]),
+  ]);
+  const precoProduto = new Map<string, number>(produtosDB.map((p) => [p.id, Number(p.preco)] as [string, number]));
+  const precoExtraVariante = new Map<string, number>(variantesDB.map((v) => [v.id, Number(v.precoExtra)] as [string, number]));
+
+  for (const item of itens) {
+    if (!precoProduto.has(item.produtoId)) {
+      return NextResponse.json({ erro: `Produto não encontrado: ${item.produtoId}` }, { status: 404 });
+    }
+  }
+
+  // Sobrescrever precoUnitario com o valor real da BD
+  const itensVerificados = itens.map((i) => ({
+    ...i,
+    precoUnitario: precoProduto.get(i.produtoId)! + (i.varianteId ? (precoExtraVariante.get(i.varianteId) ?? 0) : 0),
+  }));
+
+  const subtotalCalc = itensVerificados.reduce((s, i) => s + i.precoUnitario * i.quantidade, 0);
 
   // Validar cupão (se fornecido)
   let cupaoId: string | null = null;
@@ -100,14 +123,14 @@ export async function POST(req: NextRequest) {
   const origin = req.nextUrl.origin;
   const metodoPagamentoEnum = METODO_MAP[metodoPagamento] ?? "DESCONHECIDO";
 
-  const itensReserva = itens.map((i) => ({
+  const itensReserva = itensVerificados.map((i) => ({
     produtoId: i.produtoId,
     varianteId: i.varianteId ?? null,
     quantidade: i.quantidade,
   }));
 
   // Registar carrinho abandonado — marcado CONVERTIDO quando pedido for criado com sucesso
-  const carrinhoItens = itens.map((i) => ({
+  const carrinhoItens = itensVerificados.map((i) => ({
     produtoId: i.produtoId,
     titulo: i.titulo,
     precoUnitario: i.precoUnitario,
@@ -146,7 +169,7 @@ export async function POST(req: NextRequest) {
             clientUuid,
             cupaoId,
             itens: {
-              create: itens.map((i) => ({
+              create: itensVerificados.map((i) => ({
                 produtoId: i.produtoId,
                 varianteId: i.varianteId ?? null,
                 quantidade: i.quantidade,
@@ -219,7 +242,7 @@ export async function POST(req: NextRequest) {
             cupaoId,
             zonaEntregaId: zonaEntregaId ?? null,
             itens: {
-              create: itens.map((i) => ({
+              create: itensVerificados.map((i) => ({
                 produtoId: i.produtoId,
                 varianteId: i.varianteId ?? null,
                 quantidade: i.quantidade,
@@ -267,7 +290,7 @@ export async function POST(req: NextRequest) {
       clienteNome,
       clienteEmail,
       pedidoId: pedido.id,
-      itens: itens.map((i) => ({ titulo: i.titulo, quantidade: i.quantidade, precoUnitario: i.precoUnitario })),
+      itens: itensVerificados.map((i) => ({ titulo: i.titulo, quantidade: i.quantidade, precoUnitario: i.precoUnitario })),
       total,
       moeda: moedaLoja,
       emailLojista,
@@ -312,7 +335,7 @@ export async function POST(req: NextRequest) {
           clientUuid,
           cupaoId,
           itens: {
-            create: itens.map((i) => ({
+            create: itensVerificados.map((i) => ({
               produtoId: i.produtoId,
               varianteId: i.varianteId ?? null,
               quantidade: i.quantidade,
@@ -350,7 +373,7 @@ export async function POST(req: NextRequest) {
     currency: moedaStripe,
     customer_email: clienteEmail,
     phone_number_collection: { enabled: metodoPagamento === "mbway" },
-    line_items: itens.map((i) => ({
+    line_items: itensVerificados.map((i) => ({
       price_data: {
         currency: moedaStripe,
         unit_amount: Math.round(i.precoUnitario * 100),

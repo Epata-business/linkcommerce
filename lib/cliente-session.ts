@@ -1,7 +1,8 @@
-import { createHmac } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 
-const SECRET = process.env.AUTH_SECRET ?? "lc-fallback-secret";
+const SECRET = process.env.AUTH_SECRET;
+if (!SECRET) throw new Error("AUTH_SECRET env var é obrigatória");
 const COOKIE = "lc_cliente";
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 dias
 
@@ -15,15 +16,17 @@ export interface ClienteSession {
 function sign(payload: ClienteSession): string {
   const data = JSON.stringify(payload);
   const b64 = Buffer.from(data).toString("base64url");
-  const sig = createHmac("sha256", SECRET).update(b64).digest("base64url");
+  const sig = createHmac("sha256", SECRET!).update(b64).digest("base64url");
   return `${b64}.${sig}`;
 }
 
 function verify(token: string): ClienteSession | null {
   const [b64, sig] = token.split(".");
   if (!b64 || !sig) return null;
-  const expected = createHmac("sha256", SECRET).update(b64).digest("base64url");
-  if (expected !== sig) return null;
+  const expected = createHmac("sha256", SECRET!).update(b64).digest("base64url");
+  const expectedBuf = Buffer.from(expected);
+  const sigBuf = Buffer.from(sig);
+  if (expectedBuf.length !== sigBuf.length || !timingSafeEqual(expectedBuf, sigBuf)) return null;
   try {
     return JSON.parse(Buffer.from(b64, "base64url").toString("utf8")) as ClienteSession;
   } catch {

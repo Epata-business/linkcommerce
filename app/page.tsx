@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { getLocale, getLocaleCurrency, localeCurrencySymbol, t } from "@/lib/i18n";
 import { TEMAS } from "@/lib/temas";
+import { serializeJsonLd } from "@/lib/json-ld";
 import { LanguageSwitcher } from "@/components/landing/language-switcher";
 import { PricingSection } from "@/components/landing/pricing-section";
 import dynamic from "next/dynamic";
@@ -132,7 +133,7 @@ export default async function HomePage() {
     <div className="bg-[#080A12] text-white font-montserrat overflow-x-hidden">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
 
       {/* ── NAV ── */}

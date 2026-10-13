@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { StoreTracker } from "@/components/storefront/store-tracker";
 import { StorefrontGrid } from "@/components/storefront/storefront-grid";
+import { serializeJsonLd } from "@/lib/json-ld";
 import { getLocale, t } from "@/lib/i18n";
 import { getTema } from "@/lib/temas";
 
@@ -91,7 +92,7 @@ export default async function StorefrontPage({ params, searchParams }: PageProps
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrg) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLdOrg) }}
       />
       {/* Tracker de visita real — client-side, filtra bots no servidor */}
       <StoreTracker lojaId={loja.id} />

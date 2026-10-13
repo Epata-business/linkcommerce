@@ -7,6 +7,7 @@ import { getLocale, t } from "@/lib/i18n";
 import { AddToCartButton } from "@/components/storefront/add-to-cart-button";
 import { ProductGallery } from "@/components/storefront/product-gallery";
 import { AvaliacoesSection } from "@/components/storefront/avaliacoes-section";
+import { serializeJsonLd } from "@/lib/json-ld";
 
 interface Props {
   params: { subdominio: string; id: string };
@@ -128,7 +129,7 @@ export default async function ProdutoPage({ params }: Props) {
     <div className="min-h-screen bg-white">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
       {/* Breadcrumb */}
       <div className="max-w-6xl mx-auto px-4 pt-6 pb-2">
