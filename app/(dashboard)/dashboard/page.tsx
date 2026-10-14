@@ -8,7 +8,7 @@ import { PeriodoSelector } from "@/components/dashboard/periodo-selector";
 import { CentroAtencao } from "@/components/dashboard/centro-atencao";
 import { calcularIntervalo, formatarVariacao } from "@/lib/periodo";
 import { Suspense } from "react";
-import { TEMAS } from "@/lib/temas";
+import { TODOS_OS_TEMAS } from "@/lib/temas";
 
 const STATUS_CONFIG: Record<string, { label: string; dot: string; bg: string; text: string }> = {
   PENDING:    { label: "Pendente",         dot: "bg-yellow-400", bg: "bg-yellow-50",  text: "text-yellow-700" },
@@ -418,7 +418,7 @@ export default async function DashboardPage({
             </Link>
           </div>
           <div className="p-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {TEMAS.slice(0, 8).map((tema) => {
+            {TODOS_OS_TEMAS.map((tema) => {
               const activo = tema.slug === temaActivo;
               return (
                 <Link key={tema.slug} href="/dashboard/temas"
@@ -450,7 +450,7 @@ export default async function DashboardPage({
           </div>
           <div className="px-5 pb-4 text-center">
             <p className="text-xs text-slate-400">
-              4 temas gratuitos · {TEMAS.filter(t => t.plano === "pro").length} temas Pro
+              {TODOS_OS_TEMAS.filter(t => t.plano === "gratuito").length} temas gratuitos · {TODOS_OS_TEMAS.filter(t => t.plano === "pro").length} temas Pro
               {" · "}
               <Link href="/dashboard/temas" className="text-blue-600 font-semibold hover:underline">
                 Gerir temas
