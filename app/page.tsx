@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import Link from "next/link";
 import { getLocale, getLocaleCurrency, localeCurrencySymbol, t } from "@/lib/i18n";
-import { TEMAS } from "@/lib/temas";
+import { TODOS_OS_TEMAS } from "@/lib/temas";
 import { serializeJsonLd } from "@/lib/json-ld";
 import { LanguageSwitcher } from "@/components/landing/language-switcher";
 import { PricingSection } from "@/components/landing/pricing-section";
@@ -444,7 +444,7 @@ export default async function HomePage() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Tema grande: primeiro gratuito */}
             {(() => {
-              const t0 = TEMAS[0];
+              const t0 = TODOS_OS_TEMAS[0];
               return (
                 <div key={t0.slug} className="col-span-2 row-span-2 rounded-2xl overflow-hidden relative group"
                   style={{ background:"#0e0e0e", border:`1px solid ${t0.cor}30`, minHeight:"360px" }}>
@@ -464,7 +464,7 @@ export default async function HomePage() {
             })()}
 
             {/* Restantes 7 temas em cards pequenos */}
-            {TEMAS.slice(1).map(tema => (
+            {TODOS_OS_TEMAS.slice(1).map(tema => (
               <div key={tema.slug} className="rounded-2xl overflow-hidden relative group"
                 style={{ background:"#0e0e0e", border:`1px solid ${tema.cor}25`, minHeight:"170px" }}>
                 <img src={tema.previewDesktop} className="absolute inset-0 w-full h-full object-cover opacity-45 group-hover:opacity-60 transition-opacity duration-500" alt={tema.nome} />
@@ -487,7 +487,7 @@ export default async function HomePage() {
           {/* CTA para ver todos */}
           <div className="mt-8 flex items-center justify-between">
             <p className="text-sm text-white/30">
-              {locale==="en"?"8 themes · 4 free, 4 Pro":locale==="fr"?"8 thèmes · 4 gratuits, 4 Pro":locale==="es"?"8 temas · 4 gratis, 4 Pro":"8 temas · 4 gratuitos, 4 Pro"}
+              {`${TODOS_OS_TEMAS.length} ${locale==="en"?"themes":locale==="fr"?"thèmes":"temas"} · ${TODOS_OS_TEMAS.filter(t=>t.plano==="gratuito").length} ${locale==="en"?"free":locale==="fr"?"gratuits":"gratuitos"}, ${TODOS_OS_TEMAS.filter(t=>t.plano==="pro").length} Pro`}
             </p>
             <Link href="/comecar"
               className="text-sm font-semibold text-white/60 hover:text-white transition-colors">
