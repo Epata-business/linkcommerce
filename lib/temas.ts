@@ -11,7 +11,11 @@ export type Nicho =
   | "calcado"
   | "electronica"
   | "artesanato"
-  | "servicos";
+  | "servicos"
+  // Coleção Alto Padrão
+  | "moda-autor"
+  | "alta-joalharia"
+  | "mobiliario";
 
 export type TipoPlano = "gratuito" | "pro";
 
@@ -130,8 +134,54 @@ export const TEMAS: Tema[] = [
   },
 ];
 
+// ── ALTO PADRÃO ──────────────────────────────────────────────────────────────
+// Coleção do vídeo "linkcommerce-alto-padrao": Maison Ndala (gratuito), Áurea e Casa Mussulo (Pro).
+// Ficam fora de TEMAS para não mexer na landing nem no resumo do dashboard (que contam
+// "8 temas · 4 gratuitos, 4 Pro"); a galeria de temas, a API e a loja usam TODOS_OS_TEMAS.
+// Design, textos e configurador de cada um: lib/temas-alto-padrao.ts.
+export const TEMAS_ALTO_PADRAO: Tema[] = [
+  {
+    slug: "maison-ndala",
+    nome: "Maison Ndala",
+    nicho: "moda-autor",
+    nichoLabel: "Moda de Autor",
+    descricao: "Para ateliers, alfaiataria e peças em edição limitada. Página de campanha com imagem grande, peças numeradas e reserva de prova privada no atelier.",
+    plano: "gratuito",
+    previewDesktop: "/temas/maison-ndala-desktop.jpg",
+    previewMobile: "/temas/maison-ndala-mobile.jpg",
+    cor: "#2433A0",
+    caracteristicas: ["Página de campanha", "Peças em edição limitada", "Cor e tamanho por peça", "Prova privada no atelier", "Perfeito no telemóvel"],
+  },
+  {
+    slug: "aurea",
+    nome: "Áurea",
+    nicho: "alta-joalharia",
+    nichoLabel: "Alta Joalharia",
+    descricao: "Para joalharias que vendem com acompanhamento personalizado. Configurador ao vivo de metal, pedra e gravação, com o preço a mudar a cada escolha.",
+    plano: "pro",
+    previewDesktop: "/temas/aurea-desktop.jpg",
+    previewMobile: "/temas/aurea-mobile.jpg",
+    cor: "#C9A45C",
+    caracteristicas: ["Configurador ao vivo", "Preço muda a cada escolha", "Reserva com concierge", "Gravação personalizada", "Perfeito no telemóvel"],
+  },
+  {
+    slug: "casa-mussulo",
+    nome: "Casa Mussulo",
+    nicho: "mobiliario",
+    nichoLabel: "Mobiliário",
+    descricao: "Para lojas de design e estúdios de interiores. Produtos clicáveis dentro do ambiente, tecido e tamanho que mudam o preço e serviço de projeto de interiores.",
+    plano: "pro",
+    previewDesktop: "/temas/casa-mussulo-desktop.jpg",
+    previewMobile: "/temas/casa-mussulo-mobile.jpg",
+    cor: "#1F6F78",
+    caracteristicas: ["Produtos clicáveis no ambiente", "Tecido e tamanho mudam o preço", "Projeto de interiores", "Marcação de visita", "Perfeito no telemóvel"],
+  },
+];
+
+export const TODOS_OS_TEMAS: Tema[] = [...TEMAS, ...TEMAS_ALTO_PADRAO];
+
 export function getTema(slug: string): Tema {
-  return TEMAS.find(t => t.slug === slug) ?? TEMAS[0];
+  return TODOS_OS_TEMAS.find(t => t.slug === slug) ?? TEMAS[0];
 }
 
 export const TEMAS_GRATUITOS = TEMAS.filter(t => t.plano === "gratuito");

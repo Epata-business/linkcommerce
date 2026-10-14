@@ -8,6 +8,8 @@ import { AddToCartButton } from "@/components/storefront/add-to-cart-button";
 import { ProductGallery } from "@/components/storefront/product-gallery";
 import { AvaliacoesSection } from "@/components/storefront/avaliacoes-section";
 import { serializeJsonLd } from "@/lib/json-ld";
+import { isTemaAltoPadrao } from "@/lib/temas-alto-padrao";
+import { ProdutoAltoPadrao } from "@/components/storefront/alto-padrao/produto";
 
 interface Props {
   params: { subdominio: string; id: string };
@@ -51,7 +53,7 @@ export default async function ProdutoPage({ params }: Props) {
   const [loja, produto] = await Promise.all([
     prisma.loja.findUnique({
       where: { subdominio: params.subdominio },
-      select: { nome: true, corPrimaria: true, moeda: true, telefoneWA: true },
+      select: { nome: true, corPrimaria: true, moeda: true, telefoneWA: true, tema: true },
     }),
     prisma.produto.findFirst({
       where: { id: params.id, loja: { subdominio: params.subdominio }, ativo: true },
@@ -124,6 +126,48 @@ export default async function ProdutoPage({ params }: Props) {
       },
     }),
   };
+
+  // Temas Alto Padrão (Maison Ndala, Áurea, Casa Mussulo) têm página de produto própria
+  if (isTemaAltoPadrao(loja.tema)) {
+    return (
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+        />
+        <ProdutoAltoPadrao
+          slug={loja.tema}
+          subdominio={params.subdominio}
+          loja={{ nome: loja.nome, moeda, telefoneWA }}
+          produto={{
+            id: produto.id,
+            titulo: produto.titulo,
+            descricao: produto.descricao,
+            preco,
+            imagemUrl: produto.imagemUrl,
+            stock: produto.stock,
+            variantes: produto.variantes.map((v) => ({
+              id: v.id,
+              nomeOpcao: v.nomeOpcao,
+              precoExtra: Number(v.precoExtra),
+              stock: v.stock,
+            })),
+          }}
+          relacionados={relacionados.map((p) => ({ ...p, preco: Number(p.preco) }))}
+          avaliacoes={
+            <AvaliacoesSection
+              lojaId={produto.lojaId}
+              produtoId={produto.id}
+              avaliacoes={avaliacoes}
+              mediaEstrelas={mediaEstrelas}
+              totalAvaliacoes={totalAvaliacoes}
+              cor={cor}
+            />
+          }
+        />
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">

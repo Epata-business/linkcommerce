@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getLojaId } from "@/lib/get-loja-id";
-import { TEMAS } from "@/lib/temas";
+import { TODOS_OS_TEMAS } from "@/lib/temas";
 import { auth } from "@/lib/auth";
 
 export async function PATCH(req: Request) {
@@ -12,12 +12,12 @@ export async function PATCH(req: Request) {
   if (!lojaId) return NextResponse.json({ erro: "Loja não encontrada" }, { status: 404 });
 
   const { tema } = await req.json();
-  if (!TEMAS.find(t => t.slug === tema)) {
+  if (!TODOS_OS_TEMAS.find(t => t.slug === tema)) {
     return NextResponse.json({ erro: "Tema inválido" }, { status: 400 });
   }
 
   // Temas Pro requerem plano activo
-  const temaObj = TEMAS.find(t => t.slug === tema)!;
+  const temaObj = TODOS_OS_TEMAS.find(t => t.slug === tema)!;
   if (temaObj.plano === "pro") {
     const loja = await prisma.loja.findUnique({
       where: { id: lojaId },

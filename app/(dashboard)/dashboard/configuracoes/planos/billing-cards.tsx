@@ -87,13 +87,13 @@ const PLANO_FEATURES_EXTRA: Record<string, string[]> = {
   pro:     ["Suporte VIP dedicado", "Onboarding assistido"],
 };
 
-// Preços em Kz para o mercado angolano — alinhados com a landing page
+// Preços em Kz para o mercado angolano (1 EUR ≈ 900 AOA, com margem cambial)
 const PRECO_AOA: Record<string, number> = {
   free: 0,
-  starter: 2500,
-  basic: 7500,
-  growth: 15000,
-  pro: 30000,
+  starter: 5500,
+  basic: 13500,
+  growth: 26500,
+  pro: 49500,
 };
 
 export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, statusSubscricao, proximaCobranca, inicioSubscricao, moedaLoja, dadosBancarios, isOnboarding }: Props) {
@@ -107,6 +107,9 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
   const [comprovanteUrl, setComprovanteUrl] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Aceitação de termos antes de subscrever
+  const [termosAceites, setTermosAceites] = useState(false);
 
   const isAOA = moedaLoja === "AOA";
 
@@ -212,6 +215,31 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
         </div>
       )}
 
+      {/* Aceitar termos antes de subscrever */}
+      {!isOnboarding && statusSubscricao !== "ATIVA" && (
+        <div className="mb-6 rounded-xl border border-slate-200 bg-white p-4">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={termosAceites}
+              onChange={(e) => setTermosAceites(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 cursor-pointer"
+            />
+            <span className="text-sm text-slate-600">
+              Li e aceito os{" "}
+              <a href="/termos" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline font-medium">
+                Termos de Serviço
+              </a>{" "}
+              e a{" "}
+              <a href="/privacidade" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline font-medium">
+                Política de Privacidade
+              </a>{" "}
+              da LinkCommerce. Compreendo que a subscrição é renovada mensalmente e pode ser cancelada a qualquer momento.
+            </span>
+          </label>
+        </div>
+      )}
+
       {/* Cards dos planos */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {planos.map((plano) => {
@@ -305,7 +333,9 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
                 isAOA ? (
                   <button
                     onClick={() => setPlanoAoaId(plano.id)}
-                    className="w-full rounded-xl py-2.5 text-sm font-bold text-white bg-blue-600 hover:opacity-90 transition-all active:scale-95">
+                    disabled={statusSubscricao !== "ATIVA" && !termosAceites}
+                    title={statusSubscricao !== "ATIVA" && !termosAceites ? "Aceite os termos primeiro" : undefined}
+                    className="w-full rounded-xl py-2.5 text-sm font-bold text-white bg-blue-600 hover:opacity-90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
                     Transferência bancária
                   </button>
                 ) : !plano.stripePriceId ? (
@@ -315,15 +345,18 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
                 ) : (
                   <button
                     onClick={() => handleSubscribe(plano.id)}
-                    disabled={loading !== null}
-                    className="w-full rounded-xl py-2.5 text-sm font-bold text-white bg-slate-900 hover:opacity-90 active:scale-95 disabled:opacity-60 transition-all">
+                    disabled={loading !== null || (statusSubscricao !== "ATIVA" && !termosAceites)}
+                    title={statusSubscricao !== "ATIVA" && !termosAceites ? "Aceite os termos primeiro" : undefined}
+                    className="w-full rounded-xl py-2.5 text-sm font-bold text-white bg-slate-900 hover:opacity-90 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
                     {loading === plano.id ? "A redirecionar…" : "Escolher plano"}
                   </button>
                 )
               ) : isAOA ? (
                 <button
                   onClick={() => setPlanoAoaId(plano.id)}
-                  className="w-full rounded-xl py-2.5 text-sm font-bold text-white bg-blue-600 hover:opacity-90 transition-all active:scale-95">
+                  disabled={statusSubscricao !== "ATIVA" && !termosAceites}
+                  title={statusSubscricao !== "ATIVA" && !termosAceites ? "Aceite os termos primeiro" : undefined}
+                  className="w-full rounded-xl py-2.5 text-sm font-bold text-white bg-blue-600 hover:opacity-90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
                   Transferência bancária
                 </button>
               ) : !plano.stripePriceId ? (
@@ -333,8 +366,9 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
               ) : (
                 <button
                   onClick={() => handleSubscribe(plano.id)}
-                  disabled={loading !== null}
-                  className={`w-full rounded-xl py-2.5 text-sm font-bold text-white transition-all hover:opacity-90 active:scale-95 disabled:opacity-60
+                  disabled={loading !== null || (statusSubscricao !== "ATIVA" && !termosAceites)}
+                  title={statusSubscricao !== "ATIVA" && !termosAceites ? "Aceite os termos primeiro" : undefined}
+                  className={`w-full rounded-xl py-2.5 text-sm font-bold text-white transition-all hover:opacity-90 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed
                     ${plano.slug === "basic" ? "bg-blue-600" : "bg-slate-900"}`}>
                   {loading === plano.id ? "A redirecionar…" : "Escolher plano"}
                 </button>
@@ -408,6 +442,22 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
               )}
             </div>
 
+            {/* Aceitar termos no modal AOA */}
+            <label className="flex items-start gap-2 mb-4 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={termosAceites}
+                onChange={(e) => setTermosAceites(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 cursor-pointer"
+              />
+              <span className="text-xs text-slate-500">
+                Aceito os{" "}
+                <a href="/termos" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Termos de Serviço</a>
+                {" "}e a{" "}
+                <a href="/privacidade" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">Política de Privacidade</a>
+              </span>
+            </label>
+
             <div className="flex gap-3">
               <button onClick={() => { setPlanoAoaId(null); setComprovanteUrl(null); }}
                 className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">
@@ -415,7 +465,7 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
               </button>
               <button
                 onClick={handleEnviarTransferencia}
-                disabled={!comprovanteUrl || enviando}
+                disabled={!comprovanteUrl || enviando || !termosAceites}
                 className="flex-1 rounded-xl bg-blue-600 py-2.5 text-sm font-bold text-white hover:opacity-90 disabled:opacity-50 transition-all">
                 {enviando ? "A enviar…" : "Enviar comprovativo"}
               </button>
@@ -424,10 +474,13 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
         </div>
       )}
 
-      <p className="text-center text-xs text-slate-400 mt-8">
+      <p className="text-center text-xs text-slate-400 mt-6">
         {isAOA
-          ? "Pagamentos processados por transferência bancária · Activação em até 24h úteis"
-          : "Pagamentos processados em segurança pela Stripe · Pode cancelar a qualquer momento"}
+          ? "Pagamentos por transferência bancária · Activação em até 24h úteis · "
+          : "Pagamentos em segurança pela Stripe · Pode cancelar a qualquer momento · "}
+        <a href="/termos" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:underline">Termos</a>
+        {" · "}
+        <a href="/privacidade" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:underline">Privacidade</a>
       </p>
     </div>
   );

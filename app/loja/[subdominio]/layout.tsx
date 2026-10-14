@@ -8,6 +8,8 @@ import { CartDrawer } from "@/components/storefront/cart-drawer";
 import { StorefrontLanguageSwitcher } from "@/components/storefront/language-switcher";
 import { ContaNav } from "@/components/storefront/conta-nav";
 import { getLocale, t } from "@/lib/i18n";
+import { isTemaAltoPadrao } from "@/lib/temas-alto-padrao";
+import { ShellAltoPadrao } from "@/components/storefront/alto-padrao/shell";
 
 export async function generateMetadata({ params }: { params: { subdominio: string } }): Promise<Metadata> {
   const loja = await prisma.loja.findUnique({
@@ -37,6 +39,28 @@ export default async function StorefrontLayout({ children, params }: Props) {
   const locale = getLocale();
   const cor = loja.corPrimaria || "#153DFC";
   const emPreview = !loja.publicada;
+
+  // Temas Alto Padrão (Maison Ndala, Áurea, Casa Mussulo) têm cabeçalho e rodapé próprios
+  if (isTemaAltoPadrao(loja.tema)) {
+    return (
+      <ShellAltoPadrao
+        slug={loja.tema}
+        subdominio={params.subdominio}
+        locale={locale}
+        emPreview={emPreview}
+        loja={{
+          nome: loja.nome,
+          logotipoUrl: loja.logotipoUrl,
+          moeda: loja.moeda ?? "EUR",
+          telefoneWA: loja.telefoneWA,
+          corPrimaria: cor,
+          corSecundaria: loja.corSecundaria,
+        }}
+      >
+        {children}
+      </ShellAltoPadrao>
+    );
+  }
 
   return (
     <div

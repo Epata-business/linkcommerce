@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getLojaId } from "@/lib/get-loja-id";
-import { TEMAS } from "@/lib/temas";
+import { TODOS_OS_TEMAS } from "@/lib/temas";
 import { TemasClient } from "./temas-client";
 
 export default async function TemasPage() {
@@ -22,7 +22,7 @@ export default async function TemasPage() {
 
   return (
     <TemasClient
-      temas={TEMAS}
+      temas={TODOS_OS_TEMAS}
       temaActivo={loja.tema ?? "essencial"}
       temPlano={temPlano}
     />

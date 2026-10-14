@@ -6,6 +6,8 @@ import { StorefrontGrid } from "@/components/storefront/storefront-grid";
 import { serializeJsonLd } from "@/lib/json-ld";
 import { getLocale, t } from "@/lib/i18n";
 import { getTema } from "@/lib/temas";
+import { isTemaAltoPadrao } from "@/lib/temas-alto-padrao";
+import { VitrineAltoPadrao } from "@/components/storefront/alto-padrao/vitrine";
 
 interface PageProps {
   params: { subdominio: string };
@@ -87,6 +89,20 @@ export default async function StorefrontPage({ params, searchParams }: PageProps
     url: `https://${params.subdominio}.linkcommerce.cc`,
     ...(loja.logotipoUrl && { logo: loja.logotipoUrl }),
   };
+
+  // Temas Alto Padrão (Maison Ndala, Áurea, Casa Mussulo) têm vitrine própria
+  if (isTemaAltoPadrao(temaSlug)) {
+    return (
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLdOrg) }}
+        />
+        <StoreTracker lojaId={loja.id} />
+        <VitrineAltoPadrao slug={temaSlug} lojaId={loja.id} subdominio={params.subdominio} query={initialQuery} />
+      </>
+    );
+  }
 
   return (
     <>
