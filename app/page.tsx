@@ -4,6 +4,7 @@ import { getLocale, getLocaleCurrency, localeCurrencySymbol, t } from "@/lib/i18
 import { TODOS_OS_TEMAS } from "@/lib/temas";
 import { serializeJsonLd } from "@/lib/json-ld";
 import { LanguageSwitcher } from "@/components/landing/language-switcher";
+import { Navbar } from "@/components/landing/navbar";
 import { PricingSection } from "@/components/landing/pricing-section";
 import dynamic from "next/dynamic";
 
@@ -137,37 +138,14 @@ export default async function HomePage() {
       />
 
       {/* ── NAV ── */}
-      <nav className="fixed top-0 inset-x-0 z-50 px-6 py-4"
-        style={{ background:"rgba(8,10,18,0.88)", backdropFilter:"blur(20px)", borderBottom:"1px solid rgba(255,255,255,0.05)" }}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold tracking-tight text-white">
-            Link<span className="text-gradient">Commerce</span>
-          </Link>
-          <div className="hidden md:flex items-center gap-1 text-sm">
-            {[
-              { href:"#funcionalidades", label:featLabel },
-              { href:"#angola", label:"Angola" },
-              { href:"#precos", label:pricLabel },
-              { href:"#quem-somos", label:aboutLabel },
-            ].map(l => (
-              <a key={l.href} href={l.href} className="px-3 py-2 text-white/50 hover:text-white transition-colors rounded-lg hover:bg-white/5">
-                {l.label}
-              </a>
-            ))}
-          </div>
-          <div className="flex items-center gap-3">
-            <LanguageSwitcher current={locale} />
-            <Link href="/entrar" className="text-sm font-medium text-white/55 hover:text-white transition-colors px-3 py-2">
-              {loginLabel}
-            </Link>
-            <Link href="/comecar"
-              className="rounded-full px-5 py-2 text-sm font-semibold text-white transition-all hover:scale-105 hover:opacity-90"
-              style={{ background:"linear-gradient(135deg,#153DEC,#8381FB)", boxShadow:"0 0 20px rgba(21,61,236,0.4)" }}>
-              {startLabel}
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar
+        locale={locale}
+        featLabel={featLabel}
+        pricLabel={pricLabel}
+        aboutLabel={aboutLabel}
+        loginLabel={loginLabel}
+        startLabel={startLabel}
+      />
 
       {/* ── HERO ── */}
       <section className="relative px-6 pt-32 pb-0 overflow-hidden">
