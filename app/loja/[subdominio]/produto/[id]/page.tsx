@@ -285,7 +285,7 @@ export default async function ProdutoPage({ params }: Props) {
           <div className="grid grid-cols-3 gap-3 pt-2">
             {[
               { icon: "🔒", label: t("checkout_guarantee_payment", locale) },
-              { icon: "↩️", label: t("checkout_guarantee_returns", locale) },
+              { icon: "💬", label: t("store_trust_support_title", locale) },
               { icon: "📦", label: t("checkout_guarantee_shipping", locale) },
             ].map((g) => (
               <div key={g.label} className="flex flex-col items-center gap-1.5 rounded-2xl border border-slate-100 p-3 text-center">

@@ -435,7 +435,7 @@ export default async function DashboardPage({
                     <p className="text-white text-xs font-bold truncate">{tema.nome}</p>
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full ${tema.plano === "gratuito" ? "bg-green-500 text-white" : "bg-yellow-400 text-yellow-900"}`}>
-                        {tema.plano === "gratuito" ? "FREE" : "PRO"}
+                        {tema.plano === "gratuito" ? "INCLUÍDO" : "PRO"}
                       </span>
                       {activo && (
                         <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-blue-500 text-white">
@@ -450,7 +450,7 @@ export default async function DashboardPage({
           </div>
           <div className="px-5 pb-4 text-center">
             <p className="text-xs text-slate-400">
-              {TODOS_OS_TEMAS.filter(t => t.plano === "gratuito").length} temas gratuitos · {TODOS_OS_TEMAS.filter(t => t.plano === "pro").length} temas Pro
+              {TODOS_OS_TEMAS.filter(t => t.plano === "gratuito").length} temas incluídos · {TODOS_OS_TEMAS.filter(t => t.plano === "pro").length} temas Pro
               {" · "}
               <Link href="/dashboard/temas" className="text-blue-600 font-semibold hover:underline">
                 Gerir temas

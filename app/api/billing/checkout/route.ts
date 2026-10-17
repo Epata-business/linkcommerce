@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   ]);
 
   if (!plano) return NextResponse.json({ erro: "Plano não encontrado" }, { status: 404 });
-  if (!plano.stripePriceId) return NextResponse.json({ erro: "Plano gratuito, sem checkout" }, { status: 400 });
+  if (!plano.stripePriceId) return NextResponse.json({ erro: "Plano sem preço Stripe configurado" }, { status: 400 });
 
   // Criar ou recuperar Stripe Customer
   let stripeCustomerId = loja?.subscricao?.stripeCustomerId;

@@ -18,7 +18,12 @@ export default async function PlanosPage({
     }),
   ]);
 
-  const planoAtualId = loja?.subscricao?.planoId ?? loja?.planoId ?? null;
+  // Só há "plano actual" com subscrição paga ou em análise — em período experimental, expirada ou
+  // cancelada todos os planos (incluindo o do trial) podem ser escolhidos.
+  const statusAtual = loja?.subscricao?.status;
+  const planoAtualId = statusAtual === "ATIVA" || statusAtual === "PENDENTE_TRANSFERENCIA"
+    ? loja?.subscricao?.planoId ?? null
+    : null;
   const subscricao = loja?.subscricao;
 
   return (

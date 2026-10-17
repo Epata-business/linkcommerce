@@ -461,7 +461,7 @@ function TemasScreen() {
                     ? { background: "rgba(74,222,128,0.12)", color: "#4ade80" }
                     : { background: "rgba(251,191,36,0.12)", color: "#fbbf24" }
                   }>
-                  {t.free ? "Grátis" : "Pro"}
+                  {t.free ? "Incluído" : "Pro"}
                 </span>
               </div>
             </button>

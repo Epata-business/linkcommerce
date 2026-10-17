@@ -105,9 +105,6 @@ export default async function StorefrontLayout({ children, params }: Props) {
             <Link href={`/loja/${params.subdominio}/contacto`} className="hover:text-slate-900 transition-colors">
               {t("nav_contact", locale)}
             </Link>
-            <Link href={`/loja/${params.subdominio}/devolucoes`} className="hover:text-slate-900 transition-colors">
-              {t("nav_returns", locale)}
-            </Link>
           </nav>
 
           <div className="flex items-center gap-1">
@@ -135,9 +132,6 @@ export default async function StorefrontLayout({ children, params }: Props) {
             <nav className="flex items-center gap-5 text-sm text-slate-400">
               <Link href={`/loja/${params.subdominio}/contacto`} className="hover:text-slate-700 transition-colors">
                 {t("nav_contact", locale)}
-              </Link>
-              <Link href={`/loja/${params.subdominio}/devolucoes`} className="hover:text-slate-700 transition-colors">
-                {t("nav_returns", locale)} & {t("returns_exchange_title", locale)}
               </Link>
             </nav>
 

@@ -67,14 +67,11 @@ export async function POST(req: NextRequest) {
     const sub = event.data.object as Stripe.Subscription;
     const lojaId = sub.metadata?.lojaId;
     if (lojaId) {
-      const planoFree = await prisma.plano.findFirst({ where: { slug: "free" } });
-      if (planoFree) {
-        await prisma.subscricao.update({
-          where: { lojaId },
-          data: { status: "CANCELADA", planoId: planoFree.id },
-        });
-        await prisma.loja.update({ where: { id: lojaId }, data: { planoId: planoFree.id } });
-      }
+      // Não há plano gratuito para onde "descer": a subscrição fica cancelada no plano que tinha.
+      await prisma.subscricao.update({
+        where: { lojaId },
+        data: { status: "CANCELADA" },
+      });
     }
     return NextResponse.json({ recebido: true });
   }

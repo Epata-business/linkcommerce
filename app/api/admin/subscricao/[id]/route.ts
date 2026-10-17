@@ -48,13 +48,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       });
     }
   } else {
-    const planoFree = await prisma.plano.findFirst({ where: { slug: "free" } });
     await prisma.subscricao.update({
       where: { id: params.id },
       data: {
         status: "CANCELADA",
         comprovanteUrl: null,
-        ...(planoFree ? { planoId: planoFree.id } : {}),
       },
     });
 

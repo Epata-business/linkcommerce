@@ -3,8 +3,8 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
+  // Não existe plano gratuito: as lojas novas fazem 7 dias de experiência no primeiro plano (menor "ordem").
   const planos = [
-    { nome: "Free", slug: "free", precoMensal: 1, comissaoPercentual: 3, limiteProdutos: 10, ordem: 0 },
     {
       nome: "Starter",
       slug: "starter",

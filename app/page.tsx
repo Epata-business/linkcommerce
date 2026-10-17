@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getLocale, getLocaleCurrency, localeCurrencySymbol, t } from "@/lib/i18n";
 import { TODOS_OS_TEMAS } from "@/lib/temas";
 import { serializeJsonLd } from "@/lib/json-ld";
+import { prisma } from "@/lib/prisma";
 import { LanguageSwitcher } from "@/components/landing/language-switcher";
 import { Navbar } from "@/components/landing/navbar";
 import { PricingSection } from "@/components/landing/pricing-section";
@@ -106,6 +107,14 @@ export default async function HomePage() {
   const loginLabel=t("landing_cta_login", locale);
   const startLabel=t("landing_cta_start", locale);
 
+  // Preços para os dados estruturados lidos da BD (os planos mudam — nada de valores fixos aqui).
+  // precoMensal está em EUR (é o valor mostrado como "€" nos cartões de planos).
+  // A página é pré-renderizada no build: se a BD não responder, publica-se sem "offers" em vez de falhar.
+  const precos = await prisma.plano
+    .findMany({ select: { precoMensal: true } })
+    .then((planos) => planos.map((p) => Number(p.precoMensal)))
+    .catch(() => [] as number[]);
+
   // JSON-LD structured data for the landing page
   const jsonLd = {
     "@context": "https://schema.org",
@@ -116,12 +125,16 @@ export default async function HomePage() {
     url: "https://linkcommerce.cc",
     description:
       "Plataforma de e-commerce feita para Angola. Cria a tua loja online, gere pedidos, recebe com Multicaixa Express.",
-    offers: {
-      "@type": "Offer",
-      priceCurrency: "AOA",
-      price: "0",
-      description: "Plano gratuito disponível",
-    },
+    // Não há plano gratuito: todos os planos são pagos.
+    ...(precos.length > 0 && {
+      offers: {
+        "@type": "AggregateOffer",
+        priceCurrency: "EUR",
+        lowPrice: String(Math.min(...precos)),
+        highPrice: String(Math.max(...precos)),
+        offerCount: precos.length,
+      },
+    }),
     provider: {
       "@type": "Organization",
       name: "LinkCommerce",
@@ -420,7 +433,7 @@ export default async function HomePage() {
 
           {/* Bento de temas — usa catálogo real de lib/temas.ts */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Tema grande: primeiro gratuito */}
+            {/* Tema grande: primeiro incluído em todos os planos */}
             {(() => {
               const t0 = TODOS_OS_TEMAS[0];
               return (
@@ -434,7 +447,7 @@ export default async function HomePage() {
                     <h3 className="text-xl font-bold text-white mb-1">Tema {t0.nome}</h3>
                     <p className="text-xs text-white/50">{t0.descricao.split(".")[0]}.</p>
                     <span className="mt-3 inline-block text-[10px] font-bold rounded-full px-2.5 py-1" style={{ background:"rgba(74,222,128,0.15)", color:"#4ade80" }}>
-                      {locale==="en"?"Free":"Grátis"}
+                      {locale==="en"?"Included":"Incluído"}
                     </span>
                   </div>
                 </div>
@@ -454,7 +467,7 @@ export default async function HomePage() {
                   <div className="flex items-center justify-between mt-1.5">
                     <p className="text-[9px] text-white/40 truncate max-w-[70%]">{tema.caracteristicas[0]}</p>
                     <span className={`text-[9px] font-bold rounded-full px-2 py-0.5 ${tema.plano==="gratuito"?"bg-green-400/15 text-green-400":"bg-amber-400/15 text-amber-400"}`}>
-                      {tema.plano==="gratuito"?(locale==="en"?"Free":"Grátis"):"Pro"}
+                      {tema.plano==="gratuito"?(locale==="en"?"Included":"Incluído"):"Pro"}
                     </span>
                   </div>
                 </div>
@@ -465,7 +478,7 @@ export default async function HomePage() {
           {/* CTA para ver todos */}
           <div className="mt-8 flex items-center justify-between">
             <p className="text-sm text-white/30">
-              {`${TODOS_OS_TEMAS.length} ${locale==="en"?"themes":locale==="fr"?"thèmes":"temas"} · ${TODOS_OS_TEMAS.filter(t=>t.plano==="gratuito").length} ${locale==="en"?"free":locale==="fr"?"gratuits":"gratuitos"}, ${TODOS_OS_TEMAS.filter(t=>t.plano==="pro").length} Pro`}
+              {`${TODOS_OS_TEMAS.length} ${locale==="en"?"themes":locale==="fr"?"thèmes":"temas"} · ${TODOS_OS_TEMAS.filter(t=>t.plano==="gratuito").length} ${locale==="en"?"included":locale==="fr"?"inclus":"incluídos"}, ${TODOS_OS_TEMAS.filter(t=>t.plano==="pro").length} Pro`}
             </p>
             <Link href="/comecar"
               className="text-sm font-semibold text-white/60 hover:text-white transition-colors">

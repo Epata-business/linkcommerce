@@ -39,7 +39,7 @@ export default async function SubscreverPage({
   if (!lojaId) redirect("/onboarding");
 
   const [planos, loja] = await Promise.all([
-    prisma.plano.findMany({ where: { slug: { not: "free" } }, orderBy: { ordem: "asc" } }),
+    prisma.plano.findMany({ orderBy: { ordem: "asc" } }),
     prisma.loja.findUnique({
       where: { id: lojaId },
       include: { subscricao: { include: { plano: true } } },
@@ -88,7 +88,11 @@ export default async function SubscreverPage({
     if (searchParams.session_id) redirect("/dashboard");
   }
 
-  const planoAtualId = lojaAtualizada?.subscricao?.planoId ?? lojaAtualizada?.planoId ?? null;
+  // Só há "plano actual" com subscrição paga ou em análise (ver configuracoes/planos/page.tsx).
+  const statusAtual = lojaAtualizada?.subscricao?.status;
+  const planoAtualId = statusAtual === "ATIVA" || statusAtual === "PENDENTE_TRANSFERENCIA"
+    ? lojaAtualizada?.subscricao?.planoId ?? null
+    : null;
   const jaAtiva = lojaAtualizada?.subscricao?.status === "ATIVA";
 
   return (

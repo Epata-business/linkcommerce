@@ -36,7 +36,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ erro: "ja-tem-loja", lojaId: user.lojaId }, { status: 409 });
   }
 
-  const planoFree = await prisma.plano.findFirst({ where: { slug: "free" } });
+  // Não há plano gratuito: o período experimental corre no primeiro plano pago (menor "ordem").
+  const planoTrial = await prisma.plano.findFirst({ orderBy: { ordem: "asc" } });
+  if (!planoTrial) {
+    return NextResponse.json({ erro: "Nenhum plano configurado" }, { status: 500 });
+  }
 
   // Moeda padrão: AOA para Angola, EUR para outros mercados
   const VALID_CURRENCIES = ["EUR", "USD", "AOA"];
@@ -50,7 +54,7 @@ export async function POST(request: Request) {
     data: {
       nome,
       subdominio: subdominioLimpo,
-      planoId: planoFree?.id,
+      planoId: planoTrial.id,
       tipoNegocio: tipoNegocio ?? null,
       corPrimaria: corPrimaria ?? "#0F172A",
       corSecundaria: corSecundaria ?? "#6366f1",
@@ -59,16 +63,14 @@ export async function POST(request: Request) {
   });
 
   // Criar subscrição TRIAL de 7 dias automaticamente
-  if (planoFree?.id) {
-    await prisma.subscricao.create({
-      data: {
-        lojaId: loja.id,
-        planoId: planoFree.id,
-        status: "TRIAL",
-        trialFimEm,
-      },
-    });
-  }
+  await prisma.subscricao.create({
+    data: {
+      lojaId: loja.id,
+      planoId: planoTrial.id,
+      status: "TRIAL",
+      trialFimEm,
+    },
+  });
 
   await prisma.user.update({
     where: { email: emailFinal },

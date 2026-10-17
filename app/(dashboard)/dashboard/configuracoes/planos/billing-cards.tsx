@@ -80,7 +80,6 @@ const PLANO_BADGE: Record<string, { texto: string; cor: string }> = {
 
 // Funcionalidades extra por plano — espelham a landing page (além das flags da BD)
 const PLANO_FEATURES_EXTRA: Record<string, string[]> = {
-  free:    ["Até 10 produtos", "Loja online básica"],
   starter: ["WhatsApp como CTA", "Suporte por email"],
   basic:   ["Cupões de desconto", "Relatórios de vendas"],
   growth:  ["Analytics avançado", "Suporte prioritário"],
@@ -89,7 +88,6 @@ const PLANO_FEATURES_EXTRA: Record<string, string[]> = {
 
 // Preços em Kz para o mercado angolano (1 EUR ≈ 900 AOA, com margem cambial)
 const PRECO_AOA: Record<string, number> = {
-  free: 0,
   starter: 5500,
   basic: 13500,
   growth: 26500,
@@ -246,7 +244,6 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
           const isAtual = plano.id === planoAtualId;
           const highlight = PLANO_HIGHLIGHT[plano.slug] ?? "border-slate-200";
           const badge = PLANO_BADGE[plano.slug];
-          const isFree = plano.precoMensal === 0 || plano.slug === "free";
           const precoKz = PRECO_AOA[plano.slug] ?? 0;
           const precoExibir = isAOA
             ? `${precoKz.toLocaleString("pt-AO")} Kz`
@@ -270,13 +267,13 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
               <h2 className="text-lg font-bold text-slate-900 mt-1">{plano.nome}</h2>
               <div className="mt-3 mb-4">
                 <p className="text-2xl font-black text-slate-900">
-                  {isFree ? (isAOA ? "0 Kz" : "€0") : precoExibir}
+                  {precoExibir}
                   <span className="text-sm font-normal text-slate-400">/mês</span>
                 </p>
-                {!isFree && isAOA && (
+                {isAOA && (
                   <p className="text-xs text-slate-400 mt-0.5">≈ €{plano.precoMensal} · transferência bancária</p>
                 )}
-                {!isFree && !isAOA && (
+                {!isAOA && (
                   <p className="text-xs text-slate-400 mt-0.5">cobrado via Stripe</p>
                 )}
               </div>
@@ -329,28 +326,6 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
                 <button disabled className="w-full rounded-xl py-2.5 text-sm font-bold bg-slate-100 text-slate-400 cursor-default">
                   Plano actual
                 </button>
-              ) : isFree ? (
-                isAOA ? (
-                  <button
-                    onClick={() => setPlanoAoaId(plano.id)}
-                    disabled={statusSubscricao !== "ATIVA" && !termosAceites}
-                    title={statusSubscricao !== "ATIVA" && !termosAceites ? "Aceite os termos primeiro" : undefined}
-                    className="w-full rounded-xl py-2.5 text-sm font-bold text-white bg-blue-600 hover:opacity-90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
-                    Transferência bancária
-                  </button>
-                ) : !plano.stripePriceId ? (
-                  <button disabled className="w-full rounded-xl py-2.5 text-sm font-bold bg-slate-100 text-slate-400 cursor-default">
-                    Em breve
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleSubscribe(plano.id)}
-                    disabled={loading !== null || (statusSubscricao !== "ATIVA" && !termosAceites)}
-                    title={statusSubscricao !== "ATIVA" && !termosAceites ? "Aceite os termos primeiro" : undefined}
-                    className="w-full rounded-xl py-2.5 text-sm font-bold text-white bg-slate-900 hover:opacity-90 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
-                    {loading === plano.id ? "A redirecionar…" : "Escolher plano"}
-                  </button>
-                )
               ) : isAOA ? (
                 <button
                   onClick={() => setPlanoAoaId(plano.id)}

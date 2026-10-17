@@ -28,7 +28,7 @@ export default function RegistoPage({
               "✓ Loja online pronta em minutos",
               "✓ POS offline para vender presencialmente",
               "✓ Cupões, clientes e analytics incluídos",
-              "✓ Plano gratuito para começar",
+              "✓ Cancele quando quiser",
             ].map((item) => (
               <li key={item}>{item}</li>
             ))}
@@ -47,7 +47,7 @@ export default function RegistoPage({
             <Link href="/" className="lg:hidden text-xl font-bold text-slate-900 mb-6 block">
               Link<span className="text-indigo-600">Commerce</span>
             </Link>
-            <h1 className="text-2xl font-bold text-slate-900">Criar conta grátis</h1>
+            <h1 className="text-2xl font-bold text-slate-900">Criar conta</h1>
             <p className="mt-1 text-sm text-slate-500">
               Já tem conta?{" "}
               <Link href="/entrar" className="font-semibold text-indigo-600 hover:underline">

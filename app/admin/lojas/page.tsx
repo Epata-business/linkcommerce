@@ -65,7 +65,7 @@ export default async function AdminLojasPage() {
                   </td>
                   <td className="px-4 py-3">
                     <span className="rounded-full bg-indigo-50 text-indigo-700 px-2 py-0.5 text-xs font-medium">
-                      {loja.subscricao?.plano?.nome ?? loja.plano?.nome ?? "Free"}
+                      {loja.subscricao?.plano?.nome ?? loja.plano?.nome ?? "Sem plano"}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-center text-slate-600">{loja._count.produtos}</td>
