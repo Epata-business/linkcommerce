@@ -238,9 +238,9 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
         </div>
       )}
 
-      {/* Cards dos planos */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {planos.map((plano) => {
+      {/* Cards dos planos — apenas planos pagos (com Stripe price) */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {planos.filter(p => p.stripePriceId !== null && p.precoMensal > 0).map((plano) => {
           const isAtual = plano.id === planoAtualId;
           const highlight = PLANO_HIGHLIGHT[plano.slug] ?? "border-slate-200";
           const badge = PLANO_BADGE[plano.slug];
