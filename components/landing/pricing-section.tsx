@@ -127,10 +127,10 @@ export function PricingSection({ locale, isAngola = false }: Props) {
       : PLANS.filter((p) => p.target === filtro);
 
   const calcPriceKz = (base: number) =>
-    anual ? Math.round(base * 0.85) : base;
+    anual ? Math.round(base * 12 * 0.85) : base;
 
   const calcPriceEur = (base: number) =>
-    anual ? Math.round(base * 0.85) : base;
+    anual ? Math.round(base * 12 * 0.85) : base;
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -230,14 +230,13 @@ export function PricingSection({ locale, isAngola = false }: Props) {
                     <>
                       <div className="flex items-end gap-2">
                         <span className="text-3xl font-black text-white">{fmtKz(priceKz)}</span>
-                        <span className="text-sm text-white/40 mb-1">{isEn ? "/mo" : "/mês"}</span>
+                        <span className="text-sm text-white/40 mb-1">{anual ? (isEn ? "/year" : "/ano") : (isEn ? "/mo" : "/mês")}</span>
                       </div>
                       <p className="text-xs text-white/35 mt-1 flex items-center gap-1.5">
                         {anual ? (
                           <>
-                            <span className="text-green-400 font-semibold">−15%</span>
-                            <span className="opacity-50">·</span>
-                            {isEn ? `${fmtKz(Math.round(plan.priceKz * 12 * 0.85))}/year` : `${fmtKz(Math.round(plan.priceKz * 12 * 0.85))}/ano`}
+                            <span className="text-green-400 font-semibold">−15% · </span>
+                            {isEn ? `equiv. ${fmtKz(plan.priceKz)}/mo` : `equiv. ${fmtKz(plan.priceKz)}/mês`}
                           </>
                         ) : (
                           <>
@@ -252,14 +251,13 @@ export function PricingSection({ locale, isAngola = false }: Props) {
                     <>
                       <div className="flex items-end gap-2">
                         <span className="text-3xl font-black text-white">€{priceEur}</span>
-                        <span className="text-sm text-white/40 mb-1">{isEn ? "/mo" : "/mês"}</span>
+                        <span className="text-sm text-white/40 mb-1">{anual ? (isEn ? "/year" : "/ano") : (isEn ? "/mo" : "/mês")}</span>
                       </div>
                       <p className="text-xs text-white/35 mt-1">
                         {anual ? (
                           <>
-                            <span className="text-green-400 font-semibold">−15%</span>
-                            {" · "}
-                            {isEn ? `€${Math.round(plan.priceEur * 12 * 0.85)}/year` : `€${Math.round(plan.priceEur * 12 * 0.85)}/ano`}
+                            <span className="text-green-400 font-semibold">−15% · </span>
+                            {isEn ? `equiv. €${plan.priceEur}/mo` : `equiv. €${plan.priceEur}/mês`}
                           </>
                         ) : (
                           isEn ? "per month" : "por mês"
