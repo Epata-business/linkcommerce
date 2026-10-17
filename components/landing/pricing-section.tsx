@@ -236,7 +236,9 @@ export function PricingSection({ locale, isAngola = false }: Props) {
                         {anual ? (
                           <>
                             <span className="text-green-400 font-semibold">−15% · </span>
-                            {isEn ? `equiv. ${fmtKz(plan.priceKz)}/mo` : `equiv. ${fmtKz(plan.priceKz)}/mês`}
+                            {isEn
+                              ? `save ${fmtKz(Math.round(plan.priceKz * 12) - Math.round(plan.priceKz * 12 * 0.85))}/year`
+                              : `poupa ${fmtKz(Math.round(plan.priceKz * 12) - Math.round(plan.priceKz * 12 * 0.85))}/ano`}
                           </>
                         ) : (
                           <>
@@ -257,7 +259,9 @@ export function PricingSection({ locale, isAngola = false }: Props) {
                         {anual ? (
                           <>
                             <span className="text-green-400 font-semibold">−15% · </span>
-                            {isEn ? `equiv. €${plan.priceEur}/mo` : `equiv. €${plan.priceEur}/mês`}
+                            {isEn
+                              ? `save €${Math.round(plan.priceEur * 12 * 0.15)}/year`
+                              : `poupa €${Math.round(plan.priceEur * 12 * 0.15)}/ano`}
                           </>
                         ) : (
                           isEn ? "per month" : "por mês"
