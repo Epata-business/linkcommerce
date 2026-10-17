@@ -192,7 +192,7 @@ export default async function StorefrontPage({ params, searchParams }: PageProps
           {[
             { icon: "🚚", title: t("store_trust_1_title", locale), sub: t("store_trust_1_sub", locale) },
             { icon: "🔒", title: t("store_trust_2_title", locale), sub: t("store_trust_2_sub", locale) },
-            { icon: "↩️", title: t("store_trust_3_title", locale), sub: t("store_trust_3_sub", locale) },
+            { icon: "💬", title: t("store_trust_support_title", locale), sub: t("store_trust_support_sub", locale) },
           ].map(item => (
             <div key={item.title} className={`flex flex-col items-center gap-2 ${ts.cardText}`}>
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
