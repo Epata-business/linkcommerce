@@ -13,7 +13,7 @@ const nextConfig = {
       {
         source: "/(.*)",
         headers: [
-          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
@@ -31,7 +31,7 @@ const nextConfig = {
               "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
               "connect-src 'self' https://api.stripe.com https://checkout.stripe.com",
               "frame-src https://js.stripe.com https://hooks.stripe.com",
-              "frame-ancestors 'none'",
+              "frame-ancestors 'self' https://linkcommerce.cc https://*.linkcommerce.cc",
             ].join("; "),
           },
         ],
