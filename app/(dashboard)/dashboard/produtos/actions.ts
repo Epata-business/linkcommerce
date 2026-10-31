@@ -50,6 +50,19 @@ export async function criarProduto(formData: FormData) {
     imagemUrl: formData.get("imagemUrl"),
   });
 
+  // Verificar limite de produtos do plano
+  const sub = await prisma.subscricao.findUnique({
+    where: { lojaId },
+    select: { plano: { select: { limiteProdutos: true } } },
+  });
+  const limite = sub?.plano?.limiteProdutos ?? null;
+  if (limite !== null) {
+    const total = await prisma.produto.count({ where: { lojaId } });
+    if (total >= limite) {
+      throw new Error(`limite-plano:${limite}`);
+    }
+  }
+
   const produto = await prisma.produto.create({
     data: { ...dados, lojaId },
   });

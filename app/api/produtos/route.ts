@@ -38,13 +38,31 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
   }
 
+  const lojaId = session.user.lojaId as string;
+
   const body = await request.json().catch(() => ({}));
   const titulo = (typeof body.titulo === "string" ? body.titulo : "").trim().slice(0, 200);
   if (!titulo) return NextResponse.json({ error: "título obrigatório" }, { status: 400 });
 
+  // Verificar limite de produtos do plano
+  const sub = await prisma.subscricao.findUnique({
+    where: { lojaId },
+    select: { plano: { select: { limiteProdutos: true } } },
+  });
+  const limite = sub?.plano?.limiteProdutos ?? null;
+  if (limite !== null) {
+    const total = await prisma.produto.count({ where: { lojaId } });
+    if (total >= limite) {
+      return NextResponse.json(
+        { error: "limite-plano", limite, mensagem: `O seu plano permite no máximo ${limite} produtos.` },
+        { status: 403 }
+      );
+    }
+  }
+
   const produto = await prisma.produto.create({
     data: {
-      lojaId: session.user.lojaId as string,
+      lojaId,
       titulo,
       descricao: typeof body.descricao === "string" ? body.descricao.slice(0, 5000) : null,
       preco: typeof body.preco === "number" && body.preco >= 0 ? body.preco : 0,
