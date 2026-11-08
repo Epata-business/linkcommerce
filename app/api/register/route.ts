@@ -1,14 +1,24 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { checkRateLimit } from "@/lib/rate-limit";
 
-export async function POST(request: Request) {
-  const body = await request.json();
-  const nome = body.nome;
-  const email = (body.email as string)?.toLowerCase().trim();
-  const password = body.password;
+export async function POST(request: NextRequest) {
+  // Rate limiting: 5 registos por IP a cada 15 minutos
+  const limited = checkRateLimit(request, { prefix: "register", limit: 5, windowSec: 900 });
+  if (limited) return limited;
 
-  if (!nome || !email || !password || password.length < 8) {
+  const body = await request.json().catch(() => ({}));
+  const nome = typeof body.nome === "string" ? body.nome.trim().slice(0, 100) : "";
+  const email = typeof body.email === "string" ? body.email.toLowerCase().trim().slice(0, 254) : "";
+  const password = typeof body.password === "string" ? body.password : "";
+
+  if (!nome || !email || !password || password.length < 8 || password.length > 128) {
+    return NextResponse.json({ erro: "dados-invalidos" }, { status: 400 });
+  }
+
+  // Validação básica de formato de email
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ erro: "dados-invalidos" }, { status: 400 });
   }
 

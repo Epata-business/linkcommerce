@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
+  // Rate limiting: 5 tentativas por IP a cada 15 minutos
+  const limited = checkRateLimit(req, { prefix: "redefinir-senha", limit: 5, windowSec: 900 });
+  if (limited) return limited;
+
   const { email, token, novaSenha } = await req.json().catch(() => ({}));
 
-  if (!email || !token || !novaSenha || novaSenha.length < 8) {
+  if (!email || !token || !novaSenha || novaSenha.length < 8 || novaSenha.length > 128) {
     return NextResponse.json({ erro: "dados-invalidos" }, { status: 400 });
   }
 

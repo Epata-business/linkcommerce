@@ -2,11 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { randomBytes } from "crypto";
 import { Resend } from "resend";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const resend = new Resend(process.env.RESEND_API_KEY ?? "re_placeholder");
 const ROOT = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "linkcommerce.cc";
 
 export async function POST(req: NextRequest) {
+  // Rate limiting: 3 pedidos por IP a cada 15 minutos
+  const limited = checkRateLimit(req, { prefix: "esqueci-senha", limit: 3, windowSec: 900 });
+  if (limited) return limited;
+
   const { email } = await req.json().catch(() => ({}));
   if (!email || typeof email !== "string") {
     return NextResponse.json({ ok: true }); // resposta genérica por segurança

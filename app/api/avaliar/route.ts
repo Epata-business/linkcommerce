@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const AvaliacaoSchema = z.object({
   lojaId:       z.string().min(1),
@@ -13,6 +14,10 @@ const AvaliacaoSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  // Rate limiting: 10 avaliações por IP a cada hora
+  const limited = checkRateLimit(req, { prefix: "avaliar", limit: 10, windowSec: 3600 });
+  if (limited) return limited;
+
   let body: unknown;
   try {
     body = await req.json();

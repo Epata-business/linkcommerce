@@ -11,6 +11,7 @@ import { dispararWebhooks } from "@/lib/webhook";
 import { atribuirPontos } from "@/lib/fidelidade";
 import { z } from "zod";
 import { randomUUID } from "crypto";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const ItemSchema = z.object({
   produtoId: z.string(),
@@ -60,6 +61,9 @@ const METODO_STRIPE_MAP: Record<string, StripePaymentMethod[]> = {
 };
 
 export async function POST(req: NextRequest) {
+  const limited = checkRateLimit(req, { prefix: "checkout", limit: 10, windowSec: 3600 });
+  if (limited) return limited;
+
   const body = await req.json();
   const parsed = CheckoutSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ erro: "Dados inválidos" }, { status: 400 });

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // Padrões de bots/crawlers conhecidos — usados apenas para filtrar, nunca guardados
 const BOT_UA = /googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|twitterbot|linkedinbot|whatsapp|discordbot|telegrambot|applebot|semrushbot|ahrefsbot|mj12bot|dotbot|petalbot|bytespider|gptbot|claudebot|anthropic|crawler|spider|scraper|bot\b/i;
@@ -8,6 +9,10 @@ const TIPOS_VALIDOS = ["store_view", "cta_click"] as const;
 type TipoEvento = (typeof TIPOS_VALIDOS)[number];
 
 export async function POST(req: NextRequest) {
+  // Rate limiting: 60 eventos por IP a cada minuto
+  const limited = checkRateLimit(req, { prefix: "track", limit: 60, windowSec: 60 });
+  if (limited) return limited;
+
   // 1. Filtrar bots pelo User-Agent (lido mas nunca guardado)
   const ua = req.headers.get("user-agent") ?? "";
   if (BOT_UA.test(ua)) {
