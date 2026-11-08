@@ -115,13 +115,13 @@ export default async function InventarioPage({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+      <div className="max-w-6xl mx-auto px-5 py-7 space-y-6">
 
         {/* Cabeçalho */}
         <div>
-          <h1 className="text-2xl font-black text-slate-900">Inventário</h1>
-          <p className="text-slate-400 text-sm mt-1">Gerir stock físico, ajustes e histórico de movimentos</p>
+          <h1 className="heading-lg">Inventário</h1>
+          <p className="body-sm mt-0.5">Gerir stock físico, ajustes e histórico de movimentos</p>
         </div>
 
         {/* Stats */}
@@ -132,7 +132,7 @@ export default async function InventarioPage({
             { label: "Com stock baixo", value: Number(st?.stock_baixo ?? 0), cor: "text-amber-600" },
             { label: "Esgotados", value: Number(st?.esgotados ?? 0), cor: "text-red-600" },
           ].map(s => (
-            <div key={s.label} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+            <div key={s.label} className="bg-white rounded-2xl p-4">
               <p className="text-xs text-slate-400 font-medium">{s.label}</p>
               <p className={`text-2xl font-black mt-1 ${s.cor}`}>{s.value}</p>
             </div>
@@ -142,7 +142,7 @@ export default async function InventarioPage({
         <div className="grid lg:grid-cols-3 gap-6 items-start">
 
           {/* Tabela de produtos */}
-          <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="lg:col-span-2 bg-white rounded-2xl overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 gap-3 flex-wrap">
               <h2 className="font-bold text-slate-800">Produtos</h2>
               <form method="get" action="/dashboard/inventario" className="flex gap-2">
@@ -152,7 +152,7 @@ export default async function InventarioPage({
                   placeholder="Pesquisar…"
                   className="text-sm border border-slate-200 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-100 w-48"
                 />
-                <button type="submit" className="text-sm font-semibold bg-slate-900 text-white rounded-xl px-3 py-1.5">
+                <button type="submit" className="text-sm font-semibold bg-[#0F1117] text-white rounded-xl px-3 py-1.5">
                   Pesquisar
                 </button>
               </form>
@@ -231,7 +231,7 @@ export default async function InventarioPage({
                                 />
                                 <button
                                   type="submit"
-                                  className="text-xs font-bold bg-slate-900 text-white rounded-lg px-2 py-1 hover:bg-slate-700 transition-colors"
+                                  className="text-xs font-bold bg-[#0F1117] text-white rounded-lg px-2 py-1 hover:bg-slate-700 transition-colors"
                                 >
                                   OK
                                 </button>
@@ -264,7 +264,7 @@ export default async function InventarioPage({
           </div>
 
           {/* Histórico de movimentos */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100">
               <h2 className="font-bold text-slate-800">Movimentos recentes</h2>
               <p className="text-xs text-slate-400 mt-0.5">Últimos 30 eventos</p>

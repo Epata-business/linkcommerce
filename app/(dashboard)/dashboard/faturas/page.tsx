@@ -61,12 +61,12 @@ export default async function FaturasPage({
   });
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+      <div className="max-w-5xl mx-auto px-5 py-7">
         <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-black text-slate-900">Faturas</h1>
-            <p className="text-slate-400 text-sm mt-1">{total} fatura{total !== 1 ? "s" : ""}</p>
+            <h1 className="heading-lg">Faturas</h1>
+            <p className="body-sm mt-0.5">{total} fatura{total !== 1 ? "s" : ""}</p>
           </div>
           <div className="text-right">
             <p className="text-xs text-slate-400">Total faturado</p>
@@ -84,7 +84,7 @@ export default async function FaturasPage({
               href={e ? `/dashboard/faturas?estado=${e}` : "/dashboard/faturas"}
               className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                 searchParams.estado === e || (!searchParams.estado && !e)
-                  ? "bg-slate-900 text-white"
+                  ? "bg-[#0F1117] text-white"
                   : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
               }`}
             >
@@ -93,7 +93,7 @@ export default async function FaturasPage({
           ))}
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl overflow-hidden">
           {faturas.length === 0 ? (
             <div className="py-16 text-center text-slate-400 text-sm">
               Nenhuma fatura ainda.{" "}

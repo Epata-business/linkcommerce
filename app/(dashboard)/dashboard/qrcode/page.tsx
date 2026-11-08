@@ -53,24 +53,24 @@ export default async function QRCodePage() {
   const scans7d = qrcodesComStats.reduce((s, q) => s + q.scans7d, 0);
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+      <div className="max-w-4xl mx-auto px-5 py-7">
 
-        <div className="mb-8">
-          <h1 className="text-2xl font-black text-slate-900">QR Codes</h1>
-          <p className="text-slate-400 text-sm mt-1">
+        <div className="mb-6">
+          <h1 className="heading-lg">QR Codes</h1>
+          <p className="body-sm mt-0.5">
             QR Codes dinâmicos — altere o destino sem reimprimir.
           </p>
         </div>
 
         {/* Stats globais */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-3 gap-3 mb-6">
           {[
             { icon: "📱", label: "QR Codes criados", value: qrcodes.length.toString() },
             { icon: "👆", label: "Scans total",       value: totalScans.toString() },
             { icon: "📅", label: "Scans últimos 7d",  value: scans7d.toString() },
           ].map((s) => (
-            <div key={s.label} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+            <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
               <div className="text-2xl mb-2">{s.icon}</div>
               <p className="text-2xl font-black text-slate-900">{s.value}</p>
               <p className="text-xs text-slate-400 mt-1">{s.label}</p>

@@ -27,25 +27,26 @@ export default async function PlanosPage({
   const subscricao = loja?.subscricao;
 
   return (
-    <div className="mx-auto max-w-5xl p-6">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+    <div className="mx-auto max-w-5xl px-5 py-7">
       <BackButton href="/dashboard/configuracoes" label="← Configurações" />
 
       {searchParams["primeiro-acesso"] === "1" ? (
         <div className="mt-4 mb-8 text-center">
           <p className="text-xs font-semibold text-red-500 uppercase tracking-wider mb-1">Acesso bloqueado</p>
-          <h1 className="text-2xl font-bold text-slate-900">Escolha um plano para continuar</h1>
-          <p className="text-slate-500 mt-1">Para aceder ao dashboard precisa de ter uma subscrição activa.</p>
+          <h1 className="heading-lg">Escolha um plano para continuar</h1>
+          <p className="body-sm mt-1">Para aceder ao dashboard precisa de ter uma subscrição activa.</p>
         </div>
       ) : searchParams.onboarding === "1" ? (
         <div className="mt-4 mb-8 text-center">
-          <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Último passo</p>
-          <h1 className="text-2xl font-bold text-slate-900">Escolha o seu plano</h1>
-          <p className="text-slate-500 mt-1">Subscreva para activar a sua loja e começar a vender.</p>
+          <p className="text-xs font-semibold text-[#153DEC] uppercase tracking-wider mb-1">Último passo</p>
+          <h1 className="heading-lg">Escolha o seu plano</h1>
+          <p className="body-sm mt-1">Subscreva para activar a sua loja e começar a vender.</p>
         </div>
       ) : (
         <div className="mt-4 mb-8 text-center">
-          <h1 className="text-2xl font-bold text-slate-900">Planos LinkCommerce</h1>
-          <p className="text-slate-500 mt-1">Escolha o plano que melhor se adapta ao seu negócio.</p>
+          <h1 className="heading-lg">Planos LinkCommerce</h1>
+          <p className="body-sm mt-1">Escolha o plano que melhor se adapta ao seu negócio.</p>
         </div>
       )}
 
@@ -92,6 +93,7 @@ export default async function PlanosPage({
           banco: "Banco Económico SA",
         }}
       />
+    </div>
     </div>
   );
 }

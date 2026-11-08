@@ -49,19 +49,19 @@ export default async function AuditLogPage({
   });
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+      <div className="max-w-5xl mx-auto px-5 py-7">
         <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-black text-slate-900">Audit Log</h1>
-            <p className="text-slate-400 text-sm mt-1">{total} registo{total !== 1 ? "s" : ""}</p>
+            <h1 className="heading-lg">Audit Log</h1>
+            <p className="body-sm mt-0.5">{total} registo{total !== 1 ? "s" : ""}</p>
           </div>
 
           {/* Filtro por entidade */}
           <div className="flex gap-2 flex-wrap">
             <a
               href="/dashboard/auditlog"
-              className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${!searchParams.entidade ? "bg-slate-900 text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"}`}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${!searchParams.entidade ? "bg-[#0F1117] text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"}`}
             >
               Todas
             </a>
@@ -69,7 +69,7 @@ export default async function AuditLogPage({
               <a
                 key={e.entidade}
                 href={`/dashboard/auditlog?entidade=${e.entidade}`}
-                className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${searchParams.entidade === e.entidade ? "bg-slate-900 text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"}`}
+                className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${searchParams.entidade === e.entidade ? "bg-[#0F1117] text-white" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"}`}
               >
                 {e.entidade}
               </a>
@@ -77,7 +77,7 @@ export default async function AuditLogPage({
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl overflow-hidden">
           {registos.length === 0 ? (
             <div className="py-16 text-center text-slate-400 text-sm">Nenhum registo ainda.</div>
           ) : (

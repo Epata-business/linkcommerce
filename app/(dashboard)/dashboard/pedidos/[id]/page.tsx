@@ -65,8 +65,8 @@ export default async function PedidoDetailPage({ params }: { params: { id: strin
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+      <div className="max-w-3xl mx-auto px-5 py-7">
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
@@ -76,7 +76,7 @@ export default async function PedidoDetailPage({ params }: { params: { id: strin
           </Link>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-lg font-black text-slate-900">#{pedido.id.slice(-8).toUpperCase()}</h1>
+              <h1 className="text-lg font-bold text-[#0F1117]">#{pedido.id.slice(-8).toUpperCase()}</h1>
               <a href={`/api/fatura/${pedido.id}`} target="_blank" rel="noopener noreferrer"
                 className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
                 🧾 Fatura
@@ -135,7 +135,7 @@ export default async function PedidoDetailPage({ params }: { params: { id: strin
                   <span>−{formatarPreco(Number(pedido.desconto), moeda)}</span>
                 </div>
               )}
-              <div className="flex justify-between font-black text-slate-900 text-base pt-1 border-t border-slate-100">
+              <div className="flex justify-between font-bold text-[#0F1117] text-base pt-1 border-t border-slate-100">
                 <span>Total</span>
                 <span style={{ color: cor }}>{formatarPreco(Number(pedido.total), moeda)}</span>
               </div>

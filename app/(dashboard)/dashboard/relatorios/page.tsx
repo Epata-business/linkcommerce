@@ -275,14 +275,14 @@ export default async function RelatoriosPage({
   const variacaoTicket = formatarVariacao(ticketMedio, ticketMedioAnterior);
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+      <div className="max-w-5xl mx-auto px-5 py-7">
         <BackButton href="/dashboard" label="← Dashboard" />
 
         <div className="flex items-center justify-between mt-4 mb-8 flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-black text-slate-900">Analytics</h1>
-            <p className="text-slate-400 text-sm mt-1">Análise do desempenho da sua loja</p>
+            <h1 className="heading-lg">Analytics</h1>
+            <p className="body-sm mt-0.5">Análise do desempenho da sua loja</p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
             <Suspense fallback={<div className="h-9 w-36 rounded-xl bg-slate-100 animate-pulse" />}>
@@ -307,7 +307,7 @@ export default async function RelatoriosPage({
           ].map(kpi => (
             <div key={kpi.label} className={`bg-white rounded-2xl border p-5 shadow-sm ${kpi.destaque ? "border-indigo-100 ring-1 ring-indigo-100" : "border-slate-100"}`}>
               <p className="text-[11px] text-slate-400 uppercase tracking-wide font-semibold mb-1">{kpi.label}</p>
-              <p className="text-2xl font-black text-slate-900 leading-tight">{kpi.value}</p>
+              <p className="heading-lg leading-tight">{kpi.value}</p>
               {kpi.variacao && kpi.variacao.positivo !== null && (
                 <p className={`text-[11px] font-bold mt-1.5 ${kpi.variacao.positivo ? "text-green-600" : "text-red-500"}`}>
                   {kpi.variacao.positivo ? "↑" : "↓"} {kpi.variacao.texto} vs período anterior
@@ -322,9 +322,9 @@ export default async function RelatoriosPage({
             { label: "Taxa de recompra", value: `${taxaRecompra}%`, sub: "clientes com ≥ 2 pedidos" },
             { label: "Abandono de carrinho", value: taxaAbandono !== null ? `${taxaAbandono}%` : "—", sub: taxaAbandono !== null ? "carrinhos não convertidos" : "sem dados" },
           ].map(kpi => (
-            <div key={kpi.label} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+            <div key={kpi.label} className="bg-white rounded-2xl p-5" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
               <p className="text-[11px] text-slate-400 uppercase tracking-wide font-semibold mb-1">{kpi.label}</p>
-              <p className="text-2xl font-black text-slate-900 leading-tight">{kpi.value}</p>
+              <p className="heading-lg leading-tight">{kpi.value}</p>
               <p className="text-[11px] text-slate-400 mt-1">{kpi.sub}</p>
             </div>
           ))}
@@ -333,7 +333,7 @@ export default async function RelatoriosPage({
         {/* Gráfico + Pedidos por estado — side by side */}
         <div className="grid lg:grid-cols-3 gap-4 mb-8">
           {/* Gráfico de vendas — 2/3 */}
-          <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+          <div className="lg:col-span-2 bg-white rounded-2xl p-5">
             <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-4">Vendas — {labelPeriodo}</p>
             <RelatoriosClient
               diasDoIntervalo={diasDoIntervalo}
@@ -354,7 +354,7 @@ export default async function RelatoriosPage({
           </div>
 
           {/* Pedidos por estado — 1/3 */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+          <div className="bg-white rounded-2xl p-5">
             <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-4">Pedidos por estado</p>
             <div className="space-y-2.5">
               {[
@@ -369,7 +369,7 @@ export default async function RelatoriosPage({
                 return (
                   <div key={row.status} className="flex items-center justify-between text-sm">
                     <span className="text-slate-600">{row.icon} {row.label}</span>
-                    <span className="font-black text-slate-900 tabular-nums">{count}</span>
+                    <span className="font-bold text-[#0F1117] tabular-nums">{count}</span>
                   </div>
                 );
               })}
@@ -384,23 +384,23 @@ export default async function RelatoriosPage({
         </div>
 
         {/* Stock health */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 mb-8">
+        <div className="bg-white rounded-2xl p-5 mb-8">
           <h2 className="font-bold text-slate-800 mb-4">Saúde do Inventário</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="text-center">
-              <p className="text-2xl font-black text-slate-900">{stockAggregate._count}</p>
+              <p className="heading-lg">{stockAggregate._count}</p>
               <p className="text-xs text-slate-400 mt-1">Produtos</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-black text-slate-900">{Number(stockAggregate._sum.stock ?? 0).toLocaleString("pt-PT")}</p>
+              <p className="heading-lg">{Number(stockAggregate._sum.stock ?? 0).toLocaleString("pt-PT")}</p>
               <p className="text-xs text-slate-400 mt-1">Unidades em stock</p>
             </div>
             <div className="text-center">
-              <p className={`text-2xl font-black ${stockBaixo > 0 ? "text-amber-600" : "text-slate-900"}`}>{stockBaixo}</p>
+              <p className={`text-2xl font-bold ${stockBaixo > 0 ? "text-amber-600" : "text-slate-900"}`}>{stockBaixo}</p>
               <p className="text-xs text-slate-400 mt-1">Stock baixo (≤ 5)</p>
             </div>
             <div className="text-center">
-              <p className={`text-2xl font-black ${stockEsgotado > 0 ? "text-red-600" : "text-slate-900"}`}>{stockEsgotado}</p>
+              <p className={`text-2xl font-bold ${stockEsgotado > 0 ? "text-red-600" : "text-slate-900"}`}>{stockEsgotado}</p>
               <p className="text-xs text-slate-400 mt-1">Esgotados</p>
             </div>
           </div>

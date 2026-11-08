@@ -73,11 +73,11 @@ export default async function MarketingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-black text-slate-900">Marketing</h1>
-          <p className="text-slate-400 text-sm mt-1">{totalClientes} cliente{totalClientes !== 1 ? "s" : ""} na base de dados</p>
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+      <div className="max-w-4xl mx-auto px-5 py-7">
+        <div className="mb-6">
+          <h1 className="heading-lg">Marketing</h1>
+          <p className="body-sm mt-0.5">{totalClientes} cliente{totalClientes !== 1 ? "s" : ""} na base de dados</p>
         </div>
 
         {/* ── Atalho para Redes Sociais ───────────────────────────────── */}
@@ -98,7 +98,7 @@ export default async function MarketingPage() {
           <h2 className="text-lg font-bold text-slate-800 mb-4">Campanhas de email</h2>
 
           {/* Criar campanha */}
-          <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm mb-6">
+          <div className="bg-white rounded-2xl p-6" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
             <h3 className="text-sm font-bold text-slate-700 mb-4">Nova campanha</h3>
             <CampanhaForm />
           </div>
@@ -109,7 +109,7 @@ export default async function MarketingPage() {
               Nenhuma campanha criada ainda.
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wide">
@@ -170,7 +170,7 @@ export default async function MarketingPage() {
         <section>
           <h2 className="text-lg font-bold text-slate-800 mb-4">Cupões de desconto</h2>
 
-          <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm mb-6">
+          <div className="bg-white rounded-2xl p-6" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
             <h3 className="text-sm font-bold text-slate-700 mb-4">Criar cupão</h3>
             <form action={criarCupao} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div>
@@ -204,7 +204,7 @@ export default async function MarketingPage() {
             </form>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl overflow-hidden">
             {cupoes.length === 0 ? (
               <div className="py-16 text-center text-slate-400 text-sm">Nenhum cupão criado ainda.</div>
             ) : (

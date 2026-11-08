@@ -75,12 +75,12 @@ export default async function AvaliacoesPage({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+      <div className="max-w-4xl mx-auto px-5 py-7">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-black text-slate-900">Avaliações</h1>
-            <p className="text-slate-400 text-sm mt-1">
+            <h1 className="heading-lg">Avaliações</h1>
+            <p className="body-sm mt-0.5">
               {pendentesCount > 0
                 ? `${pendentesCount} avaliação${pendentesCount !== 1 ? "ões" : ""} a aguardar moderação`
                 : "Todas as avaliações moderadas"}
@@ -98,7 +98,7 @@ export default async function AvaliacoesPage({
             <a key={f.key} href={`/dashboard/avaliacoes?filtro=${f.key}`}
               className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                 filtro === f.key
-                  ? "bg-slate-900 text-white"
+                  ? "bg-[#0F1117] text-white"
                   : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
               }`}>
               {f.label}
@@ -108,12 +108,12 @@ export default async function AvaliacoesPage({
 
         <div className="space-y-4">
           {avaliacoes.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm py-16 text-center text-slate-400 text-sm">
+            <div className="bg-white rounded-2xl py-16 text-center text-slate-400 text-sm">
               Nenhuma avaliação {filtro === "pendentes" ? "pendente" : filtro === "aprovadas" ? "aprovada" : ""}.
             </div>
           ) : (
             avaliacoes.map(av => (
-              <div key={av.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+              <div key={av.id} className="bg-white rounded-2xl p-5">
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1">

@@ -82,16 +82,16 @@ export default async function DevolucoesPage({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+      <div className="max-w-5xl mx-auto px-5 py-7 space-y-6">
 
         <div>
-          <h1 className="text-2xl font-black text-slate-900">Devoluções</h1>
-          <p className="text-slate-400 text-sm mt-1">Registar devoluções e repor stock automaticamente</p>
+          <h1 className="heading-lg">Devoluções</h1>
+          <p className="body-sm mt-0.5">Registar devoluções e repor stock automaticamente</p>
         </div>
 
         {/* Registar nova devolução */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <div className="bg-white rounded-2xl p-5">
           <h2 className="font-bold text-slate-800 mb-4">Registar devolução</h2>
           {pedidosEntregues.length === 0 ? (
             <p className="text-sm text-slate-400">Não há pedidos entregues elegíveis para devolução.</p>
@@ -123,7 +123,7 @@ export default async function DevolucoesPage({
               </div>
               <button
                 type="submit"
-                className="rounded-xl px-4 py-2 text-sm font-bold bg-slate-900 text-white hover:bg-slate-700 transition-colors"
+                className="rounded-xl px-4 py-2 text-sm font-bold bg-[#0F1117] text-white hover:bg-slate-700 transition-colors"
               >
                 Registar devolução
               </button>
@@ -132,7 +132,7 @@ export default async function DevolucoesPage({
         </div>
 
         {/* Lista de devoluções */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
             <h2 className="font-bold text-slate-800">Histórico de devoluções</h2>
             <span className="text-xs text-slate-400">{total} devoluç{total !== 1 ? "ões" : "ão"}</span>

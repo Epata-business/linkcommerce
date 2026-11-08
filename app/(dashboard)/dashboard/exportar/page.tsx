@@ -12,11 +12,11 @@ export default async function ExportarPage() {
   ]);
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-black text-slate-900">Exportar dados</h1>
-          <p className="text-slate-400 text-sm mt-1">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+      <div className="max-w-3xl mx-auto px-5 py-7">
+        <div className="mb-6">
+          <h1 className="heading-lg">Exportar dados</h1>
+          <p className="body-sm mt-0.5">
             Descarregue os seus dados em formato CSV compatível com Excel e Google Sheets.
           </p>
         </div>

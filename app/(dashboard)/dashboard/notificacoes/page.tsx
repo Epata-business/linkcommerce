@@ -32,13 +32,13 @@ export default async function NotificacoesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+      <div className="max-w-3xl mx-auto px-5 py-7">
 
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-black text-slate-900">Notificações</h1>
-            <p className="text-slate-400 text-sm mt-1">
+            <h1 className="heading-lg">Notificações</h1>
+            <p className="body-sm mt-0.5">
               {notificacoes.length} notificaç{notificacoes.length !== 1 ? "ões" : "ão"} no total
             </p>
           </div>

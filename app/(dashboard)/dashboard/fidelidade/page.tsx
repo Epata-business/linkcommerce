@@ -73,24 +73,24 @@ export default async function FidelidadePage() {
   const totalPontosEmCirculacao = topClientes.reduce((s, c) => s + c.pontos, 0);
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-black text-slate-900">Programa de Fidelidade</h1>
-          <p className="text-slate-400 text-sm mt-1">Recompensa os teus clientes por cada compra</p>
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+      <div className="max-w-4xl mx-auto px-5 py-7">
+        <div className="mb-6">
+          <h1 className="heading-lg">Programa de Fidelidade</h1>
+          <p className="body-sm mt-0.5">Recompensa os teus clientes por cada compra</p>
         </div>
 
         {/* KPIs */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+          <div className="bg-white rounded-2xl p-5" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
             <p className="text-[11px] text-slate-400 uppercase tracking-wide font-semibold mb-1">Membros</p>
-            <p className="text-2xl font-black text-slate-900">{totalMembros}</p>
+            <p className="heading-lg">{totalMembros}</p>
           </div>
-          <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+          <div className="bg-white rounded-2xl p-5" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
             <p className="text-[11px] text-slate-400 uppercase tracking-wide font-semibold mb-1">Pontos em circulação</p>
-            <p className="text-2xl font-black text-slate-900">{totalPontosEmCirculacao.toLocaleString("pt-PT")}</p>
+            <p className="heading-lg">{totalPontosEmCirculacao.toLocaleString("pt-PT")}</p>
           </div>
-          <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+          <div className="bg-white rounded-2xl p-5" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
             <p className="text-[11px] text-slate-400 uppercase tracking-wide font-semibold mb-1">Estado</p>
             <p className={`text-2xl font-black ${config?.ativo ? "text-green-600" : "text-slate-400"}`}>
               {config?.ativo ? "Ativo" : "Inativo"}
@@ -99,7 +99,7 @@ export default async function FidelidadePage() {
         </div>
 
         {/* Configuração */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-8">
+        <div className="bg-white rounded-2xl p-6 mb-8">
           <h2 className="font-bold text-slate-800 mb-4">Configuração</h2>
           <form action={guardarConfig} className="space-y-4">
             <label className="flex items-center gap-3 cursor-pointer">
@@ -166,7 +166,7 @@ export default async function FidelidadePage() {
         </div>
 
         {/* Top clientes por pontos */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-8">
+        <div className="bg-white rounded-2xl overflow-hidden mb-8">
           <div className="px-5 py-4 border-b border-slate-100">
             <h2 className="font-bold text-slate-800">Clientes com pontos</h2>
           </div>
@@ -213,7 +213,7 @@ export default async function FidelidadePage() {
         </div>
 
         {/* Ajuste manual de pontos */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <div className="bg-white rounded-2xl p-6">
           <h2 className="font-bold text-slate-800 mb-4">Ajuste manual de pontos</h2>
           <form action={ajustarPontos} className="grid sm:grid-cols-2 gap-4">
             <div>

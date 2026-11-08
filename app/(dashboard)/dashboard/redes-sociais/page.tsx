@@ -37,11 +37,12 @@ export default async function RedesSociaisPage() {
   ]);
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+    <div className="max-w-4xl mx-auto px-5 py-7">
       <BackButton href="/dashboard/marketing" label="← Marketing" />
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Redes Sociais</h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h1 className="heading-lg">Redes Sociais</h1>
+        <p className="body-sm mt-0.5">
           Publique os seus produtos directamente nas redes sociais a partir do painel.
         </p>
       </div>
@@ -57,6 +58,7 @@ export default async function RedesSociaisPage() {
           criadoEm: p.criadoEm.toISOString(),
         }))}
       />
+    </div>
     </div>
   );
 }

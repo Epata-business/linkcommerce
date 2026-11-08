@@ -92,13 +92,13 @@ export default async function ApiPage({
   const baseUrl = process.env.NEXTAUTH_URL ?? "https://linkcommerce.cc";
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+      <div className="max-w-3xl mx-auto px-5 py-7">
         <BackButton href="/dashboard/configuracoes" label="← Configurações" />
 
         <div className="mt-4 mb-8">
-          <h1 className="text-2xl font-black text-slate-900">API Pública</h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <h1 className="heading-lg">API Pública</h1>
+          <p className="body-sm mt-0.5">
             Integra a tua loja com ERPs, apps móveis e outros sistemas externos.
           </p>
         </div>
@@ -112,7 +112,7 @@ export default async function ApiPage({
         )}
 
         {/* Criar nova key */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-6">
+        <div className="bg-white rounded-2xl p-6 mb-6">
           <h2 className="font-bold text-slate-800 mb-4">Criar nova chave</h2>
           <form action={criarKey} className="flex gap-3 flex-wrap">
             <input
@@ -132,7 +132,7 @@ export default async function ApiPage({
         </div>
 
         {/* Lista de keys */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-8">
+        <div className="bg-white rounded-2xl overflow-hidden mb-8">
           <div className="px-5 py-4 border-b border-slate-100">
             <h2 className="font-bold text-slate-800">Chaves activas</h2>
           </div>
@@ -173,7 +173,7 @@ export default async function ApiPage({
         </div>
 
         {/* ── WEBHOOKS ──────────────────────────────────────────────── */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h2 className="text-lg font-bold text-slate-800 mb-4">Webhooks</h2>
           <p className="text-sm text-slate-500 mb-4">
             Recebe notificações HTTP em tempo real quando ocorrem eventos na tua loja.
@@ -181,7 +181,7 @@ export default async function ApiPage({
           </p>
 
           {/* Criar webhook */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-4">
+          <div className="bg-white rounded-2xl p-6 mb-4">
             <h3 className="font-bold text-slate-800 mb-4 text-sm">Novo webhook</h3>
             <form action={criarWebhook} className="space-y-4">
               <div>
@@ -216,7 +216,7 @@ export default async function ApiPage({
               Nenhum webhook configurado.
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl overflow-hidden">
               <div className="divide-y divide-slate-50">
                 {webhooks.map(wh => (
                   <div key={wh.id} className="px-5 py-4 flex items-start gap-4 flex-wrap">

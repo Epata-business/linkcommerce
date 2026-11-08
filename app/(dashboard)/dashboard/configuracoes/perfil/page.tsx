@@ -18,13 +18,14 @@ export default async function PerfilPage() {
   const provedores = user.accounts.map(a => a.provider);
 
   return (
-    <div className="p-6 max-w-lg">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+    <div className="max-w-lg mx-auto px-5 py-7">
       <BackButton href="/dashboard/configuracoes" label="← Configurações" />
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">O meu perfil</h1>
-          <p className="text-sm text-slate-400 mt-0.5">
+          <h1 className="heading-lg">O meu perfil</h1>
+          <p className="body-sm mt-0.5">
             Membro desde {new Date(user.createdAt).toLocaleDateString("pt-PT", { month: "long", year: "numeric" })}
           </p>
         </div>
@@ -39,7 +40,7 @@ export default async function PerfilPage() {
         )}
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6">
+      <div className="bg-white rounded-2xl p-6" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
         <PerfilForm
           nome={user.name}
           email={user.email!}
@@ -47,6 +48,7 @@ export default async function PerfilPage() {
           temSenha={!!user.passwordHash}
         />
       </div>
+    </div>
     </div>
   );
 }

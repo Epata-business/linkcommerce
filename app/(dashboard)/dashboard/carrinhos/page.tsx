@@ -64,13 +64,13 @@ export default async function CarrinhosPage({
   const totalPages = Math.ceil(total / porPagina);
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+      <div className="max-w-5xl mx-auto px-5 py-7">
         <BackButton href="/dashboard" label="← Dashboard" />
 
         <div className="mt-4 mb-8">
-          <h1 className="text-2xl font-black text-slate-900">Carrinhos Abandonados</h1>
-          <p className="text-slate-400 text-sm mt-1">Clientes que iniciaram checkout mas não completaram a compra</p>
+          <h1 className="heading-lg">Carrinhos Abandonados</h1>
+          <p className="body-sm mt-0.5">Clientes que iniciaram checkout mas não completaram a compra</p>
         </div>
 
         {/* KPIs */}
@@ -81,7 +81,7 @@ export default async function CarrinhosPage({
             { label: "Convertidos", value: kpiConvertidos, color: "text-green-600" },
             { label: "Receita recuperada", value: formatarPreco(Number(kpiReceita._sum.total ?? 0), moeda), color: "text-slate-900" },
           ].map(kpi => (
-            <div key={kpi.label} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+            <div key={kpi.label} className="bg-white rounded-2xl p-5">
               <p className={`text-2xl font-black ${kpi.color}`}>{kpi.value}</p>
               <p className="text-xs text-slate-400 mt-1">{kpi.label}</p>
             </div>
@@ -107,7 +107,7 @@ export default async function CarrinhosPage({
         </div>
 
         {/* Tabela */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl overflow-hidden">
           {carrinhos.length === 0 ? (
             <div className="py-16 text-center text-slate-400 text-sm">
               Sem carrinhos{statusFiltro ? ` com estado "${STATUS_CONFIG[statusFiltro].label}"` : ""}.
