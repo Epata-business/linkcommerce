@@ -20,6 +20,7 @@
     "@neondatabase/serverless": "^1.1.0",
     "@prisma/adapter-neon": "^7.8.0",
     "@prisma/client": "^5.20.0",
+    "@sentry/nextjs": "^11.11.0",
     "@stripe/stripe-js": "^9.9.0",
     "@use-gesture/react": "^10.3.1",
     "bcryptjs": "^2.4.3",
