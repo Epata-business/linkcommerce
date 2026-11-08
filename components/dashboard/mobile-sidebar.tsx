@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 
-interface NavLink { href: string; label: string }
+interface NavLink { href: string; label: string; icon?: string }
 
 interface Props {
   navLinks: NavLink[];
@@ -75,6 +75,7 @@ export function MobileSidebar({ navLinks, email, subdominio, nomeLoja }: Props) 
                         : "text-slate-300 hover:bg-slate-800 hover:text-white"
                     }`}
                   >
+                    {link.icon && <span className="mr-2.5 text-base leading-none">{link.icon}</span>}
                     {link.label}
                   </Link>
                 );
