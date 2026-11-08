@@ -98,10 +98,11 @@ export default async function ConfiguracoesPage({
   }
 
   return (
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
     <div className="p-6 max-w-2xl">
       <BackButton href="/dashboard" label="← Dashboard" />
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Configurações</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="heading-lg">Configurações</h1>
         <Link href="/dashboard/configuracoes/perfil"
           className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
           <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,12 +144,12 @@ export default async function ConfiguracoesPage({
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Nome da loja</label>
             <input name="nome" required defaultValue={loja.nome}
-              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-[#153DEC] focus:outline-none focus:ring-2 focus:ring-[#153DEC]/10" />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">URL do logótipo</label>
             <input name="logotipoUrl" defaultValue={loja.logotipoUrl ?? ""} placeholder="https://..."
-              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-[#153DEC] focus:outline-none focus:ring-2 focus:ring-[#153DEC]/10" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -173,7 +174,7 @@ export default async function ConfiguracoesPage({
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Moeda da loja</label>
             <select name="moeda" defaultValue={loja.moeda ?? "EUR"}
-              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm bg-white focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm bg-white focus:border-[#153DEC] focus:outline-none focus:ring-2 focus:ring-[#153DEC]/10">
               {MOEDAS.map((m) => (
                 <option key={m.codigo} value={m.codigo}>
                   {m.simbolo} — {m.nome} ({m.codigo})
@@ -190,7 +191,7 @@ export default async function ConfiguracoesPage({
             <h3 className="text-sm font-semibold text-slate-700 mb-1">WhatsApp da loja</h3>
             <p className="text-xs text-slate-400 mb-3">Número de contacto exibido na loja. Os clientes podem clicar para iniciar conversa.</p>
             <input name="telefoneWA" defaultValue={loja.telefoneWA ?? ""} placeholder="+244 900 000 000"
-              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-[#153DEC] focus:outline-none focus:ring-2 focus:ring-[#153DEC]/10" />
           </div>
 
           {/* Dados fiscais */}
@@ -200,13 +201,13 @@ export default async function ConfiguracoesPage({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">NIF da loja</label>
                 <input name="nif" defaultValue={loja.nif ?? ""} placeholder="Ex: 5000000000"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-[#153DEC] focus:outline-none focus:ring-2 focus:ring-[#153DEC]/10" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Morada fiscal completa</label>
                 <textarea name="moradaFiscal" defaultValue={loja.moradaFiscal ?? ""} rows={2}
                   placeholder="Rua Exemplo, nº 1, Luanda, Angola"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 resize-none" />
+                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-[#153DEC] focus:outline-none focus:ring-2 focus:ring-[#153DEC]/10 resize-none" />
               </div>
             </div>
           </div>
@@ -241,12 +242,12 @@ export default async function ConfiguracoesPage({
           <div>
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Phone Number ID</label>
             <input name="waPhoneId" defaultValue={loja.waPhoneId ?? ""} placeholder="123456789012345"
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-mono focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-mono focus:border-[#153DEC] focus:outline-none focus:ring-2 focus:ring-[#153DEC]/10" />
           </div>
           <div>
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Token de acesso</label>
             <input name="waToken" type="password" defaultValue={loja.waToken ? "••••••••••••" : ""} placeholder="EAAxxxxxxx…"
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-mono focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-mono focus:border-[#153DEC] focus:outline-none focus:ring-2 focus:ring-[#153DEC]/10" />
             <p className="mt-1 text-xs text-slate-400">Obtém em Meta for Developers → WhatsApp → API Setup.</p>
           </div>
           <div className="flex items-center gap-2 pt-1">
@@ -313,7 +314,7 @@ export default async function ConfiguracoesPage({
               defaultValue={loja.seoTitulo ?? ""}
               placeholder={loja.nome}
               maxLength={70}
-              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-[#153DEC] focus:outline-none focus:ring-2 focus:ring-[#153DEC]/10"
             />
             <p className="mt-1 text-xs text-slate-400">Máx. 70 caracteres. Deixar vazio usa o nome da loja.</p>
           </div>
@@ -327,13 +328,14 @@ export default async function ConfiguracoesPage({
               placeholder={`Compre online na ${loja.nome}. Entrega rápida e pagamento seguro.`}
               maxLength={160}
               rows={3}
-              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 resize-none"
+              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-[#153DEC] focus:outline-none focus:ring-2 focus:ring-[#153DEC]/10 resize-none"
             />
             <p className="mt-1 text-xs text-slate-400">Máx. 160 caracteres. Aparece nos resultados de pesquisa e partilhas.</p>
           </div>
           <Button type="submit" variant="outline" className="text-sm">Guardar SEO</Button>
         </form>
       </div>
+    </div>
     </div>
   );
 }

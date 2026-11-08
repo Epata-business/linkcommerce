@@ -98,23 +98,23 @@ export default async function PedidosPage({
   const tabAtivo = filtroStatus ?? "TODOS";
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+      <div className="max-w-5xl mx-auto px-5 py-7">
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-black text-slate-900">Pedidos</h1>
-          <p className="text-slate-400 text-sm mt-1">{todos} pedido{todos !== 1 ? "s" : ""} no total</p>
+        <div className="mb-6">
+          <h1 className="heading-lg">Encomendas</h1>
+          <p className="body-sm mt-0.5">{todos} encomenda{todos !== 1 ? "s" : ""} no total</p>
         </div>
 
         {/* Stats do mês */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
           {[
             { label: "Receita este mês", value: formatarPreco(Number(totalMes._sum.total ?? 0), moeda), icon: "💰" },
-            { label: "Pedidos este mês", value: totalMes._count.toString(), icon: "📦" },
+            { label: "Encomendas este mês", value: totalMes._count.toString(), icon: "📦" },
             { label: "Pendentes agora", value: (contagemMap["PENDING"] ?? 0).toString(), icon: "⏳" },
           ].map((s) => (
-            <div key={s.label} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+            <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
               <div className="text-2xl mb-2">{s.icon}</div>
               <p className="text-2xl font-black text-slate-900">{s.value}</p>
               <p className="text-xs text-slate-400 mt-1">{s.label}</p>
@@ -134,8 +134,9 @@ export default async function PedidosPage({
             <input
               name="q"
               defaultValue={query}
-              placeholder="Pesquisar pedido, cliente ou email…"
-              className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400"
+              placeholder="Pesquisar encomenda, cliente ou email…"
+              className="w-full rounded-xl border bg-white pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:border-[#153DEC] focus:ring-[#153DEC]/10"
+              style={{ borderColor: "hsl(220 20% 88%)" }}
             />
           </div>
           {query && (
@@ -170,11 +171,11 @@ export default async function PedidosPage({
 
         {/* Lista de pedidos */}
         {pedidos.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-100 py-20 text-center">
+          <div className="bg-white rounded-2xl py-20 text-center" style={{ border: "1px solid hsl(220 20% 91%)" }}>
             <div className="text-5xl mb-4">📭</div>
-            <p className="font-bold text-slate-700">Nenhum pedido encontrado</p>
-            <p className="text-sm text-slate-400 mt-1">
-              {tabAtivo === "TODOS" ? "Quando os clientes fizerem pedidos aparecem aqui." : `Não há pedidos com o estado "${STATUS_CONFIG[tabAtivo]?.label ?? tabAtivo}".`}
+            <p className="font-semibold text-[#0F1117] text-sm">Nenhuma encomenda encontrada</p>
+            <p className="text-xs text-[#9CA3AF] mt-1">
+              {tabAtivo === "TODOS" ? "Quando os clientes fizerem encomendas aparecem aqui." : `Não há encomendas com o estado "${STATUS_CONFIG[tabAtivo]?.label ?? tabAtivo}".`}
             </p>
           </div>
         ) : (
@@ -186,7 +187,8 @@ export default async function PedidosPage({
 
               return (
                 <Link key={pedido.id} href={`/dashboard/pedidos/${pedido.id}`}
-                  className="flex flex-col sm:flex-row sm:items-center gap-4 bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md hover:border-slate-200 transition-all group">
+                  className="flex flex-col sm:flex-row sm:items-center gap-4 bg-white rounded-2xl p-5 transition-all group hover:shadow-[0_4px_12px_rgba(15,17,23,0.08)]"
+                  style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
 
                   {/* Info principal */}
                   <div className="flex-1 min-w-0">
@@ -201,11 +203,11 @@ export default async function PedidosPage({
                       </span>
                     </div>
 
-                    <p className="mt-1.5 text-sm font-semibold text-slate-800 truncate">{pedido.clienteNome ?? pedido.clienteEmail}</p>
-                    <p className="text-xs text-slate-400 truncate">{pedido.clienteEmail}</p>
+                    <p className="mt-1.5 text-sm font-semibold text-[#0F1117] truncate">{pedido.clienteNome ?? pedido.clienteEmail}</p>
+                    <p className="text-xs text-[#9CA3AF] truncate">{pedido.clienteEmail}</p>
 
                     {/* Prévia dos itens */}
-                    <p className="mt-1.5 text-xs text-slate-500">
+                    <p className="mt-1.5 text-xs text-[#9CA3AF]">
                       {pedido.itens.slice(0, 2).map(i => i.produto?.titulo ?? "Produto").join(" · ")}
                       {pedido.itens.length > 2 && ` +${pedido.itens.length - 2}`}
                     </p>
@@ -233,8 +235,8 @@ export default async function PedidosPage({
 
                   {/* Total + data */}
                   <div className="flex sm:flex-col items-center sm:items-end gap-3 sm:gap-1 flex-shrink-0">
-                    <p className="text-lg font-black text-slate-900">{formatarPreco(Number(pedido.total), moeda)}</p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-lg font-bold text-[#0F1117] tabular-nums">{formatarPreco(Number(pedido.total), moeda)}</p>
+                    <p className="text-xs text-[#9CA3AF]">
                       {new Date(pedido.createdAt).toLocaleDateString("pt-PT", { day: "2-digit", month: "short", year: "numeric" })}
                     </p>
                     <span className="text-slate-300 group-hover:text-slate-500 transition-colors text-lg hidden sm:block">→</span>
