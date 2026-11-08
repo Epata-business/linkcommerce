@@ -200,6 +200,8 @@ model Loja {
   webhooks         Webhook[]
   configFidelidade ConfigFidelidade?
   pontosFidelidade PontosFidelidade[]
+  contasSociais    ContaSocial[]
+  publicacoesSociais PublicacaoSocial[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -863,4 +865,42 @@ model MovimentoPontos {
 
   @@index([saldoId])
   @@map("movimentos_pontos")
+}
+
+// ── Zernio social media integration ─────────────────────────────────────────
+
+model ContaSocial {
+  id          String   @id @default(cuid())
+  lojaId      String
+  loja        Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  plataforma  String   // "linkedin" | "instagram" | "facebook" | "twitter" | "tiktok" | ...
+  nomeExibido String   // ex: "@minha_marca"
+  accountId   String   // Zernio account._id
+  profileId   String   // Zernio profile._id
+  ativa       Boolean  @default(true)
+  criadaEm    DateTime @default(now())
+
+  @@unique([lojaId, accountId])
+  @@index([lojaId])
+  @@map("contas_sociais")
+}
+
+model PublicacaoSocial {
+  id           String   @id @default(cuid())
+  lojaId       String
+  loja         Loja     @relation(fields: [lojaId], references: [id], onDelete: Cascade)
+  produtoId    String?
+  zernioPostId String?  // ID do post no Zernio
+  conteudo     String   @db.Text
+  plataformas  String   // JSON array de platform slugs
+  estado       String   @default("agendado") // "agendado" | "publicado" | "falhado" | "rascunho"
+  agendadoPara DateTime?
+  publicadoEm  DateTime?
+  erroMsg      String?
+  criadoPor    String?  // userId
+  criadoEm     DateTime @default(now())
+
+  @@index([lojaId])
+  @@index([zernioPostId])
+  @@map("publicacoes_sociais")
 }

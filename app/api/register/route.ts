@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { enviarEmailBoasVindasLojista } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   // Rate limiting: 5 registos por IP a cada 15 minutos
@@ -31,6 +32,8 @@ export async function POST(request: NextRequest) {
   await prisma.user.create({
     data: { name: nome, email, passwordHash, role: "LOJISTA" },
   });
+
+  void enviarEmailBoasVindasLojista({ nome, email });
 
   return NextResponse.json({ ok: true });
 }

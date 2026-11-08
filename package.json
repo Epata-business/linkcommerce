@@ -23,6 +23,7 @@
     "@sentry/nextjs": "^11.11.0",
     "@stripe/stripe-js": "^9.9.0",
     "@use-gesture/react": "^10.3.1",
+    "@zernio/node": "^0.2.1542",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.10.0",
     "clsx": "^2.1.1",

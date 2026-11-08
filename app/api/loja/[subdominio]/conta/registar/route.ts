@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { setClienteSession } from "@/lib/cliente-session";
 import { z } from "zod";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { enviarEmailBoasVindasCliente } from "@/lib/email";
 
 const Schema = z.object({
   email: z.string().email(),
@@ -41,5 +42,18 @@ export async function POST(req: NextRequest, { params }: { params: { subdominio:
   });
 
   await setClienteSession({ clienteId: cliente.id, lojaId: loja.id, email, nome });
+
+  const lojaInfo = await prisma.loja.findUnique({
+    where: { id: loja.id },
+    select: { nome: true, subdominio: true, dominioProprio: true },
+  });
+  if (lojaInfo) {
+    const root = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "linkcommerce.cc";
+    const urlLoja = lojaInfo.dominioProprio
+      ? `https://${lojaInfo.dominioProprio}`
+      : `https://${lojaInfo.subdominio}.${root}`;
+    void enviarEmailBoasVindasCliente({ nomeLoja: lojaInfo.nome, clienteNome: nome, clienteEmail: email, urlLoja });
+  }
+
   return NextResponse.json({ ok: true });
 }
