@@ -13,7 +13,7 @@ export default function RegistoPage({
   const erro = searchParams?.erro;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen flex" style={{ background: "#F7F8FC" }}>
       {/* Painel esquerdo — decorativo */}
       <div className="hidden lg:flex flex-col justify-between w-1/2 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-12 text-white">
         <Link href="/" className="text-xl font-bold tracking-tight">

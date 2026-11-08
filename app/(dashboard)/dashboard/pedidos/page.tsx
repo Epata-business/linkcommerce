@@ -116,7 +116,7 @@ export default async function PedidosPage({
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
               <div className="text-2xl mb-2">{s.icon}</div>
-              <p className="text-2xl font-black text-slate-900">{s.value}</p>
+              <p className="text-2xl font-bold text-[#0F1117]">{s.value}</p>
               <p className="text-xs text-slate-400 mt-1">{s.label}</p>
             </div>
           ))}

@@ -82,7 +82,7 @@ export default async function CarrinhosPage({
             { label: "Receita recuperada", value: formatarPreco(Number(kpiReceita._sum.total ?? 0), moeda), color: "text-slate-900" },
           ].map(kpi => (
             <div key={kpi.label} className="bg-white rounded-2xl p-5">
-              <p className={`text-2xl font-black ${kpi.color}`}>{kpi.value}</p>
+              <p className={`text-2xl font-bold ${kpi.color}`}>{kpi.value}</p>
               <p className="text-xs text-slate-400 mt-1">{kpi.label}</p>
             </div>
           ))}

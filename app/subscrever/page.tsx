@@ -96,7 +96,7 @@ export default async function SubscreverPage({
   const jaAtiva = lojaAtualizada?.subscricao?.status === "ATIVA";
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center px-4 py-12">
+    <div className="min-h-screen flex flex-col items-center px-4 py-12" style={{ background: "#F7F8FC" }}>
       <Link href="/" className="text-xl font-bold text-slate-900 mb-10">
         Link<span className="text-indigo-600">Commerce</span>
       </Link>

@@ -94,7 +94,7 @@ export default async function AuditLogPage({
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {registos.map(r => (
-                  <tr key={r.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={r.id} className="hover:bg-[#F7F8FC] transition-colors">
                     <td className="px-4 py-3 whitespace-nowrap text-slate-500 tabular-nums text-xs">
                       {r.criadoEm.toLocaleString("pt-PT", { dateStyle: "short", timeStyle: "short" })}
                     </td>

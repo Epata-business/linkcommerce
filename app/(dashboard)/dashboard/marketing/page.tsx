@@ -123,7 +123,7 @@ export default async function MarketingPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {campanhas.map(c => (
-                    <tr key={c.id} className="hover:bg-slate-50 transition-colors">
+                    <tr key={c.id} className="hover:bg-[#F7F8FC] transition-colors">
                       <td className="px-4 py-3 font-semibold text-slate-800">{c.nome}</td>
                       <td className="px-4 py-3 text-slate-600 max-w-[200px] truncate">{c.assunto}</td>
                       <td className="px-4 py-3">
@@ -226,7 +226,7 @@ export default async function MarketingPage() {
                     const podeEliminar = c.usosAtuais === 0;
 
                     return (
-                      <tr key={c.id} className="hover:bg-slate-50 transition-colors">
+                      <tr key={c.id} className="hover:bg-[#F7F8FC] transition-colors">
                         <td className="px-4 py-3">
                           <span className="font-mono font-bold text-slate-800 bg-slate-100 rounded px-2 py-0.5 text-xs tracking-wider">
                             {c.codigo}
