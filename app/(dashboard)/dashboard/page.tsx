@@ -394,6 +394,7 @@ export default async function DashboardPage({
                 { label: "Relatórios", href: "/dashboard/relatorios", icon: "📊" },
                 { label: "Clientes", href: "/dashboard/clientes", icon: "👥" },
                 { label: "Marketing", href: "/dashboard/marketing", icon: "🏷️" },
+                { label: "Redes Sociais", href: "/dashboard/redes-sociais", icon: "📲" },
                 { label: "Configurações", href: "/dashboard/configuracoes", icon: "⚙️" },
               ].map((a) => (
                 <Link key={a.href} href={a.href}

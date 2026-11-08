@@ -80,6 +80,19 @@ export default async function MarketingPage() {
           <p className="text-slate-400 text-sm mt-1">{totalClientes} cliente{totalClientes !== 1 ? "s" : ""} na base de dados</p>
         </div>
 
+        {/* ── Atalho para Redes Sociais ───────────────────────────────── */}
+        <a
+          href="/dashboard/redes-sociais"
+          className="flex items-center gap-4 p-4 mb-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl text-white hover:opacity-95 transition-opacity"
+        >
+          <span className="text-3xl">📲</span>
+          <div>
+            <p className="font-bold text-base">Redes Sociais</p>
+            <p className="text-sm text-blue-100">Publique produtos no Instagram, Facebook, LinkedIn e mais — directamente do painel</p>
+          </div>
+          <span className="ml-auto text-xl opacity-70">→</span>
+        </a>
+
         {/* ── CAMPANHAS DE EMAIL ─────────────────────────────────────── */}
         <section className="mb-10">
           <h2 className="text-lg font-bold text-slate-800 mb-4">Campanhas de email</h2>
