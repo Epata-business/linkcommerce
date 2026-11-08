@@ -22,46 +22,46 @@ export function MobileSidebar({ navLinks, email, subdominio, nomeLoja }: Props) 
 
   return (
     <>
-      {/* Botão hambúrguer */}
       <button
         onClick={() => setOpen(true)}
         aria-label="Abrir menu"
-        className="flex h-10 w-10 items-center justify-center rounded-lg text-white hover:bg-slate-800 transition-colors"
+        className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/8 transition-all"
       >
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-          <rect y="4" width="22" height="2" rx="1" fill="currentColor"/>
-          <rect y="10" width="22" height="2" rx="1" fill="currentColor"/>
-          <rect y="16" width="22" height="2" rx="1" fill="currentColor"/>
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect y="3" width="20" height="1.5" rx="0.75" fill="currentColor"/>
+          <rect y="9.25" width="20" height="1.5" rx="0.75" fill="currentColor"/>
+          <rect y="15.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
         </svg>
       </button>
 
-      {/* Overlay + drawer */}
       {open && (
         <div className="fixed inset-0 z-50 flex">
-          {/* Overlay escuro */}
           <div
-            className="absolute inset-0 bg-black/60"
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
 
-          {/* Drawer */}
-          <div className="relative flex w-[80vw] max-w-xs flex-col bg-slate-900 text-white h-full overflow-y-auto">
-            {/* Cabeçalho */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
-              <span className="text-base font-bold tracking-tight">LinkCommerce</span>
+          <div className="relative flex w-[82vw] max-w-[300px] flex-col h-full overflow-y-auto sidebar-scroll"
+            style={{ background: "linear-gradient(180deg, #0D1117 0%, #080A12 100%)", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              <span className="text-sm font-bold tracking-tight text-white">
+                Link<span style={{ color: "#8381FB" }}>Commerce</span>
+              </span>
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Fechar menu"
-                className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-slate-800 transition-colors"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/8 transition-all"
               >
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <path d="M2 2l14 14M16 2L2 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M2 2l12 12M14 2L2 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
               </button>
             </div>
 
-            {/* Navegação */}
-            <nav className="flex-1 px-3 py-4 space-y-1">
+            {/* Nav */}
+            <nav className="flex-1 px-2 py-3 space-y-0.5">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href || (link.href !== "/dashboard" && pathname.startsWith(link.href));
                 return (
@@ -69,14 +69,20 @@ export function MobileSidebar({ navLinks, email, subdominio, nomeLoja }: Props) 
                     key={link.href}
                     href={link.href}
                     onClick={() => setOpen(false)}
-                    className={`flex items-center rounded-xl px-4 py-3 text-sm font-medium transition-colors min-h-[44px] ${
+                    className={[
+                      "group flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-all min-h-[44px]",
                       isActive
-                        ? "bg-slate-700 text-white"
-                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                    }`}
+                        ? "bg-white/10 text-white"
+                        : "text-slate-400 hover:bg-white/6 hover:text-slate-200",
+                    ].join(" ")}
                   >
-                    {link.icon && <span className="mr-2.5 text-base leading-none">{link.icon}</span>}
-                    {link.label}
+                    {link.icon && (
+                      <span className={["mr-2.5 text-sm leading-none", isActive ? "opacity-100" : "opacity-70 group-hover:opacity-100"].join(" ")}>
+                        {link.icon}
+                      </span>
+                    )}
+                    <span className="flex-1 truncate">{link.label}</span>
+                    {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#8381FB] flex-shrink-0" />}
                   </Link>
                 );
               })}
@@ -90,25 +96,27 @@ export function MobileSidebar({ navLinks, email, subdominio, nomeLoja }: Props) 
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setOpen(false)}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors min-h-[44px]"
+                  className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-white min-h-[44px] transition-all"
+                  style={{ background: "linear-gradient(135deg, #153DEC, #8381FB)" }}
                 >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
-                    <path d="M8 1c0 0-3 2.5-3 7s3 7 3 7M8 1c0 0 3 2.5 3 7s-3 7-3 7M1 8h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                    <circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" strokeWidth="1.25"/>
+                    <path d="M7.5 1c0 0-2.5 2-2.5 6.5S7.5 14 7.5 14M7.5 1c0 0 2.5 2 2.5 6.5S7.5 14 7.5 14M1 7.5h13" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round"/>
                   </svg>
-                  Ver loja {nomeLoja ? `· ${nomeLoja}` : ""}
+                  Ver loja{nomeLoja ? ` · ${nomeLoja}` : ""}
                 </a>
               </div>
             )}
 
             {/* Footer */}
-            <div className="border-t border-slate-800 px-5 py-4">
-              <p className="truncate text-xs text-slate-400 mb-3">{email}</p>
+            <div className="px-4 py-4" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              <p className="truncate text-xs text-slate-500 mb-3">{email}</p>
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="w-full rounded-xl border border-slate-700 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors min-h-[44px]"
+                className="w-full rounded-xl py-2.5 text-sm font-medium text-slate-400 hover:text-white transition-all min-h-[44px]"
+                style={{ border: "1px solid rgba(255,255,255,0.1)" }}
               >
-                Sair da conta
+                Terminar sessão
               </button>
             </div>
           </div>

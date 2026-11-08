@@ -168,29 +168,26 @@ export default async function DashboardPage({
   const saudacao = horaAtual < 12 ? "Bom dia" : horaAtual < 18 ? "Boa tarde" : "Boa noite";
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+      <div className="max-w-5xl mx-auto px-5 py-7 space-y-6">
 
         {/* Header */}
         <div className="flex items-start justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-black text-slate-900">{saudacao}, {nomeUtilizador.split(" ")[0]} 👋</h1>
-            <p className="text-slate-400 text-sm mt-0.5">
+            <h1 className="text-2xl font-bold text-[#0F1117] tracking-tight">{saudacao}, {nomeUtilizador.split(" ")[0]}</h1>
+            <p className="text-[#9CA3AF] text-sm mt-0.5">
               {agora.toLocaleDateString("pt-PT", { weekday: "long", day: "numeric", month: "long" })}
             </p>
           </div>
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2.5 flex-wrap">
             {!loja?.publicada && (
               <Link href="/dashboard/configuracoes"
-                className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-4 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-100 transition-colors">
-                <span className="w-2 h-2 rounded-full bg-amber-400" />
+                className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3.5 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-100 transition-colors">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                 Loja não publicada
               </Link>
             )}
-            {/* Suspense necessário para useSearchParams no filho */}
-            <Suspense fallback={
-              <div className="h-9 w-36 rounded-xl bg-slate-100 animate-pulse" />
-            }>
+            <Suspense fallback={<div className="h-9 w-36 rounded-xl bg-white border border-[hsl(220_20%_91%)] animate-pulse" />}>
               <PeriodoSelector periodoAtual={periodo} />
             </Suspense>
           </div>
@@ -208,48 +205,67 @@ export default async function DashboardPage({
         </Suspense>
 
         {/* Stats principais */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
             {
-              label: `Receita — ${labelPeriodo}`,
+              label: `Receita`,
+              period: labelPeriodo,
               value: formatarPreco(receitaAtual, moeda),
               icon: "💰",
+              accent: "#153DEC",
               sub: subReceita,
               positivo: posReceita,
               href: "/dashboard/pedidos",
             },
             {
-              label: `Pedidos — ${labelPeriodo}`,
+              label: `Encomendas`,
+              period: labelPeriodo,
               value: pedidosPeriodo.toString(),
               icon: "📦",
+              accent: "#8381FB",
               sub: subPedidos,
               positivo: posPedidos,
               href: "/dashboard/pedidos",
             },
             {
-              label: "Pendentes agora",
+              label: "Pendentes",
+              period: "agora",
               value: pedidosPendentes.toString(),
               icon: "⏳",
-              sub: pedidosPendentes > 0 ? "Requerem atenção" : "Tudo em dia ✓",
+              accent: pedidosPendentes > 0 ? "#f59e0b" : "#10b981",
+              sub: pedidosPendentes > 0 ? "Requerem atenção" : "Tudo em dia",
               positivo: pedidosPendentes === 0 ? true : null,
               href: "/dashboard/pedidos?status=pending",
             },
             {
-              label: "Produtos ativos",
+              label: "Produtos activos",
+              period: null,
               value: limiteProdutos ? `${totalProdutos}/${limiteProdutos}` : totalProdutos.toString(),
               icon: "🏷️",
+              accent: "#153DEC",
               sub: limiteProdutos && totalProdutos >= limiteProdutos ? "Limite atingido" : `${totalClientes} clientes únicos`,
               positivo: limiteProdutos && totalProdutos >= limiteProdutos ? false : null,
               href: "/dashboard/produtos",
             },
           ].map((s) => (
             <Link key={s.label} href={s.href}
-              className="group bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md hover:border-slate-200 transition-all">
-              <div className="text-2xl mb-3">{s.icon}</div>
-              <p className="text-2xl font-black text-slate-900">{s.value}</p>
-              <p className="text-xs text-slate-400 mt-0.5">{s.label}</p>
+              className="group bg-white rounded-2xl p-5 transition-all duration-150"
+              style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
+                  style={{ background: `${s.accent}14` }}>
+                  {s.icon}
+                </div>
+                {s.period && (
+                  <span className="text-[10px] font-semibold text-[#9CA3AF] bg-[#F7F8FC] px-2 py-1 rounded-full">
+                    {s.period}
+                  </span>
+                )}
+              </div>
+              <p className="text-2xl font-bold text-[#0F1117] tabular-nums">{s.value}</p>
+              <p className="text-xs text-[#9CA3AF] mt-0.5 font-medium">{s.label}</p>
               {s.sub && (
-                <p className={`text-xs font-medium mt-2 ${s.positivo === true ? "text-green-600" : s.positivo === false ? "text-red-500" : "text-slate-400"}`}>
+                <p className={`text-[11px] font-semibold mt-2.5 ${s.positivo === true ? "text-emerald-600" : s.positivo === false ? "text-red-500" : "text-[#9CA3AF]"}`}>
                   {s.sub}
                 </p>
               )}
@@ -258,28 +274,28 @@ export default async function DashboardPage({
         </div>
 
         {/* KPIs de performance */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
             {
-              label: `Ticket médio — ${labelPeriodo}`,
+              label: "Ticket médio",
               value: ticketMedio > 0 ? formatarPreco(ticketMedio, moeda) : "—",
               icon: "🎯",
-              sub: ticketMedio > 0 ? subTicket : "Sem pedidos no período",
+              sub: ticketMedio > 0 ? subTicket : "Sem encomendas no período",
               positivo: ticketMedio > 0 ? posTicket : null,
             },
             {
-              label: `Novos clientes — ${labelPeriodo}`,
+              label: "Novos clientes",
               value: novosClientes.toString(),
               icon: "🙋",
               sub: novosClientes > 0 ? subNovosClientes : "Nenhum cliente novo",
               positivo: novosClientes > 0 ? posNovosClientes : null,
             },
             {
-              label: `Taxa de conversão — ${labelPeriodo}`,
+              label: "Taxa de conversão",
               value: taxaConversao !== null ? `${taxaConversao.toFixed(1)}%` : "—",
               icon: "📈",
               sub: taxaConversao !== null
-                ? `${visitasPeriodo} visitas · ${pedidosPeriodo} pedidos`
+                ? `${visitasPeriodo} visitas · ${pedidosPeriodo} encomendas`
                 : "Sem dados de visitas",
               positivo: null,
             },
@@ -293,13 +309,16 @@ export default async function DashboardPage({
               positivo: taxaRecompra !== null ? (taxaRecompra >= 20 ? true : null) : null,
             },
           ].map((s) => (
-            <div key={s.label}
-              className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-              <div className="text-2xl mb-3">{s.icon}</div>
-              <p className="text-2xl font-black text-slate-900">{s.value}</p>
-              <p className="text-xs text-slate-400 mt-0.5">{s.label}</p>
+            <div key={s.label} className="bg-white rounded-2xl p-5"
+              style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-base">{s.icon}</span>
+                <span className="text-xs font-semibold text-[#9CA3AF]">{labelPeriodo}</span>
+              </div>
+              <p className="text-2xl font-bold text-[#0F1117] tabular-nums">{s.value}</p>
+              <p className="text-xs text-[#9CA3AF] mt-0.5 font-medium">{s.label}</p>
               {s.sub && (
-                <p className={`text-xs font-medium mt-2 ${s.positivo === true ? "text-green-600" : s.positivo === false ? "text-red-500" : "text-slate-400"}`}>
+                <p className={`text-[11px] font-semibold mt-2.5 ${s.positivo === true ? "text-emerald-600" : s.positivo === false ? "text-red-500" : "text-[#9CA3AF]"}`}>
                   {s.sub}
                 </p>
               )}
@@ -310,45 +329,46 @@ export default async function DashboardPage({
         {/* Checklist de onboarding para lojas novas */}
         {isNovaLoja && <OnboardingChecklist nomePlano={nomePlano} />}
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Últimos pedidos */}
-          <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-              <h2 className="font-bold text-slate-800">Últimos pedidos</h2>
-              <Link href="/dashboard/pedidos" className="text-xs font-semibold hover:underline" style={{ color: cor }}>
-                Ver todos →
+        <div className="grid lg:grid-cols-3 gap-5">
+          {/* Últimas encomendas */}
+          <div className="lg:col-span-2 bg-white rounded-2xl overflow-hidden" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
+            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid hsl(220 20% 95%)" }}>
+              <h2 className="font-semibold text-[#0F1117] text-sm">Últimas encomendas</h2>
+              <Link href="/dashboard/pedidos" className="text-xs font-semibold text-[#153DEC] hover:text-[#1234D0] transition-colors">
+                Ver todas →
               </Link>
             </div>
 
             {ultimosPedidos.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-14 text-center px-4">
-                <div className="text-4xl mb-3">📭</div>
-                <p className="font-semibold text-slate-600 text-sm">Ainda sem pedidos</p>
-                <p className="text-xs text-slate-400 mt-1">Partilhe o link da sua loja para começar a receber</p>
+              <div className="empty-state py-14">
+                <div className="empty-state-icon">📭</div>
+                <p className="empty-state-title">Ainda sem encomendas</p>
+                <p className="empty-state-desc">Partilhe o link da sua loja para começar a receber</p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-50">
+              <div>
                 {ultimosPedidos.map((p) => {
                   const cfg = STATUS_CONFIG[p.status] ?? STATUS_CONFIG.PENDING;
                   return (
                     <Link key={p.id} href={`/dashboard/pedidos/${p.id}`}
-                      className="flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50 transition-colors group">
+                      className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-[#F7F8FC]"
+                      style={{ borderBottom: "1px solid hsl(220 20% 95%)" }}>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs text-slate-400 font-bold">#{p.id.slice(-6).toUpperCase()}</span>
-                          <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${cfg.bg} ${cfg.text}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="font-mono text-xs text-[#9CA3AF] font-semibold">#{p.id.slice(-6).toUpperCase()}</span>
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.bg} ${cfg.text}`}>
+                            <span className={`w-1 h-1 rounded-full ${cfg.dot}`} />
                             {cfg.label}
                           </span>
                         </div>
-                        <p className="text-sm text-slate-700 truncate mt-0.5">{p.clienteEmail}</p>
+                        <p className="text-sm text-[#0F1117] truncate font-medium">{p.clienteEmail}</p>
                         {p.itens[0]?.produto?.titulo && (
-                          <p className="text-xs text-slate-400 truncate">{p.itens[0].produto.titulo}</p>
+                          <p className="text-xs text-[#9CA3AF] truncate mt-0.5">{p.itens[0].produto.titulo}</p>
                         )}
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="text-sm font-black text-slate-900">{formatarPreco(Number(p.total), moeda)}</p>
-                        <p className="text-[10px] text-slate-400">{new Date(p.createdAt).toLocaleDateString("pt-PT")}</p>
+                        <p className="text-sm font-bold text-[#0F1117] tabular-nums">{formatarPreco(Number(p.total), moeda)}</p>
+                        <p className="text-[10px] text-[#9CA3AF] mt-0.5">{new Date(p.createdAt).toLocaleDateString("pt-PT")}</p>
                       </div>
                     </Link>
                   );
@@ -360,49 +380,53 @@ export default async function DashboardPage({
           {/* Painel direito */}
           <div className="space-y-4">
             {/* Top produtos */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-              <div className="px-5 py-4 border-b border-slate-100">
-                <h2 className="font-bold text-slate-800">Mais vendidos</h2>
-                <p className="text-[10px] text-slate-400 mt-0.5">{labelPeriodo}</p>
+            <div className="bg-white rounded-2xl overflow-hidden" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
+              <div className="px-5 py-4" style={{ borderBottom: "1px solid hsl(220 20% 95%)" }}>
+                <div className="flex items-center justify-between">
+                  <h2 className="font-semibold text-[#0F1117] text-sm">Mais vendidos</h2>
+                  <span className="text-[10px] font-semibold text-[#9CA3AF] bg-[#F7F8FC] px-2 py-1 rounded-full">{labelPeriodo}</span>
+                </div>
               </div>
               {topProdutos.length === 0 ? (
                 <div className="px-5 py-8 text-center">
-                  <p className="text-sm text-slate-400">Sem vendas neste período</p>
+                  <p className="text-sm text-[#9CA3AF]">Sem vendas neste período</p>
                 </div>
               ) : (
-                <div className="divide-y divide-slate-50">
+                <div>
                   {topProdutos.map((p, i) => (
-                    <div key={p.titulo} className="flex items-center gap-3 px-5 py-3">
-                      <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-black text-white flex-shrink-0"
-                        style={{ background: i === 0 ? "#f59e0b" : i === 1 ? "#94a3b8" : "#cd7c2f" }}>
+                    <div key={p.titulo} className="flex items-center gap-3 px-5 py-3.5" style={{ borderBottom: "1px solid hsl(220 20% 97%)" }}>
+                      <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                        style={{ background: i === 0 ? "#f59e0b" : i === 1 ? "#94a3b8" : "#b45309" }}>
                         {i + 1}
                       </span>
-                      <p className="flex-1 text-sm text-slate-700 truncate">{p.titulo}</p>
-                      <p className="text-xs font-bold text-slate-500">{p.quantidade} un.</p>
+                      <p className="flex-1 text-sm text-[#0F1117] truncate font-medium">{p.titulo}</p>
+                      <p className="text-xs font-semibold text-[#9CA3AF] tabular-nums">{p.quantidade} un.</p>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Atalhos */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-2">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Atalhos</p>
-              {[
-                { label: "Adicionar produto", href: "/dashboard/produtos", icon: "➕" },
-                { label: "Ver pedidos pendentes", href: "/dashboard/pedidos?status=pending", icon: "⏳" },
-                { label: "Relatórios", href: "/dashboard/relatorios", icon: "📊" },
-                { label: "Clientes", href: "/dashboard/clientes", icon: "👥" },
-                { label: "Marketing", href: "/dashboard/marketing", icon: "🏷️" },
-                { label: "Redes Sociais", href: "/dashboard/redes-sociais", icon: "📲" },
-                { label: "Configurações", href: "/dashboard/configuracoes", icon: "⚙️" },
-              ].map((a) => (
-                <Link key={a.href} href={a.href}
-                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium">
-                  <span>{a.icon}</span>
-                  {a.label}
-                </Link>
-              ))}
+            {/* Atalhos rápidos */}
+            <div className="bg-white rounded-2xl p-4" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
+              <p className="label mb-3">Atalhos</p>
+              <div className="space-y-0.5">
+                {[
+                  { label: "Adicionar produto", href: "/dashboard/produtos", icon: "➕" },
+                  { label: "Encomendas pendentes", href: "/dashboard/pedidos?status=pending", icon: "⏳" },
+                  { label: "Relatórios", href: "/dashboard/relatorios", icon: "📊" },
+                  { label: "Clientes", href: "/dashboard/clientes", icon: "👥" },
+                  { label: "Marketing", href: "/dashboard/marketing", icon: "🏷️" },
+                  { label: "Redes sociais", href: "/dashboard/redes-sociais", icon: "📲" },
+                  { label: "Configurações", href: "/dashboard/configuracoes", icon: "⚙️" },
+                ].map((a) => (
+                  <Link key={a.href} href={a.href}
+                    className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-[#4B5563] hover:bg-[#F7F8FC] hover:text-[#0F1117] transition-colors font-medium">
+                    <span className="text-sm opacity-80">{a.icon}</span>
+                    {a.label}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </div>

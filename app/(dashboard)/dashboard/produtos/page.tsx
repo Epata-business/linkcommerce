@@ -21,59 +21,70 @@ export default async function ProdutosPage() {
   const moeda = loja?.moeda ?? "EUR";
 
   return (
-    <div className="p-6">
+    <div className="p-6 max-w-5xl mx-auto">
       <BackButton href="/dashboard" label="← Dashboard" />
-      <div className="flex items-center justify-between">
+
+      <div className="flex items-center justify-between mt-4 mb-6">
         <div>
-          <h1 className="text-2xl font-semibold">Produtos</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="heading-lg">Produtos</h1>
+          <p className="body-sm mt-0.5">
             {produtos.length} produto{produtos.length === 1 ? "" : "s"} na sua loja
           </p>
         </div>
         <ProdutoFormDialog trigger={<Button>+ Novo produto</Button>} moeda={moeda} />
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-lg border overflow-x-auto">
+      <div className="bg-white rounded-2xl overflow-hidden overflow-x-auto" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
         <table className="w-full text-sm min-w-[600px]">
-          <thead className="bg-muted/50 text-left">
-            <tr>
-              <th className="p-3">Produto</th>
-              <th className="p-3">SKU</th>
-              <th className="p-3">Preço</th>
-              <th className="p-3">Stock</th>
-              <th className="p-3">Variantes</th>
-              <th className="p-3 text-right">Acções</th>
+          <thead>
+            <tr className="table-header" style={{ borderBottom: "1px solid hsl(220 20% 91%)" }}>
+              <th className="px-5 py-3.5 text-left font-semibold text-[#9CA3AF] text-xs uppercase tracking-wide">Produto</th>
+              <th className="px-4 py-3.5 text-left font-semibold text-[#9CA3AF] text-xs uppercase tracking-wide">SKU</th>
+              <th className="px-4 py-3.5 text-left font-semibold text-[#9CA3AF] text-xs uppercase tracking-wide">Preço</th>
+              <th className="px-4 py-3.5 text-left font-semibold text-[#9CA3AF] text-xs uppercase tracking-wide">Stock</th>
+              <th className="px-4 py-3.5 text-left font-semibold text-[#9CA3AF] text-xs uppercase tracking-wide">Variantes</th>
+              <th className="px-5 py-3.5 text-right font-semibold text-[#9CA3AF] text-xs uppercase tracking-wide">Acções</th>
             </tr>
           </thead>
           <tbody>
             {produtos.length === 0 && (
               <tr>
-                <td colSpan={6} className="p-8 text-center text-muted-foreground">
+                <td colSpan={6} className="py-14 text-center text-sm text-[#9CA3AF]">
                   Ainda não tem produtos. Crie o primeiro acima.
                 </td>
               </tr>
             )}
             {produtos.map((produto) => (
-              <tr key={produto.id} className="border-t">
-                <td className="p-3 font-medium">{produto.titulo}</td>
-                <td className="p-3 text-muted-foreground">{produto.sku ?? "—"}</td>
-                <td className="p-3 font-medium">{formatarPreco(Number(produto.preco), moeda)}</td>
-                <td className="p-3">
+              <tr key={produto.id} className="transition-colors hover:bg-[#F7F8FC]" style={{ borderTop: "1px solid hsl(220 20% 95%)" }}>
+                <td className="px-5 py-3.5 font-semibold text-[#0F1117]">{produto.titulo}</td>
+                <td className="px-4 py-3.5 text-[#9CA3AF] font-mono text-xs">{produto.sku ?? "—"}</td>
+                <td className="px-4 py-3.5 font-semibold text-[#0F1117] tabular-nums">{formatarPreco(Number(produto.preco), moeda)}</td>
+                <td className="px-4 py-3.5">
                   {(() => {
                     const disponivel = produto.stock - produto.stockReservado;
-                    const cor = disponivel <= 0 ? "text-red-600 font-bold" : disponivel <= produto.stockMinimo && produto.stockMinimo > 0 ? "text-amber-600 font-medium" : "text-slate-700";
+                    const cls = disponivel <= 0
+                      ? "text-red-600 font-semibold"
+                      : disponivel <= produto.stockMinimo && produto.stockMinimo > 0
+                        ? "text-amber-600 font-semibold"
+                        : "text-[#0F1117]";
                     return (
-                      <span className={cor} title={`Físico: ${produto.stock} | Reservado: ${produto.stockReservado}`}>
+                      <span className={cls} title={`Físico: ${produto.stock} | Reservado: ${produto.stockReservado}`}>
                         {disponivel}
                         {produto.stockReservado > 0 && (
-                          <span className="ml-1 text-[10px] text-slate-400">({produto.stockReservado} reserv.)</span>
+                          <span className="ml-1 text-[10px] text-[#9CA3AF]">({produto.stockReservado} res.)</span>
                         )}
                       </span>
                     );
                   })()}
                 </td>
-                <td className="p-3">{produto.variantes.length}</td>
-                <td className="p-3 text-right">
+                <td className="px-4 py-3.5">
+                  {produto.variantes.length > 0 ? (
+                    <span className="badge badge-blue">{produto.variantes.length} var.</span>
+                  ) : (
+                    <span className="text-[#9CA3AF]">—</span>
+                  )}
+                </td>
+                <td className="px-5 py-3.5 text-right">
                   <ProdutoRowActions
                     produto={{
                       id: produto.id,
