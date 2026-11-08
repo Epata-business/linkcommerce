@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // POST /api/cupoes/validar
 // Body: { codigo: string, subdominio: string, subtotal: number }
 // Retorna: { valido, desconto, tipo, valor, cupaoId } ou { erro }
 export async function POST(req: NextRequest) {
+  // Rate limiting: 20 validações por IP por hora (previne enumeração de cupões)
+  const limited = checkRateLimit(req, { prefix: "cupoes-validar", limit: 20, windowSec: 3600 });
+  if (limited) return limited;
+
   const { codigo, subdominio, subtotal } = await req.json();
 
   if (!codigo || !subdominio || typeof subtotal !== "number") {

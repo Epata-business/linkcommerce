@@ -3,13 +3,17 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { setClienteSession } from "@/lib/cliente-session";
 import { z } from "zod";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const Schema = z.object({
   email: z.string().email(),
-  password: z.string().min(1),
+  password: z.string().min(1).max(128),
 });
 
 export async function POST(req: NextRequest, { params }: { params: { subdominio: string } }) {
+  // Rate limiting: 10 tentativas por IP a cada 15 minutos (brute-force prevention)
+  const limited = checkRateLimit(req, { prefix: "loja-entrar", limit: 10, windowSec: 900 });
+  if (limited) return limited;
   const body = await req.json();
   const parsed = Schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ erro: "Dados inválidos" }, { status: 400 });

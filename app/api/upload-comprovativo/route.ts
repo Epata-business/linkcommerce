@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cloudinary } from "@/lib/cloudinary";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 const TIPOS_PERMITIDOS = ["image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"];
 
 export async function POST(req: NextRequest) {
+  // Rate limiting: 5 uploads por IP por hora (endpoint público — usado no checkout)
+  const limited = checkRateLimit(req, { prefix: "upload-comprovativo", limit: 5, windowSec: 3600 });
+  if (limited) return limited;
+
   if (!process.env.CLOUDINARY_API_KEY) {
     return NextResponse.json({ erro: "Upload não configurado" }, { status: 503 });
   }
