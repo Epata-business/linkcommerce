@@ -12,14 +12,14 @@ import { PushPermissionBtn } from "@/components/dashboard/push-permission-btn";
 import { PesquisaGlobal } from "@/components/dashboard/pesquisa-global";
 import { NAV_POR_ROLE, type Recurso } from "@/lib/rbac";
 
-const ALL_NAV_LINKS: { href: string; label: string; recurso: Recurso }[] = [
+const ALL_NAV_LINKS: { href: string; label: string; recurso: Recurso; icon?: string }[] = [
   { href: "/dashboard",               label: "Início",         recurso: "dashboard"      },
   { href: "/dashboard/produtos",      label: "Produtos",       recurso: "produtos"       },
   { href: "/dashboard/inventario",    label: "Inventário",     recurso: "inventario"     },
   { href: "/dashboard/pedidos",       label: "Pedidos",        recurso: "pedidos"        },
   { href: "/dashboard/clientes",      label: "Clientes",       recurso: "clientes"       },
   { href: "/dashboard/marketing",     label: "Marketing",      recurso: "marketing"      },
-  { href: "/dashboard/redes-sociais", label: "Redes Sociais",  recurso: "redes-sociais"  },
+  { href: "/dashboard/redes-sociais", label: "Redes Sociais",  recurso: "redes-sociais", icon: "📲" },
   { href: "/dashboard/fidelidade",   label: "Fidelidade",     recurso: "fidelidade"     },
   { href: "/dashboard/devolucoes",    label: "Devoluções",     recurso: "devolucoes"     },
   { href: "/dashboard/carrinhos",     label: "Carrinhos",      recurso: "carrinhos"      },

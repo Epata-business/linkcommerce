@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-interface NavLink { href: string; label: string }
+interface NavLink { href: string; label: string; icon?: string }
 
 export function DashboardNav({ links }: { links: NavLink[] }) {
   const pathname = usePathname();
@@ -22,6 +22,7 @@ export function DashboardNav({ links }: { links: NavLink[] }) {
                 : "text-slate-300 hover:bg-slate-800 hover:text-white"
             }`}
           >
+            {link.icon && <span className="mr-2 text-base leading-none">{link.icon}</span>}
             {link.label}
           </Link>
         );
