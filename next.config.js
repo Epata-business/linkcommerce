@@ -30,7 +30,7 @@ const nextConfig = {
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
               "connect-src 'self' https://api.stripe.com https://checkout.stripe.com",
-              "frame-src https://js.stripe.com https://hooks.stripe.com",
+              "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
               "frame-ancestors 'self' https://linkcommerce.cc https://*.linkcommerce.cc",
             ].join("; "),
           },

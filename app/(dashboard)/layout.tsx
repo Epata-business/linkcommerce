@@ -76,7 +76,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     });
     const agora = new Date();
     const trialValido = subscricao?.status === "TRIAL" && subscricao.trialFimEm && subscricao.trialFimEm > agora;
-    const acessoPermitido = subscricao?.status === "ATIVA" || trialValido;
+    const acessoPermitido = subscricao?.status === "ATIVA" || subscricao?.status === "PENDENTE_TRANSFERENCIA" || trialValido;
     if (!acessoPermitido) {
       redirect("/subscrever");
     }
@@ -179,20 +179,20 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
 
           {/* Badge do plano */}
-          {subscricaoAtual && (subscricaoAtual.status === "ATIVA" || subscricaoAtual.status === "TRIAL") && (
+          {subscricaoAtual && (subscricaoAtual.status === "ATIVA" || subscricaoAtual.status === "TRIAL" || subscricaoAtual.status === "PENDENTE_TRANSFERENCIA") && (
             <div className="mx-3 mb-3 rounded-xl px-3 py-2.5"
               style={{
-                background: subscricaoAtual.status === "TRIAL" ? "rgba(245,158,11,0.1)" : "rgba(21,61,236,0.12)",
-                border: subscricaoAtual.status === "TRIAL" ? "1px solid rgba(245,158,11,0.25)" : "1px solid rgba(21,61,236,0.25)",
+                background: subscricaoAtual.status === "TRIAL" ? "rgba(245,158,11,0.1)" : subscricaoAtual.status === "PENDENTE_TRANSFERENCIA" ? "rgba(234,179,8,0.1)" : "rgba(21,61,236,0.12)",
+                border: subscricaoAtual.status === "TRIAL" ? "1px solid rgba(245,158,11,0.25)" : subscricaoAtual.status === "PENDENTE_TRANSFERENCIA" ? "1px solid rgba(234,179,8,0.25)" : "1px solid rgba(21,61,236,0.25)",
               }}>
               <div className="flex items-center justify-between mb-0.5">
                 <span className="text-[10px] font-bold uppercase tracking-widest"
-                  style={{ color: subscricaoAtual.status === "TRIAL" ? "#f59e0b" : "#818cf8" }}>
-                  {subscricaoAtual.status === "TRIAL" ? "Período de teste" : "Plano activo"}
+                  style={{ color: subscricaoAtual.status === "TRIAL" ? "#f59e0b" : subscricaoAtual.status === "PENDENTE_TRANSFERENCIA" ? "#eab308" : "#818cf8" }}>
+                  {subscricaoAtual.status === "TRIAL" ? "Período de teste" : subscricaoAtual.status === "PENDENTE_TRANSFERENCIA" ? "Pagamento em análise" : "Plano activo"}
                 </span>
                 <span className="text-[10px] font-bold"
-                  style={{ color: subscricaoAtual.status === "TRIAL" ? "#f59e0b" : "#4ade80" }}>
-                  {subscricaoAtual.status === "TRIAL" ? "TRIAL" : "● ACTIVO"}
+                  style={{ color: subscricaoAtual.status === "TRIAL" ? "#f59e0b" : subscricaoAtual.status === "PENDENTE_TRANSFERENCIA" ? "#eab308" : "#4ade80" }}>
+                  {subscricaoAtual.status === "TRIAL" ? "TRIAL" : subscricaoAtual.status === "PENDENTE_TRANSFERENCIA" ? "● PENDENTE" : "● ACTIVO"}
                 </span>
               </div>
               <p className="text-sm font-semibold text-white">{subscricaoAtual.plano?.nome ?? "Gratuito"}</p>
