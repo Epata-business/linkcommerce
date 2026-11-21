@@ -235,8 +235,8 @@ export default async function HomePage() {
               {/* Dashboard content */}
               <div className="p-5 grid grid-cols-3 gap-3">
                 {[
-                  { label:locale==="en"?"Revenue":locale==="fr"?"Revenus":"Receita", val:cur==="AOA"?`245.000 ${sym}`:`${sym}245` },
-                  { label:locale==="en"?"Orders":locale==="fr"?"Commandes":"Pedidos", val:"38" },
+                  { label:locale==="en"?"Revenue":locale==="fr"?"Revenus":"Receita", val:`245.000 Kz` },
+                  { label:locale==="en"?"Orders":locale==="fr"?"Commandes":"Encomendas", val:"38" },
                   { label:locale==="en"?"Customers":locale==="fr"?"Clients":"Clientes", val:"124" },
                 ].map((k,i) => (
                   <div key={i} className="rounded-xl p-3.5" style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.06)" }}>
@@ -248,9 +248,9 @@ export default async function HomePage() {
               </div>
               <div className="px-5 pb-5 space-y-2">
                 {[
-                  { name:"Maria A.", prod:locale==="en"?"Blue Dress":locale==="fr"?"Robe Bleue":"Vestido Azul", val:cur==="AOA"?`8.900 ${sym}`:`${sym}8,90`, status:"delivered" },
-                  { name:"João M.", prod:locale==="en"?"Black Sneakers":locale==="fr"?"Baskets Noires":"Ténis Preto", val:cur==="AOA"?`12.500 ${sym}`:`${sym}12,50`, status:"processing" },
-                  { name:"Ana S.", prod:locale==="en"?"Handbag":locale==="fr"?"Sac à main":"Mala de mão", val:cur==="AOA"?`6.200 ${sym}`:`${sym}6,20`, status:"pending" },
+                  { name:"Maria A.", prod:locale==="en"?"Blue Dress":locale==="fr"?"Robe Bleue":"Vestido Azul", val:`8.900 Kz`, status:"delivered" },
+                  { name:"João M.", prod:locale==="en"?"Black Sneakers":locale==="fr"?"Baskets Noires":"Ténis Preto", val:`12.500 Kz`, status:"processing" },
+                  { name:"Ana S.", prod:locale==="en"?"Handbag":locale==="fr"?"Sac à main":"Mala de mão", val:`6.200 Kz`, status:"pending" },
                 ].map((o,i) => (
                   <div key={i} className="flex items-center justify-between rounded-lg px-3 py-2.5"
                     style={{ background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.05)" }}>
