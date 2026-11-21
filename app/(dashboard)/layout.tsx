@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { auth, signOut } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { Eye } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { StorePreviewButton } from "@/components/dashboard/store-preview-button";
 import { DashboardLocaleSwitcher } from "@/components/dashboard/locale-switcher";
@@ -120,7 +121,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       {/* Banner admin impersonation */}
       {role === "ADMIN_PLATAFORMA" && (
         <div className="flex items-center justify-between bg-amber-500 px-4 py-2 text-sm font-semibold text-white">
-          <span>👁 A ver como admin: <strong>{nomeLojaAdmin ?? "Loja desconhecida"}</strong></span>
+          <span className="flex items-center gap-1.5"><Eye className="w-3.5 h-3.5" strokeWidth={2} /> A ver como admin: <strong>{nomeLojaAdmin ?? "Loja desconhecida"}</strong></span>
           <Link href="/api/admin/impersonate?sair=1" className="rounded-full bg-white/20 px-3 py-0.5 text-xs font-semibold hover:bg-white/30 transition-colors">
             ← Voltar ao painel admin
           </Link>

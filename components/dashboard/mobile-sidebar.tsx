@@ -76,26 +76,38 @@ export function MobileSidebar({ navLinks, email, subdominio, nomeLoja }: Props) 
               </button>
             </div>
 
-            {/* Nav */}
-            <nav className="flex-1 px-2 py-3 space-y-0.5">
-              {navLinks.map((link) => {
-                const isActive = pathname === link.href || (link.href !== "/dashboard" && pathname.startsWith(link.href));
+            {/* Nav com grupos */}
+            <nav className="flex-1 px-2 pb-3 overflow-y-auto">
+              {(["Visão geral", "Gestão", "Loja", "Administração"] as const).map((grupo) => {
+                const grupoLinks = navLinks.filter(l => {
+                  const g: Record<string, string> = {
+                    dashboard: "Visão geral", relatorios: "Visão geral",
+                    pedidos: "Gestão", produtos: "Gestão", inventario: "Gestão", clientes: "Gestão", avaliacoes: "Gestão", devolucoes: "Gestão", carrinhos: "Gestão",
+                    marketing: "Loja", "redes-sociais": "Loja", fidelidade: "Loja", envios: "Loja", qrcode: "Loja", temas: "Loja",
+                    equipa: "Administração", auditlog: "Administração", faturas: "Administração", notificacoes: "Administração", exportar: "Administração", api: "Administração", configuracoes: "Administração",
+                  };
+                  return (l.icon && g[l.icon]) === grupo;
+                });
+                if (!grupoLinks.length) return null;
                 return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    className={[
-                      "group flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-all min-h-[44px]",
-                      isActive
-                        ? "bg-white/10 text-white"
-                        : "text-slate-400 hover:bg-white/6 hover:text-slate-200",
-                    ].join(" ")}
-                  >
-                    {link.icon && (() => { const IC = ICON_MAP[link.icon!]; return IC ? <IC className={["w-4 h-4 flex-shrink-0 mr-2.5", isActive ? "opacity-100" : "opacity-60"].join(" ")} strokeWidth={1.75} /> : null; })()}
-                    <span className="flex-1 truncate">{link.label}</span>
-                    {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#8381FB] flex-shrink-0" />}
-                  </Link>
+                  <div key={grupo}>
+                    <p className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-white/20 select-none">{grupo}</p>
+                    <div className="space-y-0.5">
+                      {grupoLinks.map((link) => {
+                        const isActive = pathname === link.href || (link.href !== "/dashboard" && pathname.startsWith(link.href));
+                        const IC = link.icon ? ICON_MAP[link.icon] : null;
+                        return (
+                          <Link key={link.href} href={link.href} onClick={() => setOpen(false)}
+                            className={["group flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-all min-h-[44px]",
+                              isActive ? "bg-white/10 text-white" : "text-slate-400 hover:bg-white/6 hover:text-slate-200"].join(" ")}>
+                            {IC && <IC className={["w-4 h-4 flex-shrink-0 mr-2.5", isActive ? "opacity-100" : "opacity-50"].join(" ")} strokeWidth={1.75} />}
+                            <span className="flex-1 truncate">{link.label}</span>
+                            {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#8381FB] flex-shrink-0" />}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
                 );
               })}
             </nav>

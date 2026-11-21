@@ -215,7 +215,7 @@ export default async function DashboardPage({
           {[
             {
               label: `Receita`,
-              period: labelPeriodo,
+              badge: null as string | null,
               value: formatarPreco(receitaAtual, moeda),
               Icon: Banknote as LucideIcon,
               accent: "#153DEC",
@@ -225,7 +225,7 @@ export default async function DashboardPage({
             },
             {
               label: `Encomendas`,
-              period: labelPeriodo,
+              badge: null as string | null,
               value: pedidosPeriodo.toString(),
               Icon: ShoppingBag as LucideIcon,
               accent: "#8381FB",
@@ -235,7 +235,7 @@ export default async function DashboardPage({
             },
             {
               label: "Pendentes",
-              period: "agora",
+              badge: "agora" as string | null,
               value: pedidosPendentes.toString(),
               Icon: Clock as LucideIcon,
               accent: pedidosPendentes > 0 ? "#f59e0b" : "#10b981",
@@ -245,7 +245,7 @@ export default async function DashboardPage({
             },
             {
               label: "Produtos activos",
-              period: null,
+              badge: null as string | null,
               value: limiteProdutos ? `${totalProdutos}/${limiteProdutos}` : totalProdutos.toString(),
               Icon: Tag as LucideIcon,
               accent: "#153DEC",
@@ -255,23 +255,23 @@ export default async function DashboardPage({
             },
           ].map((s) => (
             <Link key={s.label} href={s.href}
-              className="group bg-white rounded-2xl p-5 transition-all duration-150"
-              style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-                  style={{ background: `${s.accent}14` }}>
+              className="group bg-white rounded-xl p-4 transition-all duration-150 hover:shadow-sm"
+              style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 2px rgba(15,17,23,0.03)" }}>
+              <div className="flex items-start justify-between mb-3">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+                  style={{ background: `${s.accent}12` }}>
                   <s.Icon className="w-4 h-4" style={{ color: s.accent }} strokeWidth={1.75} />
                 </div>
-                {s.period && (
-                  <span className="text-[10px] font-semibold text-[#9CA3AF] bg-[#F7F8FC] px-2 py-1 rounded-full">
-                    {s.period}
+                {s.badge && (
+                  <span className="text-[9px] font-semibold text-[#9CA3AF] uppercase tracking-wide">
+                    {s.badge}
                   </span>
                 )}
               </div>
-              <p className="text-2xl font-bold text-[#0F1117] tabular-nums">{s.value}</p>
-              <p className="text-xs text-[#9CA3AF] mt-0.5 font-medium">{s.label}</p>
+              <p className="text-xl font-semibold text-[#0F1117] tabular-nums leading-tight">{s.value}</p>
+              <p className="text-xs text-[#9CA3AF] mt-0.5">{s.label}</p>
               {s.sub && (
-                <p className={`text-[11px] font-semibold mt-2.5 ${s.positivo === true ? "text-emerald-600" : s.positivo === false ? "text-red-500" : "text-[#9CA3AF]"}`}>
+                <p className={`text-[11px] font-medium mt-2 ${s.positivo === true ? "text-emerald-600" : s.positivo === false ? "text-red-500" : "text-[#9CA3AF]"}`}>
                   {s.sub}
                 </p>
               )}
@@ -315,16 +315,15 @@ export default async function DashboardPage({
               positivo: taxaRecompra !== null ? (taxaRecompra >= 20 ? true : null) : null,
             },
           ].map((s) => (
-            <div key={s.label} className="bg-white rounded-2xl p-5"
-              style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
+            <div key={s.label} className="bg-white rounded-xl p-4"
+              style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 2px rgba(15,17,23,0.03)" }}>
               <div className="flex items-center gap-2 mb-3">
                 <s.Icon className="w-4 h-4 text-[#9CA3AF]" strokeWidth={1.75} />
-                <span className="text-xs font-semibold text-[#9CA3AF]">{labelPeriodo}</span>
+                <span className="text-xs text-[#9CA3AF]">{s.label}</span>
               </div>
-              <p className="text-2xl font-bold text-[#0F1117] tabular-nums">{s.value}</p>
-              <p className="text-xs text-[#9CA3AF] mt-0.5 font-medium">{s.label}</p>
+              <p className="text-xl font-semibold text-[#0F1117] tabular-nums leading-tight">{s.value}</p>
               {s.sub && (
-                <p className={`text-[11px] font-semibold mt-2.5 ${s.positivo === true ? "text-emerald-600" : s.positivo === false ? "text-red-500" : "text-[#9CA3AF]"}`}>
+                <p className={`text-[11px] mt-1.5 ${s.positivo === true ? "text-emerald-600" : s.positivo === false ? "text-red-500" : "text-[#9CA3AF]"}`}>
                   {s.sub}
                 </p>
               )}
