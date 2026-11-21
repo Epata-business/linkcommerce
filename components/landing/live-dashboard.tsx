@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 
 const ORDERS = [
-  { id: "#4831", valor: "+89€",  pais: "🇵🇹", produto: "Camisola Premium" },
+  { id: "#4831", valor: "+89.000 Kz",  pais: "🇦🇴", produto: "Camisola Premium" },
   { id: "#4832", valor: "+148.800 Kz", pais: "🇦🇴", produto: "Calças Slim" },
-  { id: "#4833", valor: "+45€",  pais: "🇧🇷", produto: "Acessório Gold" },
-  { id: "#4834", valor: "+210€", pais: "🇫🇷", produto: "Pack Exclusivo" },
-  { id: "#4835", valor: "+67€",  pais: "🇪🇸", produto: "Edição Limitada" },
+  { id: "#4833", valor: "+45.000 Kz",  pais: "🇦🇴", produto: "Acessório Gold" },
+  { id: "#4834", valor: "+210.000 Kz", pais: "🇦🇴", produto: "Pack Exclusivo" },
+  { id: "#4835", valor: "+67.000 Kz",  pais: "🇦🇴", produto: "Edição Limitada" },
 ];
 
 export function LiveDashboard() {
@@ -82,7 +82,7 @@ export function LiveDashboard() {
         <div className="flex">
           {/* Sidebar */}
           <div className="hidden sm:flex flex-col w-44 border-r border-white/5 p-3 gap-1" style={{ background: "rgba(2,5,61,0.6)" }}>
-            {["Início","Produtos","Pedidos","Clientes","Marketing"].map((item, i) => (
+            {["Início","Produtos","Encomendas","Clientes","Marketing"].map((item, i) => (
               <div key={item} className={`rounded-lg px-3 py-2 text-xs font-medium transition-all ${i === 0 ? "text-white" : "text-white/30 hover:text-white/60"}`}
                 style={i === 0 ? { background: "linear-gradient(90deg,#153DEC,#8381FB)", boxShadow: "0 0 12px rgba(21,61,236,0.4)" } : {}}>
                 {item}
@@ -95,9 +95,9 @@ export function LiveDashboard() {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-2">
               {[
-                { label: "Receita", value: `${revenue.toLocaleString("pt-PT")}€`, delta: "+12%" },
+                { label: "Receita", value: `${(revenue * 1000).toLocaleString("pt-PT")} Kz`, delta: "+12%" },
                 { label: "Visitas", value: visits.toLocaleString("pt-PT"), delta: "+8%" },
-                { label: "Pedidos", value: orders.length + 28 + "", delta: "+5%" },
+                { label: "Encomendas", value: orders.length + 28 + "", delta: "+5%" },
               ].map((s) => (
                 <div key={s.label} className="rounded-xl p-2.5 glass">
                   <p className="text-[10px] text-white/40 mb-1">{s.label}</p>
