@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getLojaId } from "@/lib/get-loja-id";
 import { formatarPreco } from "@/lib/moeda";
 import Link from "next/link";
+import { TrendingUp, Package, Clock, Inbox } from "lucide-react";
 
 const STATUS_CONFIG: Record<string, { label: string; dot: string; bg: string; text: string }> = {
   PENDING:    { label: "Pendente",          dot: "bg-yellow-400", bg: "bg-yellow-50",  text: "text-yellow-700" },
@@ -110,13 +111,13 @@ export default async function PedidosPage({
         {/* Stats do mês */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
           {[
-            { label: "Receita este mês", value: formatarPreco(Number(totalMes._sum.total ?? 0), moeda), icon: "💰" },
-            { label: "Encomendas este mês", value: totalMes._count.toString(), icon: "📦" },
-            { label: "Pendentes agora", value: (contagemMap["PENDING"] ?? 0).toString(), icon: "⏳" },
+            { label: "Receita este mês", value: formatarPreco(Number(totalMes._sum.total ?? 0), moeda), Icon: TrendingUp },
+            { label: "Encomendas este mês", value: totalMes._count.toString(), Icon: Package },
+            { label: "Pendentes agora", value: (contagemMap["PENDING"] ?? 0).toString(), Icon: Clock },
           ].map((s) => (
-            <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
-              <div className="text-2xl mb-2">{s.icon}</div>
-              <p className="text-2xl font-bold text-[#0F1117]">{s.value}</p>
+            <div key={s.label} className="bg-white rounded-xl p-4" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
+              <s.Icon className="w-4 h-4 text-[#9CA3AF] mb-2" strokeWidth={1.75} />
+              <p className="text-xl font-semibold text-[#0F1117]">{s.value}</p>
               <p className="text-xs text-slate-400 mt-1">{s.label}</p>
             </div>
           ))}
@@ -172,7 +173,7 @@ export default async function PedidosPage({
         {/* Lista de pedidos */}
         {pedidos.length === 0 ? (
           <div className="bg-white rounded-2xl py-20 text-center" style={{ border: "1px solid hsl(220 20% 91%)" }}>
-            <div className="text-5xl mb-4">📭</div>
+            <Inbox className="w-12 h-12 text-[#9CA3AF] mb-4" strokeWidth={1.5} />
             <p className="font-semibold text-[#0F1117] text-sm">Nenhuma encomenda encontrada</p>
             <p className="text-xs text-[#9CA3AF] mt-1">
               {tabAtivo === "TODOS" ? "Quando os clientes fizerem encomendas aparecem aqui." : `Não há encomendas com o estado "${STATUS_CONFIG[tabAtivo]?.label ?? tabAtivo}".`}
@@ -229,7 +230,7 @@ export default async function PedidosPage({
                     })()}
 
                     {tracking && (
-                      <p className="mt-1 text-xs text-purple-600 font-medium">📦 Tracking: {tracking}</p>
+                      <p className="mt-1 text-xs text-purple-600 font-medium">Tracking: {tracking}</p>
                     )}
                   </div>
 

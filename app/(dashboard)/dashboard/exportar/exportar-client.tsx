@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Package, Users, Tag, Info, type LucideIcon } from "lucide-react";
 
 interface Props {
   totalPedidos: number;
@@ -20,9 +21,9 @@ export function ExportarClient({ totalPedidos, totalClientes, totalProdutos }: P
     return qs ? `${base}?${qs}` : base;
   }
 
-  const exports = [
+  const exports: { Icon: LucideIcon; titulo: string; desc: string; count: number; url: string; sufixo: string; filtroData: boolean }[] = [
     {
-      icon: "📦",
+      Icon: Package,
       titulo: "Pedidos",
       desc: "ID, data, cliente, produtos, total, estado, método de pagamento",
       count: totalPedidos,
@@ -31,7 +32,7 @@ export function ExportarClient({ totalPedidos, totalClientes, totalProdutos }: P
       filtroData: true,
     },
     {
-      icon: "👥",
+      Icon: Users,
       titulo: "Clientes",
       desc: "Email, nome, nº pedidos, total gasto, segmento, 1º e último pedido",
       count: totalClientes,
@@ -40,7 +41,7 @@ export function ExportarClient({ totalPedidos, totalClientes, totalProdutos }: P
       filtroData: true,
     },
     {
-      icon: "🏷️",
+      Icon: Tag,
       titulo: "Produtos",
       desc: "ID, título, preço, stock, variantes, total vendido",
       count: totalProdutos,
@@ -92,7 +93,9 @@ export function ExportarClient({ totalPedidos, totalClientes, totalProdutos }: P
       <div className="space-y-3">
         {exports.map((e) => (
           <div key={e.titulo} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-4">
-            <span className="text-3xl flex-shrink-0">{e.icon}</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F7F8FC] flex-shrink-0">
+              <e.Icon className="w-5 h-5 text-[#9CA3AF]" strokeWidth={1.75} />
+            </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <p className="font-black text-slate-800">{e.titulo}</p>
@@ -120,9 +123,12 @@ export function ExportarClient({ totalPedidos, totalClientes, totalProdutos }: P
 
       {/* Nota */}
       <div className="bg-blue-50 rounded-2xl border border-blue-100 p-4">
-        <p className="text-xs text-blue-700 font-medium">
-          💡 Os ficheiros CSV usam ponto-e-vírgula como separador e codificação UTF-8 com BOM — compatíveis com Excel (PT) e Google Sheets.
-        </p>
+        <div className="flex items-start gap-2">
+          <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" strokeWidth={1.75} />
+          <p className="text-xs text-blue-700 font-medium">
+            Os ficheiros CSV usam ponto-e-vírgula como separador e codificação UTF-8 com BOM — compatíveis com Excel (PT) e Google Sheets.
+          </p>
+        </div>
       </div>
     </div>
   );

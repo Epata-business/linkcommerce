@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { AlertTriangle } from "lucide-react";
 
 export default function DashboardError({
   error,
@@ -15,7 +16,7 @@ export default function DashboardError({
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
-      <div className="text-4xl mb-4">⚠️</div>
+      <AlertTriangle className="w-10 h-10 text-amber-500 mb-4" strokeWidth={1.75} />
       <h2 className="text-xl font-bold text-slate-900 mb-2">Erro ao carregar esta página</h2>
       <p className="text-slate-500 mb-6 text-sm max-w-sm">{error.message ?? "Ocorreu um erro inesperado."}</p>
       <button

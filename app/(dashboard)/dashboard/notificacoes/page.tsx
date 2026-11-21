@@ -2,13 +2,14 @@ import { prisma } from "@/lib/prisma";
 import { getLojaId } from "@/lib/get-loja-id";
 import Link from "next/link";
 import { MarcarTodasLidasButton } from "@/components/dashboard/marcar-notificacoes-lidas";
+import { Package, CheckCircle2, XCircle, AlertTriangle, AlertOctagon, Bell, type LucideIcon } from "lucide-react";
 
-const TIPO_CONFIG: Record<string, { icon: string; cor: string }> = {
-  novo_pedido:          { icon: "📦", cor: "text-blue-600" },
-  pagamento_confirmado: { icon: "✅", cor: "text-green-600" },
-  pagamento_falhado:    { icon: "❌", cor: "text-red-600" },
-  stock_baixo:          { icon: "⚠️", cor: "text-amber-600" },
-  stock_esgotado:       { icon: "🔴", cor: "text-red-700" },
+const TIPO_CONFIG: Record<string, { Icon: LucideIcon; cor: string }> = {
+  novo_pedido:          { Icon: Package,        cor: "text-blue-600" },
+  pagamento_confirmado: { Icon: CheckCircle2,   cor: "text-green-600" },
+  pagamento_falhado:    { Icon: XCircle,        cor: "text-red-600" },
+  stock_baixo:          { Icon: AlertTriangle,  cor: "text-amber-600" },
+  stock_esgotado:       { Icon: AlertOctagon,   cor: "text-red-700" },
 };
 
 export default async function NotificacoesPage() {
@@ -47,19 +48,20 @@ export default async function NotificacoesPage() {
 
         {notificacoes.length === 0 ? (
           <div className="bg-white rounded-2xl border border-slate-100 py-24 text-center">
-            <div className="text-5xl mb-4">🔔</div>
+            <Bell className="w-12 h-12 text-[#9CA3AF] mb-4" strokeWidth={1.5} />
             <p className="font-bold text-slate-700">Sem notificações</p>
             <p className="text-sm text-slate-400 mt-1">As notificações de pedidos, pagamentos e stock aparecem aqui.</p>
           </div>
         ) : (
           <div className="space-y-2">
             {notificacoes.map((n) => {
-              const cfg = TIPO_CONFIG[n.tipo] ?? { icon: "🔔", cor: "text-slate-600" };
+              const cfg = TIPO_CONFIG[n.tipo] ?? { Icon: Bell, cor: "text-slate-600" };
+              const IconComp = cfg.Icon;
               return (
                 <div key={n.id}
                   className={`flex gap-4 bg-white rounded-2xl border p-4 transition-all
                     ${n.lida ? "border-slate-100" : "border-blue-100 bg-blue-50/30"}`}>
-                  <span className="text-2xl flex-shrink-0 mt-0.5">{cfg.icon}</span>
+                  <IconComp className={`w-5 h-5 flex-shrink-0 mt-0.5 ${cfg.cor}`} strokeWidth={1.75} />
                   <div className="flex-1 min-w-0">
                     <p className={`font-semibold text-slate-800 ${!n.lida ? "font-bold" : ""}`}>
                       {n.titulo}

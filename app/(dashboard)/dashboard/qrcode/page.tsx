@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getLojaId } from "@/lib/get-loja-id";
 import { QrCodeManager } from "@/components/dashboard/qrcode-manager";
+import { QrCode, MousePointerClick, CalendarDays, type LucideIcon } from "lucide-react";
 
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "linkcommerce.cc";
 
@@ -65,14 +66,14 @@ export default async function QRCodePage() {
 
         {/* Stats globais */}
         <div className="grid grid-cols-3 gap-3 mb-6">
-          {[
-            { icon: "📱", label: "QR Codes criados", value: qrcodes.length.toString() },
-            { icon: "👆", label: "Scans total",       value: totalScans.toString() },
-            { icon: "📅", label: "Scans últimos 7d",  value: scans7d.toString() },
-          ].map((s) => (
-            <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
-              <div className="text-2xl mb-2">{s.icon}</div>
-              <p className="text-2xl font-black text-slate-900">{s.value}</p>
+          {([
+            { Icon: QrCode,            label: "QR Codes criados", value: qrcodes.length.toString() },
+            { Icon: MousePointerClick, label: "Scans total",       value: totalScans.toString() },
+            { Icon: CalendarDays,      label: "Scans últimos 7d",  value: scans7d.toString() },
+          ] as { Icon: LucideIcon; label: string; value: string }[]).map((s) => (
+            <div key={s.label} className="bg-white rounded-xl p-4" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
+              <s.Icon className="w-4 h-4 text-[#9CA3AF] mb-2" strokeWidth={1.75} />
+              <p className="text-xl font-semibold text-slate-900">{s.value}</p>
               <p className="text-xs text-slate-400 mt-1">{s.label}</p>
             </div>
           ))}

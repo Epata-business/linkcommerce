@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { BackButton } from "@/components/ui/back-button";
 import { getLojaId } from "@/lib/get-loja-id";
 import { BillingCards } from "./billing-cards";
+import { CheckCircle2, AlertTriangle } from "lucide-react";
 
 export default async function PlanosPage({
   searchParams,
@@ -52,14 +53,18 @@ export default async function PlanosPage({
 
       {searchParams.sucesso === "1" && (
         <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 p-5 text-center">
-          <p className="text-green-800 font-bold text-lg">🎉 Subscrição activada com sucesso!</p>
+          <div className="flex items-center justify-center gap-2 text-green-800 font-bold text-lg">
+            <CheckCircle2 className="w-5 h-5" strokeWidth={2} /> Subscrição activada com sucesso!
+          </div>
           <p className="text-green-600 text-sm mt-1">O seu plano foi actualizado. Pode gerir a subscrição abaixo.</p>
         </div>
       )}
 
       {subscricao?.status === "EM_FALTA" && (
         <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-5 text-center">
-          <p className="text-red-800 font-bold">⚠️ Pagamento em falta</p>
+          <div className="flex items-center justify-center gap-2 text-red-800 font-bold">
+            <AlertTriangle className="w-4 h-4" strokeWidth={2} /> Pagamento em falta
+          </div>
           <p className="text-red-600 text-sm mt-1">Actualize o seu método de pagamento para evitar a interrupção do serviço.</p>
         </div>
       )}

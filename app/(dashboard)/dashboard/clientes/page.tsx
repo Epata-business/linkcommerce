@@ -2,14 +2,15 @@ import { prisma } from "@/lib/prisma";
 import { getLojaId } from "@/lib/get-loja-id";
 import { formatarPreco } from "@/lib/moeda";
 import Link from "next/link";
+import { Users, Star, RefreshCw, Zap, Moon, Target, type LucideIcon } from "lucide-react";
 
 type Segmento = "novo" | "recorrente" | "vip" | "inativo";
 
-const SEGMENTO_CONFIG: Record<Segmento, { label: string; bg: string; text: string; icon: string }> = {
-  vip:        { label: "VIP",        bg: "bg-amber-50",   text: "text-amber-700",  icon: "⭐" },
-  recorrente: { label: "Recorrente", bg: "bg-blue-50",    text: "text-blue-700",   icon: "🔁" },
-  novo:       { label: "Novo",       bg: "bg-green-50",   text: "text-green-700",  icon: "✨" },
-  inativo:    { label: "Inativo",    bg: "bg-slate-100",  text: "text-slate-500",  icon: "💤" },
+const SEGMENTO_CONFIG: Record<Segmento, { label: string; bg: string; text: string; Icon: LucideIcon }> = {
+  vip:        { label: "VIP",        bg: "bg-amber-50",   text: "text-amber-700",  Icon: Star },
+  recorrente: { label: "Recorrente", bg: "bg-blue-50",    text: "text-blue-700",   Icon: RefreshCw },
+  novo:       { label: "Novo",       bg: "bg-green-50",   text: "text-green-700",  Icon: Zap },
+  inativo:    { label: "Inativo",    bg: "bg-slate-100",  text: "text-slate-500",  Icon: Moon },
 };
 
 function computeSegmento(numPedidos: number, diasDesdeUltimo: number): Segmento {
@@ -93,12 +94,12 @@ export default async function ClientesPage({
     ? clientes
     : clientes.filter(c => c.segmento === filtroSegmento);
 
-  const tabs: { key: string; label: string; icon: string }[] = [
-    { key: "todos",       label: "Todos",       icon: "👥" },
-    { key: "vip",         label: "VIP",         icon: "⭐" },
-    { key: "recorrente",  label: "Recorrentes", icon: "🔁" },
-    { key: "novo",        label: "Novos",       icon: "✨" },
-    { key: "inativo",     label: "Inativos",    icon: "💤" },
+  const tabs: { key: string; label: string }[] = [
+    { key: "todos",       label: "Todos" },
+    { key: "vip",         label: "VIP" },
+    { key: "recorrente",  label: "Recorrentes" },
+    { key: "novo",        label: "Novos" },
+    { key: "inativo",     label: "Inativos" },
   ];
 
   const totalReceita = clientes.reduce((s, c) => s + c.totalGasto, 0);
@@ -120,15 +121,15 @@ export default async function ClientesPage({
 
         {/* KPIs */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          {[
-            { icon: "👥", label: "Total de clientes", value: clientes.length.toString() },
-            { icon: "⭐", label: "VIP",               value: (contagens.vip ?? 0).toString() },
-            { icon: "🔁", label: "Recorrentes",       value: (contagens.recorrente ?? 0).toString() },
-            { icon: "🎯", label: "Ticket médio",      value: ticketMedio > 0 ? formatarPreco(ticketMedio, moeda) : "—" },
-          ].map((s) => (
-            <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
-              <div className="text-xl mb-2.5">{s.icon}</div>
-              <p className="text-2xl font-bold text-[#0F1117] tabular-nums">{s.value}</p>
+          {([
+            { Icon: Users,     label: "Total de clientes", value: clientes.length.toString() },
+            { Icon: Star,      label: "VIP",               value: (contagens.vip ?? 0).toString() },
+            { Icon: RefreshCw, label: "Recorrentes",       value: (contagens.recorrente ?? 0).toString() },
+            { Icon: Target,    label: "Ticket médio",      value: ticketMedio > 0 ? formatarPreco(ticketMedio, moeda) : "—" },
+          ] as { Icon: LucideIcon; label: string; value: string }[]).map((s) => (
+            <div key={s.label} className="bg-white rounded-xl p-4" style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
+              <s.Icon className="w-4 h-4 text-[#9CA3AF] mb-2" strokeWidth={1.75} />
+              <p className="text-xl font-semibold text-[#0F1117] tabular-nums">{s.value}</p>
               <p className="text-xs text-[#9CA3AF] mt-0.5 font-medium">{s.label}</p>
             </div>
           ))}
@@ -149,7 +150,6 @@ export default async function ClientesPage({
                     : "bg-white text-[#4B5563] hover:text-[#0F1117]",
                 ].join(" ")}
                 style={ativo ? {} : { border: "1px solid hsl(220 20% 88%)" }}>
-                <span>{tab.icon}</span>
                 {tab.label}
                 {count > 0 && (
                   <span className={`text-[10px] font-bold rounded-full px-1.5 py-0.5 ${ativo ? "bg-white/20 text-white" : "bg-[#F7F8FC] text-[#9CA3AF]"}`}>
@@ -164,7 +164,7 @@ export default async function ClientesPage({
         {/* Lista */}
         {clientesFiltrados.length === 0 ? (
           <div className="bg-white rounded-2xl py-20 text-center" style={{ border: "1px solid hsl(220 20% 91%)" }}>
-            <div className="text-5xl mb-4">👥</div>
+            <Users className="w-12 h-12 text-[#9CA3AF] mb-4" strokeWidth={1.5} />
             <p className="font-semibold text-[#0F1117] text-sm">
               {clientes.length === 0 ? "Ainda sem clientes" : "Nenhum cliente neste segmento"}
             </p>
@@ -194,8 +194,8 @@ export default async function ClientesPage({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-semibold text-[#0F1117] text-sm truncate">{c.nome ?? c.email}</p>
-                      <span className={`badge text-[10px] ${segCfg.bg} ${segCfg.text}`}>
-                        {segCfg.icon} {segCfg.label}
+                      <span className={`badge text-[10px] flex items-center gap-1 ${segCfg.bg} ${segCfg.text}`}>
+                        <segCfg.Icon className="w-3 h-3" strokeWidth={2} /> {segCfg.label}
                       </span>
                     </div>
                     {c.nome && <p className="text-xs text-[#9CA3AF] truncate">{c.email}</p>}

@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { Paperclip } from "lucide-react";
 
 function CancelarSubscricaoBtn() {
   const router = useRouter();
@@ -208,7 +209,7 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
       {/* Aviso subscrição AOA pendente */}
       {statusSubscricao === "PENDENTE_TRANSFERENCIA" && (
         <div className="mb-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-center">
-          <p className="text-amber-800 font-bold">⏳ Transferência em análise</p>
+          <p className="text-amber-800 font-bold flex items-center justify-center gap-2"><span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse" /> Transferência em análise</p>
           <p className="text-amber-700 text-sm mt-1">O seu comprovativo foi recebido. A equipa LinkCommerce irá activar o plano em até 24 horas úteis.</p>
         </div>
       )}
@@ -412,7 +413,7 @@ export function BillingCards({ planos, planoAtualId, temSubscricaoStripe, status
                   onClick={() => fileRef.current?.click()}
                   disabled={uploading}
                   className="w-full rounded-xl border-2 border-dashed border-slate-200 py-4 text-sm text-slate-500 hover:border-blue-300 hover:text-blue-600 transition-colors disabled:opacity-60">
-                  {uploading ? "A enviar…" : "📎 Clique para anexar imagem ou PDF"}
+                  {uploading ? "A enviar…" : <span className="flex items-center justify-center gap-1.5"><Paperclip className="w-4 h-4" strokeWidth={1.75} /> Clique para anexar imagem ou PDF</span>}
                 </button>
               )}
             </div>

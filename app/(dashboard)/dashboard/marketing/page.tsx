@@ -6,6 +6,7 @@ import { registarAudit } from "@/lib/audit";
 import { CampanhaForm } from "./campanha-form";
 import { EnviarCampanhaBtn } from "./enviar-campanha-btn";
 import { eliminarCampanha } from "./campanhas-actions";
+import { Share2 } from "lucide-react";
 
 export default async function MarketingPage() {
   const lojaId = await getLojaId();
@@ -85,7 +86,9 @@ export default async function MarketingPage() {
           href="/dashboard/redes-sociais"
           className="flex items-center gap-4 p-4 mb-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl text-white hover:opacity-95 transition-opacity"
         >
-          <span className="text-3xl">📲</span>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 flex-shrink-0">
+            <Share2 className="w-5 h-5 text-white" strokeWidth={1.75} />
+          </div>
           <div>
             <p className="font-bold text-base">Redes Sociais</p>
             <p className="text-sm text-blue-100">Publique produtos no Instagram, Facebook, LinkedIn e mais — directamente do painel</p>

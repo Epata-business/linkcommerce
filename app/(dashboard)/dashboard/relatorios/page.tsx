@@ -358,17 +358,20 @@ export default async function RelatoriosPage({
             <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-4">Pedidos por estado</p>
             <div className="space-y-2.5">
               {[
-                { status: "PENDING",    icon: "🟡", label: "A aguardar pagamento" },
-                { status: "PROCESSING", icon: "🟢", label: "Pagos / Em preparação" },
-                { status: "SHIPPED",    icon: "🔵", label: "Enviados" },
-                { status: "DELIVERED",  icon: "✅", label: "Entregues" },
-                { status: "CANCELLED",  icon: "🔴", label: "Cancelados" },
+                { status: "PENDING",    dot: "bg-yellow-400", label: "A aguardar pagamento" },
+                { status: "PROCESSING", dot: "bg-green-400",  label: "Pagos / Em preparação" },
+                { status: "SHIPPED",    dot: "bg-blue-400",   label: "Enviados" },
+                { status: "DELIVERED",  dot: "bg-emerald-500",label: "Entregues" },
+                { status: "CANCELLED",  dot: "bg-red-400",    label: "Cancelados" },
               ].map(row => {
                 const found = pedidosPorStatus.find(s => s.status === row.status);
                 const count = found?._count ?? 0;
                 return (
                   <div key={row.status} className="flex items-center justify-between text-sm">
-                    <span className="text-slate-600">{row.icon} {row.label}</span>
+                    <span className="flex items-center gap-2 text-slate-600">
+                      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${row.dot}`} />
+                      {row.label}
+                    </span>
                     <span className="font-bold text-[#0F1117] tabular-nums">{count}</span>
                   </div>
                 );
