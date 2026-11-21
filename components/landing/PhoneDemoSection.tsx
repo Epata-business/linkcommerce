@@ -361,14 +361,16 @@ function PosScreen() {
 
       <div className="grid grid-cols-2 gap-2 px-4 pt-3 pb-2">
         {[
-          { name: "Camisola", price: "89K", emoji: "🧥" },
-          { name: "Calças", price: "124K", emoji: "👖" },
-          { name: "Boné", price: "45K", emoji: "🧢" },
-          { name: "Ténis", price: "215K", emoji: "👟" },
+          { name: "Camisola", price: "89K", color: "#153DEC" },
+          { name: "Calças", price: "124K", color: "#8381FB" },
+          { name: "Boné", price: "45K", color: "#153DEC" },
+          { name: "Ténis", price: "215K", color: "#8381FB" },
         ].map((p, i) => (
           <div key={i} className="rounded-xl p-2.5 flex flex-col items-center gap-1"
             style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
-            <span className="text-xl">{p.emoji}</span>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${p.color}20` }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={p.color} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>
+            </div>
             <p className="text-[9px] text-white/60">{p.name}</p>
             <p className="text-[9px] font-bold text-white">{p.price} Kz</p>
           </div>
@@ -597,13 +599,15 @@ function LojaScreen() {
       {/* Produtos */}
       <div className="flex-1 px-3 space-y-2 overflow-hidden">
         {[
-          { nome: "Calulu de Peixe", desc: "Peixe fresco, quiabos e fuba", preco: "4.500 Kz", emoji: "🍲" },
-          { nome: "Funge com Muamba", desc: "Frango, gindungo e dendê", preco: "5.200 Kz", emoji: "🍛" },
-          { nome: "Cocada Amarela", desc: "Doce tradicional angolano", preco: "1.800 Kz", emoji: "🍮" },
+          { nome: "Calulu de Peixe", desc: "Peixe fresco, quiabos e fuba", preco: "4.500 Kz" },
+          { nome: "Funge com Muamba", desc: "Frango, gindungo e dendê", preco: "5.200 Kz" },
+          { nome: "Cocada Amarela", desc: "Doce tradicional angolano", preco: "1.800 Kz" },
         ].map((p, i) => (
           <div key={i} className="flex items-center gap-2 rounded-xl px-2.5 py-2"
             style={{ background: "#fff", border: "1px solid rgba(139,37,0,0.08)" }}>
-            <span className="text-2xl flex-shrink-0">{p.emoji}</span>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(139,37,0,0.08)" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B2500" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M17 8C17 11.866 14.418 15 11 15C7.582 15 5 11.866 5 8C5 4.134 7.582 2 11 2C14.418 2 17 4.134 17 8Z"/><path d="M22 20L18.9 17M11 15C7.582 15 2 17 2 20v2h18v-2c0-3-5.582-5-9-5z"/></svg>
+            </div>
             <div className="flex-1 min-w-0">
               <p className="text-[8px] font-bold truncate" style={{ color: "#4a1500" }}>{p.nome}</p>
               <p className="text-[7px] text-stone-400 truncate">{p.desc}</p>
@@ -618,7 +622,7 @@ function LojaScreen() {
       {/* Carrinho */}
       <div className="mx-3 mb-2 mt-1 rounded-xl px-3 py-2 flex items-center justify-between"
         style={{ background: "#8B2500" }}>
-        <span className="text-[8px] font-bold text-white">🛒 Carrinho (1 item)</span>
+        <span className="text-[8px] font-bold text-white flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg> Carrinho (1 item)</span>
         <span className="text-[8px] font-bold text-white/80">4.500 Kz →</span>
       </div>
     </div>

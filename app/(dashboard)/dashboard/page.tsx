@@ -9,6 +9,12 @@ import { CentroAtencao } from "@/components/dashboard/centro-atencao";
 import { calcularIntervalo, formatarVariacao } from "@/lib/periodo";
 import { Suspense } from "react";
 import { TODOS_OS_TEMAS } from "@/lib/temas";
+import {
+  Banknote, ShoppingBag, Clock, Tag,
+  Target, UserPlus, TrendingUp, RefreshCw,
+  Inbox, Plus, BarChart2, Users, Megaphone,
+  Share2, Settings, type LucideIcon,
+} from "lucide-react";
 
 const STATUS_CONFIG: Record<string, { label: string; dot: string; bg: string; text: string }> = {
   PENDING:    { label: "Pendente",         dot: "bg-yellow-400", bg: "bg-yellow-50",  text: "text-yellow-700" },
@@ -211,7 +217,7 @@ export default async function DashboardPage({
               label: `Receita`,
               period: labelPeriodo,
               value: formatarPreco(receitaAtual, moeda),
-              icon: "💰",
+              Icon: Banknote as LucideIcon,
               accent: "#153DEC",
               sub: subReceita,
               positivo: posReceita,
@@ -221,7 +227,7 @@ export default async function DashboardPage({
               label: `Encomendas`,
               period: labelPeriodo,
               value: pedidosPeriodo.toString(),
-              icon: "📦",
+              Icon: ShoppingBag as LucideIcon,
               accent: "#8381FB",
               sub: subPedidos,
               positivo: posPedidos,
@@ -231,7 +237,7 @@ export default async function DashboardPage({
               label: "Pendentes",
               period: "agora",
               value: pedidosPendentes.toString(),
-              icon: "⏳",
+              Icon: Clock as LucideIcon,
               accent: pedidosPendentes > 0 ? "#f59e0b" : "#10b981",
               sub: pedidosPendentes > 0 ? "Requerem atenção" : "Tudo em dia",
               positivo: pedidosPendentes === 0 ? true : null,
@@ -241,7 +247,7 @@ export default async function DashboardPage({
               label: "Produtos activos",
               period: null,
               value: limiteProdutos ? `${totalProdutos}/${limiteProdutos}` : totalProdutos.toString(),
-              icon: "🏷️",
+              Icon: Tag as LucideIcon,
               accent: "#153DEC",
               sub: limiteProdutos && totalProdutos >= limiteProdutos ? "Limite atingido" : `${totalClientes} clientes únicos`,
               positivo: limiteProdutos && totalProdutos >= limiteProdutos ? false : null,
@@ -252,9 +258,9 @@ export default async function DashboardPage({
               className="group bg-white rounded-2xl p-5 transition-all duration-150"
               style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
               <div className="flex items-start justify-between mb-4">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center"
                   style={{ background: `${s.accent}14` }}>
-                  {s.icon}
+                  <s.Icon className="w-4 h-4" style={{ color: s.accent }} strokeWidth={1.75} />
                 </div>
                 {s.period && (
                   <span className="text-[10px] font-semibold text-[#9CA3AF] bg-[#F7F8FC] px-2 py-1 rounded-full">
@@ -279,21 +285,21 @@ export default async function DashboardPage({
             {
               label: "Ticket médio",
               value: ticketMedio > 0 ? formatarPreco(ticketMedio, moeda) : "—",
-              icon: "🎯",
+              Icon: Target as LucideIcon,
               sub: ticketMedio > 0 ? subTicket : "Sem encomendas no período",
               positivo: ticketMedio > 0 ? posTicket : null,
             },
             {
               label: "Novos clientes",
               value: novosClientes.toString(),
-              icon: "🙋",
+              Icon: UserPlus as LucideIcon,
               sub: novosClientes > 0 ? subNovosClientes : "Nenhum cliente novo",
               positivo: novosClientes > 0 ? posNovosClientes : null,
             },
             {
               label: "Taxa de conversão",
               value: taxaConversao !== null ? `${taxaConversao.toFixed(1)}%` : "—",
-              icon: "📈",
+              Icon: TrendingUp as LucideIcon,
               sub: taxaConversao !== null
                 ? `${visitasPeriodo} visitas · ${pedidosPeriodo} encomendas`
                 : "Sem dados de visitas",
@@ -302,7 +308,7 @@ export default async function DashboardPage({
             {
               label: "Taxa de recompra",
               value: taxaRecompra !== null ? `${taxaRecompra.toFixed(1)}%` : "—",
-              icon: "🔁",
+              Icon: RefreshCw as LucideIcon,
               sub: taxaRecompra !== null
                 ? `${clientesRepetentes} de ${totalClientesRecompra} clientes voltaram`
                 : "Sem dados suficientes",
@@ -312,7 +318,7 @@ export default async function DashboardPage({
             <div key={s.label} className="bg-white rounded-2xl p-5"
               style={{ border: "1px solid hsl(220 20% 91%)", boxShadow: "0 1px 3px rgba(15,17,23,0.04)" }}>
               <div className="flex items-center gap-2 mb-3">
-                <span className="text-base">{s.icon}</span>
+                <s.Icon className="w-4 h-4 text-[#9CA3AF]" strokeWidth={1.75} />
                 <span className="text-xs font-semibold text-[#9CA3AF]">{labelPeriodo}</span>
               </div>
               <p className="text-2xl font-bold text-[#0F1117] tabular-nums">{s.value}</p>
@@ -341,7 +347,7 @@ export default async function DashboardPage({
 
             {ultimosPedidos.length === 0 ? (
               <div className="empty-state py-14">
-                <div className="empty-state-icon">📭</div>
+                <div className="empty-state-icon"><Inbox className="w-10 h-10 text-[#9CA3AF]" strokeWidth={1.5} /></div>
                 <p className="empty-state-title">Ainda sem encomendas</p>
                 <p className="empty-state-desc">Partilhe o link da sua loja para começar a receber</p>
               </div>
@@ -412,17 +418,17 @@ export default async function DashboardPage({
               <p className="label mb-3">Atalhos</p>
               <div className="space-y-0.5">
                 {[
-                  { label: "Adicionar produto", href: "/dashboard/produtos", icon: "➕" },
-                  { label: "Encomendas pendentes", href: "/dashboard/pedidos?status=pending", icon: "⏳" },
-                  { label: "Relatórios", href: "/dashboard/relatorios", icon: "📊" },
-                  { label: "Clientes", href: "/dashboard/clientes", icon: "👥" },
-                  { label: "Marketing", href: "/dashboard/marketing", icon: "🏷️" },
-                  { label: "Redes sociais", href: "/dashboard/redes-sociais", icon: "📲" },
-                  { label: "Configurações", href: "/dashboard/configuracoes", icon: "⚙️" },
+                  { label: "Adicionar produto", href: "/dashboard/produtos", Icon: Plus },
+                  { label: "Encomendas pendentes", href: "/dashboard/pedidos?status=pending", Icon: Clock },
+                  { label: "Relatórios", href: "/dashboard/relatorios", Icon: BarChart2 },
+                  { label: "Clientes", href: "/dashboard/clientes", Icon: Users },
+                  { label: "Marketing", href: "/dashboard/marketing", Icon: Megaphone },
+                  { label: "Redes sociais", href: "/dashboard/redes-sociais", Icon: Share2 },
+                  { label: "Configurações", href: "/dashboard/configuracoes", Icon: Settings },
                 ].map((a) => (
                   <Link key={a.href} href={a.href}
                     className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-[#4B5563] hover:bg-[#F7F8FC] hover:text-[#0F1117] transition-colors font-medium">
-                    <span className="text-sm opacity-80">{a.icon}</span>
+                    <a.Icon className="w-4 h-4 opacity-70 flex-shrink-0" strokeWidth={1.75} />
                     {a.label}
                   </Link>
                 ))}

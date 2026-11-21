@@ -1,21 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { CreditCard, Smartphone, Zap, Camera, MessageCircle, ShoppingBag, Banknote, Package, Truck, RefreshCw } from "lucide-react";
 
 const STATS = [
-  { valor: "27,8 biliões", unidade: "Kz", label: "total processado pela Multicaixa no 1.º semestre de 2026", icon: "💳" },
-  { valor: "49,3%", unidade: "do valor total", label: "da Multicaixa já são pagamentos digitais (dados 2025)", icon: "📱" },
-  { valor: "8,7 milhões", unidade: "operações", label: "no KWiK no 1.º semestre de 2026", icon: "⚡" },
+  { valor: "27,8 biliões", unidade: "Kz", label: "total processado pela Multicaixa no 1.º semestre de 2026", Icon: CreditCard },
+  { valor: "49,3%", unidade: "do valor total", label: "da Multicaixa já são pagamentos digitais (dados 2025)", Icon: Smartphone },
+  { valor: "8,7 milhões", unidade: "operações", label: "no KWiK no 1.º semestre de 2026", Icon: Zap },
 ];
 
 const FLOW = [
-  { icon: "📸", label: "Instagram" },
-  { icon: "💬", label: "WhatsApp" },
-  { icon: "🛍️", label: "LinkCommerce" },
-  { icon: "💳", label: "Pagamento" },
-  { icon: "📦", label: "Pedido" },
-  { icon: "🚗", label: "Entrega" },
-  { icon: "🔁", label: "Recompra" },
+  { Icon: Camera, label: "Instagram" },
+  { Icon: MessageCircle, label: "WhatsApp" },
+  { Icon: ShoppingBag, label: "LinkCommerce" },
+  { Icon: Banknote, label: "Pagamento" },
+  { Icon: Package, label: "Encomenda" },
+  { Icon: Truck, label: "Entrega" },
+  { Icon: RefreshCw, label: "Recompra" },
 ];
 
 export function AngolaSection() {
@@ -108,7 +109,7 @@ export function AngolaSection() {
                       : "1px solid rgba(255,255,255,0.06)",
                     boxShadow: activeFlow === i ? "0 0 20px rgba(21,61,236,0.4)" : "none",
                   }}>
-                  {step.icon}
+                  <step.Icon className="w-5 h-5 text-white" strokeWidth={1.75} />
                 </div>
                 <span className="text-[10px] font-semibold text-white/50">{step.label}</span>
               </div>
@@ -130,7 +131,7 @@ export function AngolaSection() {
                 background: "rgba(21,61,236,0.06)",
                 border: "1px solid rgba(21,61,236,0.15)",
               }}>
-              <div className="text-2xl mb-2">{s.icon}</div>
+              <div className="flex justify-center mb-2"><s.Icon className="w-6 h-6 text-[#8381FB]" strokeWidth={1.75} /></div>
               <p className="text-2xl font-extrabold text-white">{s.valor}</p>
               <p className="text-xs font-semibold text-[#8381FB] mb-1">{s.unidade}</p>
               <p className="text-[10px] text-white/30 leading-snug">{s.label}</p>
@@ -142,19 +143,19 @@ export function AngolaSection() {
         <div className={`grid md:grid-cols-3 gap-5 transition-all duration-700 delay-400 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           {[
             {
-              icon: "💳",
+              Icon: CreditCard,
               titulo: "Paga como Angola paga",
               desc: "Transferências bancárias e comprovativo digital. Integração Multicaixa em desenvolvimento.",
               cor: "#cc0000",
             },
             {
-              icon: "📍",
+              Icon: Truck,
               titulo: "Entrega onde Angola vive",
               desc: "Define zonas de entrega — Talatona, Viana, Luanda Centro — com preços personalizados por zona.",
               cor: "#153DEC",
             },
             {
-              icon: "📱",
+              Icon: Smartphone,
               titulo: "Vende onde Angola está",
               desc: "Botão WhatsApp integrado, link da loja para o Instagram, QR Code para os seus cartões.",
               cor: "#8381FB",
@@ -162,9 +163,9 @@ export function AngolaSection() {
           ].map((r) => (
             <div key={r.titulo} className="rounded-2xl p-6 hover:scale-[1.02] transition-transform"
               style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl mb-4"
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
                 style={{ background: `${r.cor}18`, border: `1px solid ${r.cor}30` }}>
-                {r.icon}
+                <r.Icon className="w-5 h-5" style={{ color: r.cor }} strokeWidth={1.75} />
               </div>
               <h3 className="font-bold text-white text-base mb-2">{r.titulo}</h3>
               <p className="text-sm text-white/35 leading-relaxed">{r.desc}</p>

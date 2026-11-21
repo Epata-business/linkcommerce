@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { calcularMetricasAdmin, arredondarPublico } from "@/lib/metricas-publicas";
+import { Store, Users, ShoppingBag, Banknote } from "lucide-react";
 
 export default async function AdminPage() {
   const [metricas, totalLojas, totalUtilizadores, totalPedidos, totalReceita, lojasMaisRecentes] = await Promise.all([
@@ -22,13 +23,13 @@ export default async function AdminPage() {
   const receita = Number(totalReceita._sum.total ?? 0);
 
   const stats = [
-    { label: "Lojas criadas", value: totalLojas, icon: "🏪", cor: "bg-indigo-50 text-indigo-700" },
-    { label: "Utilizadores", value: totalUtilizadores, icon: "👤", cor: "bg-blue-50 text-blue-700" },
-    { label: "Pedidos totais", value: totalPedidos, icon: "📦", cor: "bg-emerald-50 text-emerald-700" },
+    { label: "Lojas criadas", value: totalLojas, Icon: Store, cor: "bg-indigo-50 text-indigo-700" },
+    { label: "Utilizadores", value: totalUtilizadores, Icon: Users, cor: "bg-blue-50 text-blue-700" },
+    { label: "Encomendas totais", value: totalPedidos, Icon: ShoppingBag, cor: "bg-emerald-50 text-emerald-700" },
     {
       label: "Receita total",
       value: receita.toLocaleString("pt-PT", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " (multi-moeda)",
-      icon: "💰",
+      Icon: Banknote,
       cor: "bg-amber-50 text-amber-700",
     },
   ];
@@ -44,8 +45,8 @@ export default async function AdminPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map((s) => (
           <div key={s.label} className="rounded-2xl bg-white border border-slate-100 p-5">
-            <div className={`inline-flex h-10 w-10 items-center justify-center rounded-xl text-xl mb-3 ${s.cor}`}>
-              {s.icon}
+            <div className={`inline-flex h-10 w-10 items-center justify-center rounded-xl mb-3 ${s.cor}`}>
+              <s.Icon className="w-5 h-5" strokeWidth={1.75} />
             </div>
             <p className="text-2xl font-extrabold text-slate-900">{s.value}</p>
             <p className="text-xs text-slate-500 mt-1">{s.label}</p>

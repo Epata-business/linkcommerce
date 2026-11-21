@@ -75,7 +75,7 @@ const FLOW = [
   { icon: <IconBox />,   pt: "Produto",   en: "Product",  fr: "Produit",  es: "Producto"  },
   { icon: <IconCart />,  pt: "Carrinho",  en: "Cart",     fr: "Panier",   es: "Carrito"   },
   { icon: <IconCard />,  pt: "Pagamento", en: "Payment",  fr: "Paiement", es: "Pago"      },
-  { icon: <IconClip />,  pt: "Pedido",    en: "Order",    fr: "Commande", es: "Pedido"    },
+  { icon: <IconClip />,  pt: "Encomenda", en: "Order",    fr: "Commande", es: "Pedido"    },
   { icon: <IconTruck />, pt: "Entrega",   en: "Delivery", fr: "Livraison",es: "Entrega"   },
 ];
 
