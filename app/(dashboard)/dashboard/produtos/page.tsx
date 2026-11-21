@@ -21,7 +21,8 @@ export default async function ProdutosPage() {
   const moeda = loja?.moeda ?? "EUR";
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="min-h-screen" style={{ background: "#F7F8FC" }}>
+    <div className="max-w-5xl mx-auto px-5 py-7">
       <BackButton href="/dashboard" label="← Dashboard" />
 
       <div className="flex items-center justify-between mt-4 mb-6">
@@ -103,6 +104,7 @@ export default async function ProdutosPage() {
           </tbody>
         </table>
       </div>
+    </div>
     </div>
   );
 }

@@ -4,6 +4,22 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import {
+  LayoutDashboard, Package, Archive, ShoppingBag, Users, Megaphone,
+  Share2, Star, RotateCcw, ShoppingCart, Truck, QrCode,
+  BarChart2, Download, UsersRound, FileText, ScrollText,
+  Bell, Plug, Palette, Settings, type LucideIcon,
+} from "lucide-react";
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  dashboard: LayoutDashboard, produtos: Package, inventario: Archive,
+  pedidos: ShoppingBag, clientes: Users, marketing: Megaphone,
+  "redes-sociais": Share2, fidelidade: Star, devolucoes: RotateCcw,
+  carrinhos: ShoppingCart, envios: Truck, qrcode: QrCode,
+  relatorios: BarChart2, exportar: Download, equipa: UsersRound,
+  auditlog: ScrollText, faturas: FileText, avaliacoes: Star,
+  notificacoes: Bell, api: Plug, temas: Palette, configuracoes: Settings,
+};
 
 interface NavLink { href: string; label: string; icon?: string }
 
@@ -76,11 +92,7 @@ export function MobileSidebar({ navLinks, email, subdominio, nomeLoja }: Props) 
                         : "text-slate-400 hover:bg-white/6 hover:text-slate-200",
                     ].join(" ")}
                   >
-                    {link.icon && (
-                      <span className={["mr-2.5 text-sm leading-none", isActive ? "opacity-100" : "opacity-70 group-hover:opacity-100"].join(" ")}>
-                        {link.icon}
-                      </span>
-                    )}
+                    {link.icon && (() => { const IC = ICON_MAP[link.icon!]; return IC ? <IC className={["w-4 h-4 flex-shrink-0 mr-2.5", isActive ? "opacity-100" : "opacity-60"].join(" ")} strokeWidth={1.75} /> : null; })()}
                     <span className="flex-1 truncate">{link.label}</span>
                     {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#8381FB] flex-shrink-0" />}
                   </Link>
