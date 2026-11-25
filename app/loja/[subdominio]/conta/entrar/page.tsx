@@ -39,17 +39,19 @@ export default function EntrarPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Email</label>
+            <label htmlFor="entrar-email" className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Email</label>
             <input
-              type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+              id="entrar-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+              inputMode="email" autoComplete="email"
               className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-100"
               placeholder="o.teu@email.com"
             />
           </div>
           <div>
-            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Password</label>
+            <label htmlFor="entrar-password" className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Password</label>
             <input
-              type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
+              id="entrar-password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
               className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-100"
               placeholder="••••••••"
             />

@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cart-store";
+import { CheckCircle2 } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
 
 const labels: Record<Locale, { add: string; added: string; out: string }> = {
-  pt: { add: "Adicionar ao carrinho", added: "Adicionado ✓", out: "Esgotado" },
-  en: { add: "Add to cart", added: "Added ✓", out: "Out of stock" },
-  fr: { add: "Ajouter au panier", added: "Ajouté ✓", out: "Épuisé" },
-  es: { add: "Añadir al carrito", added: "Añadido ✓", out: "Agotado" },
+  pt: { add: "Adicionar ao carrinho", added: "Adicionado", out: "Esgotado" },
+  en: { add: "Add to cart", added: "Added", out: "Out of stock" },
+  fr: { add: "Ajouter au panier", added: "Ajouté", out: "Épuisé" },
+  es: { add: "Añadir al carrito", added: "Añadido", out: "Agotado" },
 };
 
 interface VarianteUI {
@@ -77,10 +78,12 @@ export function AddToCartButton({
         size="sm"
         className="w-full"
         style={{ backgroundColor: corPrimaria }}
-        disabled={semStock}
+        disabled={semStock || adicionado}
         onClick={handleAdicionar}
       >
-        {semStock ? L.out : adicionado ? L.added : L.add}
+        {semStock ? L.out : adicionado ? (
+          <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" strokeWidth={2.5} /> {L.added}</span>
+        ) : L.add}
       </Button>
     </div>
   );

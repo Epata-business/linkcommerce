@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormState, useFormStatus } from "react-dom";
+import { CheckCircle2 } from "lucide-react";
 import { enviarMensagemContacto } from "./action";
 
 function SubmitButton({ cor, label }: { cor: string; label: string }) {
@@ -26,7 +27,7 @@ export function ContactoForm({ subdominio, cor, labels }: {
   if (state?.sucesso) {
     return (
       <div className="rounded-2xl border border-green-100 bg-green-50 p-8 text-center">
-        <div className="text-4xl mb-3">✅</div>
+        <div className="flex justify-center mb-3"><CheckCircle2 className="w-12 h-12 text-green-500" strokeWidth={1.75} /></div>
         <p className="font-bold text-green-800 text-lg">Mensagem enviada!</p>
         <p className="text-green-600 text-sm mt-1">O lojista receberá a sua mensagem e responderá em breve.</p>
       </div>
@@ -39,26 +40,26 @@ export function ContactoForm({ subdominio, cor, labels }: {
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">{labels.nome}</label>
-          <input name="nome" type="text" placeholder={labels.ph_nome} required
+          <label htmlFor="contacto-nome" className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">{labels.nome}</label>
+          <input id="contacto-nome" name="nome" type="text" placeholder={labels.ph_nome} required autoComplete="name"
             className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">{labels.email}</label>
-          <input name="email" type="email" placeholder="email@exemplo.com" required
+          <label htmlFor="contacto-email" className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">{labels.email}</label>
+          <input id="contacto-email" name="email" type="email" placeholder="email@exemplo.com" required inputMode="email" autoComplete="email"
             className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
         </div>
       </div>
 
       <div>
-        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">{labels.assunto}</label>
-        <input name="assunto" type="text" placeholder={labels.ph_assunto} required
+        <label htmlFor="contacto-assunto" className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">{labels.assunto}</label>
+        <input id="contacto-assunto" name="assunto" type="text" placeholder={labels.ph_assunto} required
           className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
       </div>
 
       <div>
-        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">{labels.msg}</label>
-        <textarea name="mensagem" rows={5} placeholder={labels.ph_msg} required
+        <label htmlFor="contacto-mensagem" className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">{labels.msg}</label>
+        <textarea id="contacto-mensagem" name="mensagem" rows={5} placeholder={labels.ph_msg} required
           className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none" />
       </div>
 

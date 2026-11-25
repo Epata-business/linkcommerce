@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCartStore } from "@/store/cart-store";
 import { formatarPreco } from "@/lib/moeda";
+import {
+  ShoppingCart, Truck, Smartphone, Landmark, Paperclip, Lock, RotateCcw,
+  Package, MapPin, Clock, CheckCircle2,
+} from "lucide-react";
 
 // Lê locale do cookie no cliente
 function getClientLocale(): string {
@@ -28,13 +32,13 @@ const TR: Record<string, TMap> = {
     continue_delivery: "Continuar para entrega →",
     delivery_title: "Morada de entrega",
     street: "Rua / Avenida", city: "Cidade", postal: "Código postal", country: "País",
-    delivery_note: "🚚 O prazo e custo de entrega são definidos pelo lojista e serão confirmados por email após o pedido.",
+    delivery_note: "O prazo e custo de entrega são definidos pelo lojista e serão confirmados por email após o pedido.",
     fill_address: "Preencha a rua e cidade.",
     back: "← Voltar", continue_payment: "Continuar para pagamento →",
     payment_title: "Método de pagamento",
-    mbway_note: "📱 Após confirmar, receberá uma notificação no seu telemóvel para aprovar o pagamento.",
-    multibanco_note: "🏧 Receberá uma referência Multibanco por email. Tem 3 dias para pagar em qualquer caixa ATM.",
-    multicaixa_note: "📎 Após confirmar, envie o comprovativo da transferência bancária. O pedido será validado manualmente pelo lojista.",
+    mbway_note: "Após confirmar, receberá uma notificação no seu telemóvel para aprovar o pagamento.",
+    multibanco_note: "Receberá uma referência Multibanco por email. Tem 3 dias para pagar em qualquer caixa ATM.",
+    multicaixa_note: "Após confirmar, envie o comprovativo da transferência bancária. O pedido será validado manualmente pelo lojista.",
     processing: "A processar…", confirm: "Confirmar pedido",
     ssl: "SSL 256-bit", protected: "Dados protegidos", returns_14: "14 dias devolução",
     summary: "Resumo do pedido", qty: "Qtd.", subtotal: "Subtotal",
@@ -59,13 +63,13 @@ const TR: Record<string, TMap> = {
     continue_delivery: "Continue to delivery →",
     delivery_title: "Delivery address",
     street: "Street / Avenue", city: "City", postal: "Postal code", country: "Country",
-    delivery_note: "🚚 Delivery time and cost are set by the seller and will be confirmed by email after the order.",
+    delivery_note: "Delivery time and cost are set by the seller and will be confirmed by email after the order.",
     fill_address: "Please fill in street and city.",
     back: "← Back", continue_payment: "Continue to payment →",
     payment_title: "Payment method",
-    mbway_note: "📱 After confirming, you will receive a notification on your phone to approve the payment.",
-    multibanco_note: "🏧 You will receive a Multibanco reference by email. You have 3 days to pay at any ATM.",
-    multicaixa_note: "📎 After confirming, send your bank transfer proof. The order will be manually validated by the seller.",
+    mbway_note: "After confirming, you will receive a notification on your phone to approve the payment.",
+    multibanco_note: "You will receive a Multibanco reference by email. You have 3 days to pay at any ATM.",
+    multicaixa_note: "After confirming, send your bank transfer proof. The order will be manually validated by the seller.",
     processing: "Processing…", confirm: "Confirm order",
     ssl: "SSL 256-bit", protected: "Data protected", returns_14: "14-day returns",
     summary: "Order summary", qty: "Qty.", subtotal: "Subtotal",
@@ -90,13 +94,13 @@ const TR: Record<string, TMap> = {
     continue_delivery: "Continuer vers la livraison →",
     delivery_title: "Adresse de livraison",
     street: "Rue / Avenue", city: "Ville", postal: "Code postal", country: "Pays",
-    delivery_note: "🚚 Le délai et le coût de livraison sont définis par le vendeur et seront confirmés par email.",
+    delivery_note: "Le délai et le coût de livraison sont définis par le vendeur et seront confirmés par email.",
     fill_address: "Veuillez remplir la rue et la ville.",
     back: "← Retour", continue_payment: "Continuer vers le paiement →",
     payment_title: "Mode de paiement",
-    mbway_note: "📱 Après confirmation, vous recevrez une notification sur votre téléphone.",
-    multibanco_note: "🏧 Vous recevrez une référence par email. Vous avez 3 jours pour payer.",
-    multicaixa_note: "📎 Après confirmation, envoyez votre preuve de virement. La commande sera validée manuellement par le vendeur.",
+    mbway_note: "Après confirmation, vous recevrez une notification sur votre téléphone.",
+    multibanco_note: "Vous recevrez une référence par email. Vous avez 3 jours pour payer.",
+    multicaixa_note: "Après confirmation, envoyez votre preuve de virement. La commande sera validée manuellement par le vendeur.",
     processing: "Traitement…", confirm: "Confirmer la commande",
     ssl: "SSL 256-bit", protected: "Données protégées", returns_14: "14 jours retours",
     summary: "Résumé de la commande", qty: "Qté.", subtotal: "Sous-total",
@@ -121,13 +125,13 @@ const TR: Record<string, TMap> = {
     continue_delivery: "Continuar con la entrega →",
     delivery_title: "Dirección de entrega",
     street: "Calle / Avenida", city: "Ciudad", postal: "Código postal", country: "País",
-    delivery_note: "🚚 El plazo y coste de entrega son definidos por el vendedor y se confirmarán por email.",
+    delivery_note: "El plazo y coste de entrega son definidos por el vendedor y se confirmarán por email.",
     fill_address: "Por favor completa la calle y ciudad.",
     back: "← Volver", continue_payment: "Continuar con el pago →",
     payment_title: "Método de pago",
-    mbway_note: "📱 Tras confirmar, recibirás una notificación en tu teléfono para aprobar el pago.",
-    multibanco_note: "🏧 Recibirás una referencia Multibanco por email. Tienes 3 días para pagar.",
-    multicaixa_note: "📎 Tras confirmar, envía el comprobante de transferencia bancaria. El pedido será validado manualmente por el vendedor.",
+    mbway_note: "Tras confirmar, recibirás una notificación en tu teléfono para aprobar el pago.",
+    multibanco_note: "Recibirás una referencia Multibanco por email. Tienes 3 días para pagar.",
+    multicaixa_note: "Tras confirmar, envía el comprobante de transferencia bancaria. El pedido será validado manualmente por el vendedor.",
     processing: "Procesando…", confirm: "Confirmar pedido",
     ssl: "SSL 256-bit", protected: "Datos protegidos", returns_14: "14 días devolución",
     summary: "Resumen del pedido", qty: "Cant.", subtotal: "Subtotal",
@@ -142,15 +146,22 @@ const TR: Record<string, TMap> = {
   },
 };
 
-function Campo({ label, name, type = "text", placeholder, required, value, onChange, half }: {
+function Campo({ label, name, type = "text", placeholder, required, value, onChange, half, inputMode, autoComplete }: {
   label: string; name: string; type?: string; placeholder?: string;
   required?: boolean; value: string; onChange: (v: string) => void; half?: boolean;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  autoComplete?: string;
 }) {
   return (
     <div className={half ? "col-span-1" : "col-span-2"}>
-      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">{label}</label>
-      <input name={name} type={type} placeholder={placeholder} required={required}
-        value={value} onChange={(e) => onChange(e.target.value)}
+      <label htmlFor={`campo-${name}`} className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+        {label}{required && <span className="text-red-400 ml-0.5" aria-hidden="true">*</span>}
+      </label>
+      <input
+        id={`campo-${name}`} name={name} type={type} placeholder={placeholder}
+        required={required} value={value} onChange={(e) => onChange(e.target.value)}
+        inputMode={inputMode} autoComplete={autoComplete}
+        aria-required={required}
         className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-400 transition-colors"
       />
     </div>
@@ -159,14 +170,15 @@ function Campo({ label, name, type = "text", placeholder, required, value, onCha
 
 function Stepper({ atual, steps }: { atual: number; steps: string[] }) {
   return (
-    <div className="flex items-center gap-0 mb-8">
+    <nav aria-label="Progresso do checkout" className="flex items-center gap-0 mb-8">
       {steps.map((s, i) => (
         <div key={s} className="flex items-center flex-1 last:flex-none">
           <div className="flex flex-col items-center">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all
               ${i < atual ? "bg-green-500 text-white" : i === atual ? "text-white" : "bg-slate-100 text-slate-400"}`}
-              style={i === atual ? { background: "linear-gradient(135deg,#153DFC,#8381FB)" } : {}}>
-              {i < atual ? "✓" : i + 1}
+              style={i === atual ? { background: "linear-gradient(135deg,#153DFC,#8381FB)" } : {}}
+              aria-current={i === atual ? "step" : undefined}>
+              {i < atual ? <CheckCircle2 className="w-4 h-4" strokeWidth={2.5} /> : i + 1}
             </div>
             <span className={`mt-1 text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap
               ${i <= atual ? "text-slate-700" : "text-slate-300"}`}>{s}</span>
@@ -176,7 +188,7 @@ function Stepper({ atual, steps }: { atual: number; steps: string[] }) {
           )}
         </div>
       ))}
-    </div>
+    </nav>
   );
 }
 
@@ -212,6 +224,55 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
   const [zonas, setZonas] = useState<ZonaEntrega[]>([]);
   const [zonaId, setZonaId] = useState("");
   const [comprovanteFile, setComprovanteFile] = useState<File | null>(null);
+  const [transicionando, setTransicionando] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
+
+  function avancarPasso(novoPasso: number) {
+    setTransicionando(true);
+    setErro("");
+    setPasso(novoPasso);
+    setTimeout(() => setTransicionando(false), 300);
+    // Scroll suave ao topo do formulário (evita teclado a tapar campo)
+    setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  }
+
+  function erroAmigavel(msg: string): string {
+    if (!msg) return "Ocorreu um erro. Tenta novamente.";
+    const lower = msg.toLowerCase();
+    if (lower.includes("stock") || lower.includes("esgotado")) return "Um ou mais produtos estão esgotados. Atualiza o carrinho.";
+    if (lower.includes("email")) return "O endereço de email é inválido.";
+    if (lower.includes("loja") && lower.includes("encontr")) return "Loja não encontrada. Verifica o endereço.";
+    if (lower.includes("network") || lower.includes("fetch") || lower.includes("failed")) return "Sem ligação. Verifica a internet e tenta novamente.";
+    if (lower.includes("timeout")) return "A ligação demorou demasiado. Tenta novamente.";
+    if (lower.includes("upload") || lower.includes("comprovativ")) return "Erro ao enviar o comprovativo. Tenta um ficheiro mais pequeno (máx. 5 MB).";
+    if (lower.includes("unexpected") || lower.includes("internal")) return "Erro do servidor. Tenta novamente em alguns segundos.";
+    // Mensagem original se parecer já amigável (curta e sem stack trace)
+    if (msg.length < 120 && !msg.includes("\n") && !msg.includes("Error:")) return msg;
+    return "Ocorreu um erro inesperado. Tenta novamente.";
+  }
+
+  // Restaurar dados do formulário do sessionStorage (evita perda ao navegar)
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem("lc_checkout_form");
+      if (saved) {
+        const d = JSON.parse(saved);
+        if (d.nome) setNome(d.nome);
+        if (d.email) setEmail(d.email);
+        if (d.telefone) setTelefone(d.telefone);
+        if (d.bi) setBi(d.bi);
+        if (d.nifComprador) setNifComprador(d.nifComprador);
+        if (d.morada) setMorada(d.morada);
+      }
+    } catch {}
+  }, []);
+
+  // Guardar dados em sessionStorage sempre que mudam
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("lc_checkout_form", JSON.stringify({ nome, email, telefone, bi, nifComprador, morada }));
+    } catch {}
+  }, [nome, email, telefone, bi, nifComprador, morada]);
 
   useEffect(() => {
     useCartStore.persist.rehydrate();
@@ -257,7 +318,7 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
   if (itens.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-32 text-center px-4">
-        <div className="text-6xl mb-5">🛒</div>
+        <div className="flex justify-center mb-5"><ShoppingCart className="w-16 h-16 text-slate-300" strokeWidth={1.5} /></div>
         <h2 className="text-xl font-bold text-slate-800 mb-2">{tr.empty_title}</h2>
         <p className="text-slate-400 text-sm mb-6">{tr.empty_sub}</p>
         <Link href={`/loja/${params.subdominio}`}
@@ -306,7 +367,7 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
       limpar();
       router.push(data.redirectUrl);
     } catch (err: unknown) {
-      setErro(err instanceof Error ? err.message : "Unexpected error.");
+      setErro(erroAmigavel(err instanceof Error ? err.message : "Unexpected error."));
       setASubmeter(false);
     }
   }
@@ -327,7 +388,7 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
         <div className="grid lg:grid-cols-[1fr_380px] gap-6 items-start">
 
           {/* Formulário */}
-          <div className="space-y-4">
+          <div className="space-y-4" ref={formRef}>
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
               <Stepper atual={passo} steps={steps} />
 
@@ -336,13 +397,13 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
                 <div className="space-y-4">
                   <h2 className="text-base font-bold text-slate-800 mb-4">{tr.contact_title}</h2>
                   <div className="grid grid-cols-2 gap-3">
-                    <Campo label={tr.name} name="nome" placeholder="João Silva" required value={nome} onChange={setNome} />
-                    <Campo label={tr.email} name="email" type="email" placeholder="email@example.com" required value={email} onChange={setEmail} />
-                    <Campo label={tr.phone} name="telefone" type="tel" placeholder="+244 900 000 000" value={telefone} onChange={setTelefone} half />
-                    <Campo label={tr.bi} name="bi" placeholder="000000000LA000" value={bi} onChange={setBi} half />
-                    <Campo label={tr.nif} name="nif" placeholder={tr.nif_ph} value={nifComprador} onChange={setNifComprador} half />
+                    <Campo label={tr.name} name="nome" placeholder="João Silva" required value={nome} onChange={setNome} autoComplete="name" />
+                    <Campo label={tr.email} name="email" type="email" placeholder="email@example.com" required value={email} onChange={setEmail} inputMode="email" autoComplete="email" />
+                    <Campo label={tr.phone} name="telefone" type="tel" placeholder="+244 900 000 000" value={telefone} onChange={setTelefone} half inputMode="tel" autoComplete="tel" />
+                    <Campo label={tr.bi} name="bi" placeholder="000000000LA000" value={bi} onChange={setBi} half autoComplete="off" />
+                    <Campo label={tr.nif} name="nif" placeholder={tr.nif_ph} value={nifComprador} onChange={setNifComprador} half autoComplete="off" />
                   </div>
-                  <button onClick={() => { if (!nome || !email) { setErro(tr.fill_required); return; } setErro(""); setPasso(1); }}
+                  <button onClick={() => { if (!nome || !email) { setErro(tr.fill_required); return; } avancarPasso(1); }} disabled={transicionando}
                     className="mt-4 w-full rounded-xl py-3.5 font-bold text-white text-sm hover:opacity-90 active:scale-95 transition-all"
                     style={{ background: `linear-gradient(135deg,${cor},${cor}bb)` }}>
                     {tr.continue_delivery}
@@ -379,7 +440,7 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
                             style={{ borderColor: zonaId === z.id ? cor : "#e2e8f0", background: zonaId === z.id ? `${cor}08` : "#fff" }}>
                             <div>
                               <p className="text-sm font-semibold text-slate-800">{z.nome}</p>
-                              {z.prazo && <p className="text-xs text-slate-400">🕐 {z.prazo}</p>}
+                              {z.prazo && <p className="text-xs text-slate-400 flex items-center gap-1"><Clock className="w-3 h-3" strokeWidth={2} /> {z.prazo}</p>}
                             </div>
                             <span className="text-sm font-bold" style={{ color: cor }}>
                               {Number(z.preco) === 0
@@ -392,13 +453,16 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
                     </div>
                   )}
 
-                  <div className="rounded-xl border border-amber-100 bg-amber-50 p-3 text-xs text-amber-700">{tr.delivery_note}</div>
+                  <div className="rounded-xl border border-amber-100 bg-amber-50 p-3 text-xs text-amber-700 flex items-start gap-2">
+                    <Truck className="w-4 h-4 flex-shrink-0 mt-0.5" strokeWidth={1.75} />
+                    <span>{tr.delivery_note}</span>
+                  </div>
                   <div className="flex gap-3 mt-4">
-                    <button onClick={() => { setErro(""); setPasso(0); }}
+                    <button onClick={() => { avancarPasso(0); }} disabled={transicionando}
                       className="flex-1 rounded-xl py-3 font-semibold text-slate-600 text-sm border border-slate-200 hover:bg-slate-50 transition-colors">
                       {tr.back}
                     </button>
-                    <button onClick={() => { if (!morada.rua || !morada.cidade) { setErro(tr.fill_address); return; } setErro(""); setPasso(2); }}
+                    <button onClick={() => { if (!morada.rua || !morada.cidade) { setErro(tr.fill_address); return; } avancarPasso(2); }} disabled={transicionando}
                       className="flex-[2] rounded-xl py-3.5 font-bold text-white text-sm hover:opacity-90 active:scale-95 transition-all"
                       style={{ background: `linear-gradient(135deg,${cor},${cor}bb)` }}>
                       {tr.continue_payment}
@@ -434,15 +498,16 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
                     })}
                   </div>
 
-                  {metodoPagamento === "mbway" && <div className="rounded-xl border border-red-100 bg-red-50 p-3 text-xs text-red-700">{tr.mbway_note}</div>}
-                  {metodoPagamento === "multibanco" && <div className="rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs text-blue-700">{tr.multibanco_note}</div>}
-                  {metodoPagamento === "multicaixa" && <div className="rounded-xl border border-yellow-100 bg-yellow-50 p-3 text-xs text-yellow-800">{tr.multicaixa_note}</div>}
+                  {metodoPagamento === "mbway" && <div className="rounded-xl border border-red-100 bg-red-50 p-3 text-xs text-red-700 flex items-start gap-2"><Smartphone className="w-4 h-4 flex-shrink-0 mt-0.5" strokeWidth={1.75} /><span>{tr.mbway_note}</span></div>}
+                  {metodoPagamento === "multibanco" && <div className="rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs text-blue-700 flex items-start gap-2"><Landmark className="w-4 h-4 flex-shrink-0 mt-0.5" strokeWidth={1.75} /><span>{tr.multibanco_note}</span></div>}
+                  {metodoPagamento === "multicaixa" && <div className="rounded-xl border border-yellow-100 bg-yellow-50 p-3 text-xs text-yellow-800 flex items-start gap-2"><Paperclip className="w-4 h-4 flex-shrink-0 mt-0.5" strokeWidth={1.75} /><span>{tr.multicaixa_note}</span></div>}
 
                   {/* Upload comprovativo para Multicaixa e transferência */}
                   {(metodoPagamento === "multicaixa" || metodoPagamento === "multibanco") && (
                     <div className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-4">
-                      <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">
-                        📎 {locale === "en" ? "Attach payment proof (optional)" : "Anexar comprovativo de pagamento (opcional)"}
+                      <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">
+                        <Paperclip className="w-3.5 h-3.5" strokeWidth={2} />
+                        {locale === "en" ? "Attach payment proof (optional)" : "Anexar comprovativo de pagamento (opcional)"}
                       </label>
                       <p className="text-xs text-slate-400 mb-3">
                         {locale === "en"
@@ -453,7 +518,7 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
                         onChange={(e) => setComprovanteFile(e.target.files?.[0] ?? null)}
                         className="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 cursor-pointer" />
                       {comprovanteFile && (
-                        <p className="mt-2 text-xs text-green-600 font-medium">✓ {comprovanteFile.name}</p>
+                        <p className="mt-2 text-xs text-green-600 font-medium flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2.5} /> {comprovanteFile.name}</p>
                       )}
                     </div>
                   )}
@@ -461,7 +526,7 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
                   {erro && <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{erro}</div>}
 
                   <div className="flex gap-3 mt-4">
-                    <button onClick={() => { setErro(""); setPasso(1); }}
+                    <button onClick={() => { avancarPasso(1); }} disabled={transicionando}
                       className="flex-1 rounded-xl py-3 font-semibold text-slate-600 text-sm border border-slate-200 hover:bg-slate-50 transition-colors">
                       {tr.back}
                     </button>
@@ -475,9 +540,13 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
                   </div>
 
                   <div className="flex items-center justify-center gap-4 pt-2">
-                    {[["🔒", tr.ssl], ["✓", tr.protected], ["↩️", tr.returns_14]].map(([icon, label]) => (
+                    {([
+                      [<Lock key="lock" className="w-3 h-3" strokeWidth={2} />, tr.ssl],
+                      [<CheckCircle2 key="check" className="w-3 h-3" strokeWidth={2} />, tr.protected],
+                      [<RotateCcw key="rot" className="w-3 h-3" strokeWidth={2} />, tr.returns_14],
+                    ] as [React.ReactNode, string][]).map(([icon, label]) => (
                       <div key={label} className="flex items-center gap-1 text-[10px] text-slate-400">
-                        <span>{icon}</span> {label}
+                        {icon} {label}
                       </div>
                     ))}
                   </div>
@@ -527,8 +596,8 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
                 </div>
                 {zonaSeleccionada && (
                   <div className="flex justify-between text-xs text-slate-400">
-                    <span>📍 {zonaSeleccionada.nome}</span>
-                    {zonaSeleccionada.prazo && <span>🕐 {zonaSeleccionada.prazo}</span>}
+                    <span className="flex items-center gap-1"><MapPin className="w-3 h-3" strokeWidth={2} /> {zonaSeleccionada.nome}</span>
+                    {zonaSeleccionada.prazo && <span className="flex items-center gap-1"><Clock className="w-3 h-3" strokeWidth={2} /> {zonaSeleccionada.prazo}</span>}
                   </div>
                 )}
               </div>
@@ -539,13 +608,15 @@ export default function CheckoutPage({ params }: { params: { subdominio: string 
             </div>
 
             <div className="bg-white rounded-2xl border border-slate-100 p-4 space-y-3">
-              {[
-                { icon: "🔒", t: tr.guarantee_payment, s: tr.guarantee_payment_sub },
-                { icon: "↩️", t: tr.guarantee_returns, s: tr.guarantee_returns_sub },
-                { icon: "📦", t: tr.guarantee_shipping, s: tr.guarantee_shipping_sub },
-              ].map((g) => (
+              {([
+                { Icon: Lock, t: tr.guarantee_payment, s: tr.guarantee_payment_sub },
+                { Icon: RotateCcw, t: tr.guarantee_returns, s: tr.guarantee_returns_sub },
+                { Icon: Package, t: tr.guarantee_shipping, s: tr.guarantee_shipping_sub },
+              ] as { Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>; t: string; s: string }[]).map((g) => (
                 <div key={g.t} className="flex items-center gap-3">
-                  <span className="text-xl">{g.icon}</span>
+                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center flex-shrink-0">
+                    <g.Icon className="w-4 h-4 text-slate-500" strokeWidth={1.75} />
+                  </div>
                   <div>
                     <p className="text-xs font-semibold text-slate-700">{g.t}</p>
                     <p className="text-[10px] text-slate-400">{g.s}</p>
