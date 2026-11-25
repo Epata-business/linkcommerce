@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { AlertTriangle, Package, Clock, CreditCard, Truck, TrendingDown, Star, Target } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatarVariacao } from "@/lib/periodo";
 
 interface Alerta {
   prioridade: "critico" | "atencao" | "info";
-  icone: string;
+  icone: React.ReactNode;
   titulo: string;
   descricao: string;
   href: string;
@@ -12,9 +13,9 @@ interface Alerta {
 }
 
 const PRIORIDADE_CONFIG = {
-  critico: { dot: "bg-red-500",    bg: "bg-red-50",    border: "border-red-100",   text: "text-red-700",   badge: "🔴" },
-  atencao: { dot: "bg-amber-400",  bg: "bg-amber-50",  border: "border-amber-100", text: "text-amber-700", badge: "🟠" },
-  info:    { dot: "bg-blue-400",   bg: "bg-blue-50",   border: "border-blue-100",  text: "text-blue-700",  badge: "🔵" },
+  critico: { dot: "bg-red-500",    bg: "bg-red-50",    border: "border-red-100",   text: "text-red-700"   },
+  atencao: { dot: "bg-amber-400",  bg: "bg-amber-50",  border: "border-amber-100", text: "text-amber-700" },
+  info:    { dot: "bg-blue-400",   bg: "bg-blue-50",   border: "border-blue-100",  text: "text-blue-700"  },
 };
 
 interface Props {
@@ -108,7 +109,7 @@ export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAn
   if (produtosEsgotados > 0) {
     alertas.push({
       prioridade: "critico",
-      icone: "📦",
+      icone: <Package className="w-3.5 h-3.5" />,
       titulo: `${produtosEsgotados} produto${produtosEsgotados > 1 ? "s" : ""} sem stock`,
       descricao: `${produtosEsgotados > 1 ? "Estão" : "Está"} esgotado${produtosEsgotados > 1 ? "s" : ""} e não ${produtosEsgotados > 1 ? "podem" : "pode"} ser comprado${produtosEsgotados > 1 ? "s" : ""}.`,
       href: "/dashboard/produtos",
@@ -119,7 +120,7 @@ export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAn
   if (pedidosPendentesAntigos > 0) {
     alertas.push({
       prioridade: "critico",
-      icone: "⏰",
+      icone: <Clock className="w-3.5 h-3.5" />,
       titulo: `${pedidosPendentesAntigos} pedido${pedidosPendentesAntigos > 1 ? "s" : ""} pendente${pedidosPendentesAntigos > 1 ? "s" : ""} há mais de 24h`,
       descricao: "Pedidos sem processamento podem indicar problemas de pagamento.",
       href: "/dashboard/pedidos?status=pending",
@@ -130,7 +131,7 @@ export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAn
   if (multicaixaPendente24h > 0) {
     alertas.push({
       prioridade: "critico",
-      icone: "💳",
+      icone: <CreditCard className="w-3.5 h-3.5" />,
       titulo: `${multicaixaPendente24h} pagamento${multicaixaPendente24h > 1 ? "s" : ""} Multicaixa sem confirmação há mais de 24h`,
       descricao: "O stock está reservado. Confirme o comprovativo ou cancele o pedido.",
       href: "/dashboard/pedidos?status=pending",
@@ -143,7 +144,7 @@ export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAn
   if (produtosStockBaixo > 0) {
     alertas.push({
       prioridade: "atencao",
-      icone: "⚠️",
+      icone: <AlertTriangle className="w-3.5 h-3.5" />,
       titulo: `${produtosStockBaixo} produto${produtosStockBaixo > 1 ? "s" : ""} com stock baixo`,
       descricao: "Stock disponível abaixo do mínimo definido.",
       href: "/dashboard/produtos",
@@ -154,7 +155,7 @@ export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAn
   if (pedidosProcessingSemEnvio > 0) {
     alertas.push({
       prioridade: "atencao",
-      icone: "🚚",
+      icone: <Truck className="w-3.5 h-3.5" />,
       titulo: `${pedidosProcessingSemEnvio} pedido${pedidosProcessingSemEnvio > 1 ? "s" : ""} em processamento sem código de rastreio`,
       descricao: "Em processamento há mais de 3 dias sem expedição registada.",
       href: "/dashboard/envios",
@@ -172,7 +173,7 @@ export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAn
     if (queda >= 20) {
       alertas.push({
         prioridade: queda >= 40 ? "critico" : "atencao",
-        icone: "📉",
+        icone: <TrendingDown className="w-3.5 h-3.5" />,
         titulo: `Receita caiu ${queda.toFixed(0)}% vs período anterior`,
         descricao: textoVariacao,
         href: "/dashboard/relatorios",
@@ -186,7 +187,7 @@ export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAn
   if (avaliacoesPendentes > 0) {
     alertas.push({
       prioridade: "info",
-      icone: "⭐",
+      icone: <Star className="w-3.5 h-3.5" />,
       titulo: `${avaliacoesPendentes} avaliação${avaliacoesPendentes > 1 ? "ões" : ""} à espera de moderação`,
       descricao: "Reveja e publique as avaliações dos seus clientes.",
       href: "/dashboard/avaliacoes?filtro=pendentes",
@@ -203,7 +204,7 @@ export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAn
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
       <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
-        <span className="text-base">🎯</span>
+        <Target className="w-4 h-4 text-slate-500" strokeWidth={2} />
         <h2 className="font-bold text-slate-800">Centro de Atenção</h2>
         <span className="ml-auto text-xs font-bold bg-slate-100 text-slate-500 rounded-full px-2 py-0.5">
           {alertas.length}
@@ -216,7 +217,7 @@ export async function CentroAtencao({ lojaId, inicio, fim, inicioAnterior, fimAn
             <div key={i} className={`flex items-start gap-3 px-5 py-3.5 ${cfg.bg}`}>
               <span className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${cfg.dot}`} />
               <div className="flex-1 min-w-0">
-                <p className={`text-sm font-semibold ${cfg.text}`}>{a.icone} {a.titulo}</p>
+                <p className={`text-sm font-semibold ${cfg.text} flex items-center gap-1.5`}>{a.icone}{a.titulo}</p>
                 <p className="text-xs text-slate-500 mt-0.5">{a.descricao}</p>
               </div>
               <Link

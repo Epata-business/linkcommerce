@@ -12,7 +12,7 @@ const TEMPLATES = [
   { id: "fitness", label: "Suplementos & Fitness", emoji: "💪", desc: "Energético, bold",      cor: "#f97316", bg: "#0a0a0a" },
   { id: "eco",     label: "Ecológico & Natural",   emoji: "🌿", desc: "Tons terra, calmo",     cor: "#a8c5a0", bg: "#2d4a3e" },
   { id: "tech",    label: "Tecnologia",            emoji: "💻", desc: "Moderno, técnico",      cor: "#3b82f6", bg: "#0f172a" },
-  { id: "geral",   label: "Geral",                 emoji: "🛍️", desc: "Versátil, neutro",      cor: "#6366f1", bg: "#1e293b" },
+  { id: "geral",   label: "Geral",                 emoji: "🏪", desc: "Versátil, neutro",      cor: "#6366f1", bg: "#1e293b" },
 ];
 
 const CORES: Record<string, { corPrimaria: string; corSecundaria: string }> = {
@@ -241,7 +241,7 @@ export default function ComecarPage() {
                   <div className="flex gap-3 pt-1">
                     <button type="button" onClick={() => { setStep("template"); setErro(""); }} className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">← Voltar</button>
                     <button type="submit" disabled={loading} className="flex-1 rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60 transition-colors">
-                      {loading ? "A criar..." : "Lançar a minha loja 🚀"}
+                      {loading ? "A criar..." : "Lançar a minha loja"}
                     </button>
                   </div>
                 </form>

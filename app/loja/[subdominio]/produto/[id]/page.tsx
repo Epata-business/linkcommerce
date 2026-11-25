@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { Lock, MessageCircle, Package } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatarPreco } from "@/lib/moeda";
 import { getLocale, t } from "@/lib/i18n";
@@ -284,12 +285,12 @@ export default async function ProdutoPage({ params }: Props) {
           {/* Garantias */}
           <div className="grid grid-cols-3 gap-3 pt-2">
             {[
-              { icon: "🔒", label: t("checkout_guarantee_payment", locale) },
-              { icon: "💬", label: t("store_trust_support_title", locale) },
-              { icon: "📦", label: t("checkout_guarantee_shipping", locale) },
+              { icon: <Lock className="w-5 h-5" strokeWidth={1.75} />, label: t("checkout_guarantee_payment", locale) },
+              { icon: <MessageCircle className="w-5 h-5" strokeWidth={1.75} />, label: t("store_trust_support_title", locale) },
+              { icon: <Package className="w-5 h-5" strokeWidth={1.75} />, label: t("checkout_guarantee_shipping", locale) },
             ].map((g) => (
               <div key={g.label} className="flex flex-col items-center gap-1.5 rounded-2xl border border-slate-100 p-3 text-center">
-                <span className="text-xl">{g.icon}</span>
+                <span className="text-slate-500">{g.icon}</span>
                 <span className="text-[10px] font-semibold text-slate-500">{g.label}</span>
               </div>
             ))}

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { temPermissao } from "@/lib/rbac";
 import { formatarPreco } from "@/lib/moeda";
+import { Medal } from "lucide-react";
 
 export default async function FidelidadePage() {
   const session = await auth();
@@ -189,7 +190,7 @@ export default async function FidelidadePage() {
                   <tr key={c.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        {i < 3 && <span className="text-base">{["🥇","🥈","🥉"][i]}</span>}
+                        {i < 3 && <Medal className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} style={{ color: ["#F59E0B","#94A3B8","#D97706"][i] }} />}
                         <div>
                           <p className="font-semibold text-slate-800">{c.clienteNome ?? "—"}</p>
                           <p className="text-xs text-slate-400">{c.clienteEmail}</p>

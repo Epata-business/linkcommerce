@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { ShoppingBag, Truck, Lock, MessageCircle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { StoreTracker } from "@/components/storefront/store-tracker";
 import { StorefrontGrid } from "@/components/storefront/storefront-grid";
@@ -150,7 +151,7 @@ export default async function StorefrontPage({ params, searchParams }: PageProps
       <section className="max-w-6xl mx-auto px-4 py-12">
         {loja.produtos.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-28 text-center">
-            <div className="text-6xl mb-6">🛍️</div>
+            <div className="mb-6"><ShoppingBag className="w-16 h-16 text-slate-300" strokeWidth={1.25} /></div>
             <h2 className="text-2xl font-bold text-slate-800">{t("store_coming_soon", locale)}</h2>
             <p className="mt-2 text-slate-400">{t("store_coming_soon_sub", locale)}</p>
           </div>
@@ -190,13 +191,13 @@ export default async function StorefrontPage({ params, searchParams }: PageProps
         style={{ background: `${cor}08`, borderColor: `${cor}15` }}>
         <div className="max-w-4xl mx-auto grid sm:grid-cols-3 gap-6 text-center">
           {[
-            { icon: "🚚", title: t("store_trust_1_title", locale), sub: t("store_trust_1_sub", locale) },
-            { icon: "🔒", title: t("store_trust_2_title", locale), sub: t("store_trust_2_sub", locale) },
-            { icon: "💬", title: t("store_trust_support_title", locale), sub: t("store_trust_support_sub", locale) },
+            { icon: <Truck className="w-6 h-6" strokeWidth={1.75} />, title: t("store_trust_1_title", locale), sub: t("store_trust_1_sub", locale) },
+            { icon: <Lock className="w-6 h-6" strokeWidth={1.75} />, title: t("store_trust_2_title", locale), sub: t("store_trust_2_sub", locale) },
+            { icon: <MessageCircle className="w-6 h-6" strokeWidth={1.75} />, title: t("store_trust_support_title", locale), sub: t("store_trust_support_sub", locale) },
           ].map(item => (
             <div key={item.title} className={`flex flex-col items-center gap-2 ${ts.cardText}`}>
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
-                style={{ background: `${cor}20` }}>
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                style={{ background: `${cor}20`, color: cor }}>
                 {item.icon}
               </div>
               <p className="font-semibold">{item.title}</p>

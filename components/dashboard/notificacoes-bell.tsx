@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Bell, Package, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 
 type Notificacao = {
   id: string;
@@ -14,13 +15,15 @@ type Notificacao = {
   criadaEm: Date;
 };
 
-const TIPO_ICON: Record<string, string> = {
-  novo_pedido:          "📦",
-  pagamento_confirmado: "✅",
-  pagamento_falhado:    "❌",
-  stock_baixo:          "⚠️",
-  stock_esgotado:       "🔴",
-};
+function TipoIcon({ tipo }: { tipo: string }) {
+  const cls = "w-5 h-5 flex-shrink-0 mt-0.5";
+  if (tipo === "novo_pedido")          return <Package className={cls} strokeWidth={1.75} />;
+  if (tipo === "pagamento_confirmado") return <CheckCircle2 className={`${cls} text-green-500`} strokeWidth={1.75} />;
+  if (tipo === "pagamento_falhado")    return <XCircle className={`${cls} text-red-500`} strokeWidth={1.75} />;
+  if (tipo === "stock_baixo")          return <AlertTriangle className={`${cls} text-amber-500`} strokeWidth={1.75} />;
+  if (tipo === "stock_esgotado")       return <AlertTriangle className={`${cls} text-red-500`} strokeWidth={1.75} />;
+  return <Bell className={cls} strokeWidth={1.75} />;
+}
 
 export function NotificacoesBell({
   naoLidas,
@@ -48,7 +51,7 @@ export function NotificacoesBell({
         className="relative flex items-center justify-center w-9 h-9 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
         aria-label="Notificações"
       >
-        🔔
+        <Bell className="w-5 h-5" strokeWidth={1.75} />
         {naoLidas > 0 && (
           <span className="absolute -top-1 -right-1 min-w-[16px] h-4 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1">
             {naoLidas > 9 ? "9+" : naoLidas}
@@ -92,7 +95,7 @@ export function NotificacoesBell({
             <div className="max-h-80 overflow-y-auto">
               {recentes.length === 0 ? (
                 <div className="py-10 text-center">
-                  <p className="text-2xl mb-2">🔔</p>
+                  <Bell className="w-8 h-8 text-slate-300 mb-2" strokeWidth={1.5} />
                   <p className="text-sm text-slate-400">Sem notificações</p>
                 </div>
               ) : (
@@ -103,9 +106,7 @@ export function NotificacoesBell({
                     onClick={() => setAberto(false)}
                     className={`flex gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 ${!n.lida ? "bg-blue-50/50" : ""}`}
                   >
-                    <span className="text-lg flex-shrink-0 mt-0.5">
-                      {TIPO_ICON[n.tipo] ?? "🔔"}
-                    </span>
+                    <TipoIcon tipo={n.tipo} />
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm font-semibold text-slate-800 ${!n.lida ? "font-bold" : ""}`}>
                         {n.titulo}

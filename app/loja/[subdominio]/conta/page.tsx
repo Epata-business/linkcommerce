@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { Star, ShoppingBag } from "lucide-react";
 import { getClienteSession } from "@/lib/cliente-session";
 import { prisma } from "@/lib/prisma";
 import { formatarPreco } from "@/lib/moeda";
@@ -68,7 +69,7 @@ export default async function ContaPage({ params }: Props) {
               Vale {formatarPreco(saldo.pontos * saldo.valorPorPonto, moeda)} · Mínimo para resgatar: {saldo.pontosMinResgatar} pts
             </p>
           </div>
-          <div className="text-4xl">⭐</div>
+          <Star className="w-10 h-10 text-amber-400 fill-amber-400" strokeWidth={1.5} />
         </div>
       )}
 
@@ -80,7 +81,7 @@ export default async function ContaPage({ params }: Props) {
 
         {pedidos.length === 0 ? (
           <div className="py-14 text-center text-slate-400 text-sm">
-            <p className="text-3xl mb-3">🛍️</p>
+            <div className="flex justify-center mb-3"><ShoppingBag className="w-8 h-8 text-slate-300" strokeWidth={1.5} /></div>
             <p>Ainda não fizeste nenhum pedido nesta loja.</p>
             <Link
               href={`/loja/${params.subdominio}`}

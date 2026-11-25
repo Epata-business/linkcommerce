@@ -69,7 +69,7 @@ const PERGUNTAS: Pergunta[] = [
   {
     tipo: "escolha_unica", id: "testarGratis", pergunta: "Gostaria de testar o LinkCommerce gratuitamente?",
     sub: "Sem cartão de crédito. Cancela quando quiser.",
-    opcoes: ["Sim, quero testar! 🚀", "Talvez mais tarde", "Não tenho interesse"],
+    opcoes: ["Sim, quero testar!", "Talvez mais tarde", "Não tenho interesse"],
   },
   {
     tipo: "contacto", id: "contacto", pergunta: "Ótimo! Como podemos contactá-lo?",
@@ -89,7 +89,7 @@ export function QuestionarioForm() {
   const [erro, setErro] = useState("");
 
   const perguntasVisiveis = PERGUNTAS.filter(p => {
-    if (p.id === "contacto") return respostas["testarGratis"] === "Sim, quero testar! 🚀";
+    if (p.id === "contacto") return respostas["testarGratis"] === "Sim, quero testar!";
     return true;
   });
   const total = perguntasVisiveis.length;

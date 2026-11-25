@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { Package } from "lucide-react";
 import { usePosStore } from "@/store/pos-store";
 import { formatarPreco } from "@/lib/moeda";
 
@@ -168,8 +169,8 @@ export function PosClient({ lojaId, moeda, nomeLoja, cor }: Props) {
                       <img src={produto.imagemUrl} alt={produto.titulo}
                         className="w-10 h-10 object-cover rounded-lg mb-2" />
                     ) : (
-                      <div className="w-10 h-10 rounded-lg bg-slate-100 mb-2 flex items-center justify-center text-xl">
-                        📦
+                      <div className="w-10 h-10 rounded-lg bg-slate-100 mb-2 flex items-center justify-center">
+                        <Package className="w-5 h-5 text-slate-400" strokeWidth={1.75} />
                       </div>
                     )}
                     <span className="text-xs font-semibold text-slate-800 line-clamp-2 leading-tight">

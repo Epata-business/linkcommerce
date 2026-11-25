@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import Link from "next/link";
+import { ShoppingBag, BarChart3 } from "lucide-react";
 import { getLocale, getLocaleCurrency, localeCurrencySymbol, t } from "@/lib/i18n";
 import { TODOS_OS_TEMAS } from "@/lib/temas";
 import { serializeJsonLd } from "@/lib/json-ld";
@@ -305,7 +306,7 @@ export default async function HomePage() {
               <div className="p-7 pb-0 relative z-10">
                 <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold mb-4"
                   style={{ background:"rgba(21,61,236,0.2)", border:"1px solid rgba(21,61,236,0.3)", color:"#a5b4fc" }}>
-                  🛍 {locale==="en"?"Online Store":locale==="fr"?"Boutique":"Loja Online"}
+                  <ShoppingBag className="w-3 h-3" /> {locale==="en"?"Online Store":locale==="fr"?"Boutique":"Loja Online"}
                 </span>
                 <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
                   {locale==="en"?"Your store online":locale==="fr"?"Votre boutique en ligne":"A sua loja na internet"}
@@ -366,7 +367,7 @@ export default async function HomePage() {
               <div className="p-6 pb-0">
                 <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold mb-4"
                   style={{ background:"rgba(21,61,236,0.15)", border:"1px solid rgba(21,61,236,0.25)", color:"#a5b4fc" }}>
-                  📊 Analytics
+                  <BarChart3 className="w-3 h-3" /> Analytics
                 </span>
                 <h3 className="text-lg font-bold text-white mb-2">
                   {locale==="en"?"Real-time management":locale==="fr"?"Gestion en temps réel":"Gestão completa"}

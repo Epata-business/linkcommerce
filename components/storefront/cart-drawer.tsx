@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useRouter, usePathname } from "next/navigation";
+import { ShoppingBag } from "lucide-react";
 import { useCartStore } from "@/store/cart-store";
 import { formatarPreco } from "@/lib/moeda";
 import type { Locale } from "@/lib/i18n";
@@ -68,7 +69,7 @@ export function CartDrawer({ corPrimaria, locale = "pt", subdominio, moeda = "EU
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-3 text-center py-16">
-              <div className="text-5xl">🛍️</div>
+              <ShoppingBag className="w-12 h-12 text-slate-300" strokeWidth={1.5} />
               <p className="font-semibold text-slate-700">{L.empty_title}</p>
               <p className="text-sm text-slate-400">{L.empty_sub}</p>
             </div>

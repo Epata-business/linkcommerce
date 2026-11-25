@@ -26,7 +26,7 @@ const NICHOS = [
   { id: "fitness",     label: "Fitness & Suplementos",   emoji: "💪", desc: "Treino, nutrição, saúde" },
   { id: "eco",         label: "Ecológico & Natural",     emoji: "🌿", desc: "Produtos orgânicos, artesanato" },
   { id: "tech",        label: "Tecnologia",              emoji: "💻", desc: "Gadgets, serviços digitais" },
-  { id: "geral",       label: "Geral / Outro",           emoji: "🛍️", desc: "Versátil para qualquer produto" },
+  { id: "geral",       label: "Geral / Outro",           emoji: "🏪", desc: "Versátil para qualquer produto" },
 ];
 
 // ── Paletas por nicho (4 por nicho) ─────────────────────────────────────────

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { AlertTriangle } from "lucide-react";
 
 export default function Error({
   error,
@@ -16,7 +17,7 @@ export default function Error({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
-      <div className="text-5xl mb-4">⚠️</div>
+      <div className="mb-4"><AlertTriangle className="w-12 h-12 text-amber-500" strokeWidth={1.75} /></div>
       <h2 className="text-2xl font-bold text-slate-900 mb-2">Algo correu mal</h2>
       <p className="text-slate-500 mb-6 max-w-sm">
         Ocorreu um erro inesperado. Pode tentar novamente ou voltar à página inicial.

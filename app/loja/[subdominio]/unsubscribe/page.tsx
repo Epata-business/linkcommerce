@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { CheckCircle2 } from "lucide-react";
 
 function UnsubscribeForm({ subdominio }: { subdominio: string }) {
   const searchParams = useSearchParams();
@@ -37,7 +38,7 @@ function UnsubscribeForm({ subdominio }: { subdominio: string }) {
   if (estado === "ok") {
     return (
       <div className="text-center space-y-3">
-        <div className="text-5xl">✅</div>
+        <div className="flex justify-center"><CheckCircle2 className="w-12 h-12 text-green-500" strokeWidth={1.75} /></div>
         <h2 className="text-xl font-bold text-slate-800">Cancelado com sucesso</h2>
         <p className="text-slate-500 text-sm">
           O endereço <strong>{email}</strong> foi removido da lista de marketing desta loja.
